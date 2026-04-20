@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
 import com.example.dpadplayer.playback.PlaybackService
 import com.example.dpadplayer.playback.Track
 
@@ -57,6 +58,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Apply saved theme before inflating
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        SettingsFragment.applyTheme(prefs.getString("theme", "system") ?: "system")
+
         setContentView(R.layout.activity_main)
 
         // Show LibraryFragment as the root screen
@@ -89,6 +95,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ── Fragment navigation ────────────────────────────────────────────────────
+
+    fun openSettings() {
+        if (supportFragmentManager.findFragmentByTag(TAG_SETTINGS) != null) return
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, SettingsFragment(), TAG_SETTINGS)
+            .addToBackStack(null)
+            .commit()
+    }
 
     fun openPlayer() {
         if (supportFragmentManager.findFragmentByTag(TAG_PLAYER) != null) return
@@ -255,7 +271,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onPermissionGranted() {
-        viewModel.loadTracks()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val sortOrder = prefs.getString("sort_order", "title") ?: "title"
+        viewModel.loadTracks(sortOrder)
         // After tracks load, push them into the service
         viewModel.tracks.observeForever { tracks ->
             service?.let { svc ->
@@ -280,7 +298,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val TAG_LIBRARY = "library"
-        const val TAG_PLAYER  = "player"
+        const val TAG_LIBRARY  = "library"
+        const val TAG_PLAYER   = "player"
+        const val TAG_SETTINGS = "settings"
     }
 }

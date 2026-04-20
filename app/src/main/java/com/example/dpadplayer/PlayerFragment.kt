@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.preference.PreferenceManager
 import com.google.android.material.button.MaterialButton
 
 /**
@@ -103,20 +104,21 @@ class PlayerFragment : Fragment() {
             }
         })
 
-        // D-pad LEFT/RIGHT on the seekbar scrubs ±5 seconds
+        // D-pad LEFT/RIGHT on the seekbar scrubs by the user's configured step
         seekBar.setOnKeyListener { _, keyCode, event ->
             if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
-            val step = 5_000
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val step = prefs.getString("seek_step", "5000")?.toLongOrNull() ?: 5_000L
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_LEFT -> {
-                    val newPos = (seekBar.progress - step).coerceAtLeast(0).toLong()
+                    val newPos = (seekBar.progress.toLong() - step).coerceAtLeast(0L)
                     seekBar.progress = newPos.toInt()
                     tvPosition.text = formatMs(newPos)
                     (activity as? MainActivity)?.seekTo(newPos)
                     true
                 }
                 KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                    val newPos = (seekBar.progress + step).coerceAtMost(seekBar.max).toLong()
+                    val newPos = (seekBar.progress.toLong() + step).coerceAtMost(seekBar.max.toLong())
                     seekBar.progress = newPos.toInt()
                     tvPosition.text = formatMs(newPos)
                     (activity as? MainActivity)?.seekTo(newPos)

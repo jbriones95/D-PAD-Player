@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="pref_seek_labels">
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+    </string-array>
+    <string-array name="pref_seek_values">
+        <item>5000</item>
+        <item>10000</item>
+        <item>15000</item>
+        <item>30000</item>
+    </string-array>
+    <string-array name="pref_sort_labels">
+        <item>Title</item>
+        <item>Artist</item>
+        <item>Album</item>
+        <item>Date added</item>
+    </string-array>
+    <string-array name="pref_sort_values">
+        <item>title</item>
+        <item>artist</item>
+        <item>album</item>
+        <item>date_added</item>
+    </string-array>
+    <string-array name="pref_theme_labels">
+        <item>Follow system</item>
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+    <string-array name="pref_theme_values">
+        <item>system</item>
+        <item>dark</item>
+        <item>light</item>
+    </string-array>
     <dimen name="item_track_art_size">40dp</dimen>
     <dimen name="item_track_height">52dp</dimen>
     <dimen name="item_track_padding_h">10dp</dimen>

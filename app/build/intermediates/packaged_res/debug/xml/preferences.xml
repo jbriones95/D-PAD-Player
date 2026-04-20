@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Theme -->
+    <ListPreference
+        app:key="theme"
+        app:title="Theme"
+        app:summary="%s"
+        app:entries="@array/pref_theme_labels"
+        app:entryValues="@array/pref_theme_values"
+        app:defaultValue="system"
+        app:useSimpleSummaryProvider="true"
+        app:icon="@drawable/ic_settings_theme" />
+
+    <!-- Seek step size -->
+    <ListPreference
+        app:key="seek_step"
+        app:title="Seek step"
+        app:summary="%s"
+        app:entries="@array/pref_seek_labels"
+        app:entryValues="@array/pref_seek_values"
+        app:defaultValue="5000"
+        app:useSimpleSummaryProvider="true"
+        app:icon="@drawable/ic_settings_seek" />
+
+    <!-- Sort order -->
+    <ListPreference
+        app:key="sort_order"
+        app:title="Sort tracks by"
+        app:summary="%s"
+        app:entries="@array/pref_sort_labels"
+        app:entryValues="@array/pref_sort_values"
+        app:defaultValue="title"
+        app:useSimpleSummaryProvider="true"
+        app:icon="@drawable/ic_settings_sort" />
+
+</PreferenceScreen>

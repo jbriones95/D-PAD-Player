@@ -1,5 +1,11 @@
 R_DEF: Internal format may change without notice
 local
+array pref_seek_labels
+array pref_seek_values
+array pref_sort_labels
+array pref_sort_values
+array pref_theme_labels
+array pref_theme_values
 dimen item_track_art_size
 dimen item_track_height
 dimen item_track_padding_h
@@ -16,12 +22,16 @@ dimen playing_indicator_width
 drawable ic_arrow_back
 drawable ic_fast_forward
 drawable ic_fast_rewind
+drawable ic_more_vert
 drawable ic_music_note
 drawable ic_pause
 drawable ic_play
 drawable ic_repeat_all
 drawable ic_repeat_off
 drawable ic_repeat_one
+drawable ic_settings_seek
+drawable ic_settings_sort
+drawable ic_settings_theme
 drawable ic_shuffle_off
 drawable ic_shuffle_on
 drawable ic_skip_next
@@ -32,6 +42,8 @@ id btn_next
 id btn_play
 id btn_prev
 id btn_repeat
+id btn_settings
+id btn_settings_back
 id btn_shuffle
 id fragment_container
 id mini_art
@@ -43,8 +55,10 @@ id mini_progress
 id mini_title
 id playing_indicator
 id seek_bar
+id settings_prefs_container
 id track_list
 id tv_album
+id tv_app_title
 id tv_artist
 id tv_duration
 id tv_item_art
@@ -57,6 +71,8 @@ id tv_track_counter
 layout activity_main
 layout fragment_library
 layout fragment_player
+layout fragment_settings
 layout item_track
 string app_name
 style Theme.DPadPlayer
+xml preferences

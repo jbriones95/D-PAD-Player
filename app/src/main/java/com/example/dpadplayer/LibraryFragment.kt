@@ -23,6 +23,7 @@ class LibraryFragment : Fragment() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: TrackAdapter
+    private lateinit var btnSettings: MaterialButton
     private lateinit var miniPlayer: View
     private lateinit var miniArt: ImageView
     private lateinit var miniTitle: TextView
@@ -39,6 +40,7 @@ class LibraryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         recycler     = view.findViewById(R.id.track_list)
+        btnSettings  = view.findViewById(R.id.btn_settings)
         miniPlayer   = view.findViewById(R.id.mini_player)
         miniArt      = view.findViewById(R.id.mini_art)
         miniTitle    = view.findViewById(R.id.mini_title)
@@ -56,6 +58,11 @@ class LibraryFragment : Fragment() {
         }
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
+
+        // Three-dot settings button
+        btnSettings.setOnClickListener {
+            (activity as? MainActivity)?.openSettings()
+        }
 
         // Tapping the bar body opens full player
         val openPlayer = View.OnClickListener {

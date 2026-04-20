@@ -50,4 +50,7 @@ dependencies {
     // media and notification
     implementation 'androidx.media:media:1.6.0'
 
+    // settings / preferences
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+
 }

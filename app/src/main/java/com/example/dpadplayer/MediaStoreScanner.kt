@@ -8,7 +8,7 @@ import com.example.dpadplayer.playback.Track
 
 object MediaStoreScanner {
 
-    fun loadTracks(context: Context): List<Track> {
+    fun loadTracks(context: Context, sortOrder: String = "title"): List<Track> {
         val tracks = mutableListOf<Track>()
 
         val projection = arrayOf(
@@ -23,12 +23,19 @@ object MediaStoreScanner {
         val selection = "${MediaStore.Audio.AudioColumns.IS_MUSIC} = 1 " +
                 "AND ${MediaStore.Audio.AudioColumns.TITLE} != ''"
 
+        val orderClause = when (sortOrder) {
+            "artist"     -> "${MediaStore.Audio.AudioColumns.ARTIST} ASC, ${MediaStore.Audio.AudioColumns.TITLE} ASC"
+            "album"      -> "${MediaStore.Audio.AudioColumns.ALBUM} ASC, ${MediaStore.Audio.AudioColumns.TITLE} ASC"
+            "date_added" -> "${MediaStore.Audio.AudioColumns.DATE_ADDED} DESC"
+            else         -> "${MediaStore.Audio.AudioColumns.TITLE} ASC"
+        }
+
         context.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             projection,
             selection,
             null,
-            "${MediaStore.Audio.AudioColumns.TITLE} ASC"
+            orderClause
         )?.use { cursor ->
             val idCol      = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns._ID)
             val titleCol   = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)

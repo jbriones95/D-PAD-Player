@@ -36,9 +36,9 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
         const val REPEAT_ONE = 2
     }
 
-    fun loadTracks() {
+    fun loadTracks(sortOrder: String = "title") {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = MediaStoreScanner.loadTracks(getApplication())
+            val result = MediaStoreScanner.loadTracks(getApplication(), sortOrder)
             _tracks.postValue(result)
         }
     }
