@@ -4,7 +4,7 @@
             "outputFile": "com.example.dpadplayer.app-mergeDebugResources-35:/values-v25/values-v25.xml",
             "map": [
                 {
-                    "source": "/Users/jbriones/.gradle/caches/transforms-3/c344dbede0bcd1e7b2098f29fc0c491d/transformed/appcompat-1.6.1/res/values-v25/values-v25.xml",
+                    "source": "/Users/jbriones/.gradle/caches/transforms-3/76c7b6a88cd84ad11842e52c8db297bc/transformed/appcompat-1.6.1/res/values-v25/values-v25.xml",
                     "from": {
                         "startLines": "2,3,4,6",
                         "startColumns": "4,4,4,4",
