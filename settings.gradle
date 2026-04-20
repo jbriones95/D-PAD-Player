@@ -1,0 +1,2 @@
+rootProject.name = 'dpadplayer'
+include ':app'
