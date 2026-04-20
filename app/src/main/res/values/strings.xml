@@ -14,6 +14,30 @@
         <item>light</item>
     </string-array>
 
+    <!-- Accent color preference -->
+    <string-array name="pref_accent_labels">
+        <item>Deep Purple</item>
+        <item>Purple</item>
+        <item>Blue</item>
+        <item>Teal</item>
+        <item>Green</item>
+        <item>Red</item>
+        <item>Orange</item>
+        <item>Yellow</item>
+        <item>Grey</item>
+    </string-array>
+    <string-array name="pref_accent_values">
+        <item>deep_purple</item>
+        <item>purple</item>
+        <item>blue</item>
+        <item>teal</item>
+        <item>green</item>
+        <item>red</item>
+        <item>orange</item>
+        <item>yellow</item>
+        <item>grey</item>
+    </string-array>
+
     <!-- Seek step preference -->
     <string-array name="pref_seek_labels">
         <item>5 seconds</item>

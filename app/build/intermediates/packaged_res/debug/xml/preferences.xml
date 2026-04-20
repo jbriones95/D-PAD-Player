@@ -13,6 +13,17 @@
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_theme" />
 
+    <!-- Accent color -->
+    <ListPreference
+        app:key="accent"
+        app:title="Accent color"
+        app:summary="%s"
+        app:entries="@array/pref_accent_labels"
+        app:entryValues="@array/pref_accent_values"
+        app:defaultValue="deep_purple"
+        app:useSimpleSummaryProvider="true"
+        app:icon="@drawable/ic_settings_theme" />
+
     <!-- Seek step size -->
     <ListPreference
         app:key="seek_step"

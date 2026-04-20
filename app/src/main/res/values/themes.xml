@@ -1,29 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      Deep purple accent, dark-night Material2 theme.
-      Manually provides all colorSurface* tokens that Material2 lacks.
+      Base DPadPlayer theme — shared window/error settings.
+      Each accent variant overrides primary/secondary/surface tokens.
     -->
-    <style name="Theme.DPadPlayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary -->
-        <item name="colorPrimary">#BB86FC</item>
-        <item name="colorPrimaryVariant">#3700B3</item>
-        <item name="colorOnPrimary">#000000</item>
-
-        <!-- Secondary -->
-        <item name="colorSecondary">#03DAC6</item>
-        <item name="colorSecondaryVariant">#018786</item>
-        <item name="colorOnSecondary">#000000</item>
-
-        <!-- Background / surface -->
-        <item name="android:colorBackground">#121212</item>
-        <item name="colorSurface">#1E1E1E</item>
-        <item name="colorOnSurface">#FFFFFFFF</item>
-
-        <!-- Material2 does not define colorSurfaceVariant by default; add it manually -->
-        <item name="colorSurfaceVariant">#2D2B34</item>
-        <item name="colorOnSurfaceVariant">#CAC4D0</item>
-
+    <style name="Theme.DPadPlayer.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Error -->
         <item name="colorError">#CF6679</item>
         <item name="colorOnError">#000000</item>
@@ -35,5 +16,140 @@
         <!-- No title bar -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- ── Deep Purple (default) ──────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/deep_purple_primary</item>
+        <item name="colorPrimaryVariant">@color/deep_purple_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/deep_purple_onPrimary</item>
+        <item name="colorSecondary">@color/deep_purple_secondary</item>
+        <item name="colorSecondaryVariant">@color/deep_purple_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/deep_purple_onPrimary</item>
+        <item name="android:colorBackground">@color/deep_purple_surface</item>
+        <item name="colorSurface">@color/deep_purple_surface</item>
+        <item name="colorOnSurface">@color/deep_purple_onSurface</item>
+        <item name="colorSurfaceVariant">@color/deep_purple_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/deep_purple_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Purple ─────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Purple" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/purple_primary</item>
+        <item name="colorPrimaryVariant">@color/purple_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/purple_onPrimary</item>
+        <item name="colorSecondary">@color/purple_secondary</item>
+        <item name="colorSecondaryVariant">@color/purple_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/purple_onPrimary</item>
+        <item name="android:colorBackground">@color/purple_surface</item>
+        <item name="colorSurface">@color/purple_surface</item>
+        <item name="colorOnSurface">@color/purple_onSurface</item>
+        <item name="colorSurfaceVariant">@color/purple_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/purple_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Blue ───────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Blue" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorPrimaryVariant">@color/blue_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/blue_onPrimary</item>
+        <item name="colorSecondary">@color/blue_secondary</item>
+        <item name="colorSecondaryVariant">@color/blue_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/blue_onPrimary</item>
+        <item name="android:colorBackground">@color/blue_surface</item>
+        <item name="colorSurface">@color/blue_surface</item>
+        <item name="colorOnSurface">@color/blue_onSurface</item>
+        <item name="colorSurfaceVariant">@color/blue_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/blue_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Teal ───────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Teal" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/teal_primary</item>
+        <item name="colorPrimaryVariant">@color/teal_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/teal_onPrimary</item>
+        <item name="colorSecondary">@color/teal_secondary</item>
+        <item name="colorSecondaryVariant">@color/teal_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/teal_onPrimary</item>
+        <item name="android:colorBackground">@color/teal_surface</item>
+        <item name="colorSurface">@color/teal_surface</item>
+        <item name="colorOnSurface">@color/teal_onSurface</item>
+        <item name="colorSurfaceVariant">@color/teal_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/teal_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Green ──────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Green" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorPrimaryVariant">@color/green_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/green_onPrimary</item>
+        <item name="colorSecondary">@color/green_secondary</item>
+        <item name="colorSecondaryVariant">@color/green_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/green_onPrimary</item>
+        <item name="android:colorBackground">@color/green_surface</item>
+        <item name="colorSurface">@color/green_surface</item>
+        <item name="colorOnSurface">@color/green_onSurface</item>
+        <item name="colorSurfaceVariant">@color/green_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/green_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Red ────────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Red" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/red_primary</item>
+        <item name="colorPrimaryVariant">@color/red_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/red_onPrimary</item>
+        <item name="colorSecondary">@color/red_secondary</item>
+        <item name="colorSecondaryVariant">@color/red_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/red_onPrimary</item>
+        <item name="android:colorBackground">@color/red_surface</item>
+        <item name="colorSurface">@color/red_surface</item>
+        <item name="colorOnSurface">@color/red_onSurface</item>
+        <item name="colorSurfaceVariant">@color/red_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/red_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Orange ─────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Orange" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/orange_primary</item>
+        <item name="colorPrimaryVariant">@color/orange_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/orange_onPrimary</item>
+        <item name="colorSecondary">@color/orange_secondary</item>
+        <item name="colorSecondaryVariant">@color/orange_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/orange_onPrimary</item>
+        <item name="android:colorBackground">@color/orange_surface</item>
+        <item name="colorSurface">@color/orange_surface</item>
+        <item name="colorOnSurface">@color/orange_onSurface</item>
+        <item name="colorSurfaceVariant">@color/orange_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/orange_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Yellow ─────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Yellow" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/yellow_primary</item>
+        <item name="colorPrimaryVariant">@color/yellow_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/yellow_onPrimary</item>
+        <item name="colorSecondary">@color/yellow_secondary</item>
+        <item name="colorSecondaryVariant">@color/yellow_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/yellow_onPrimary</item>
+        <item name="android:colorBackground">@color/yellow_surface</item>
+        <item name="colorSurface">@color/yellow_surface</item>
+        <item name="colorOnSurface">@color/yellow_onSurface</item>
+        <item name="colorSurfaceVariant">@color/yellow_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/yellow_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Grey ───────────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.Grey" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/grey_primary</item>
+        <item name="colorPrimaryVariant">@color/grey_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/grey_onPrimary</item>
+        <item name="colorSecondary">@color/grey_secondary</item>
+        <item name="colorSecondaryVariant">@color/grey_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/grey_onPrimary</item>
+        <item name="android:colorBackground">@color/grey_surface</item>
+        <item name="colorSurface">@color/grey_surface</item>
+        <item name="colorOnSurface">@color/grey_onSurface</item>
+        <item name="colorSurfaceVariant">@color/grey_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/grey_onSurfaceVariant</item>
     </style>
 </resources>

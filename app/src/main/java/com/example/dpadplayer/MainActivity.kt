@@ -59,9 +59,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Apply saved theme before inflating
+        // Apply saved accent + night mode before inflating
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         SettingsFragment.applyTheme(prefs.getString("theme", "system") ?: "system")
+        setTheme(SettingsFragment.accentThemeRes(prefs.getString("accent", "deep_purple") ?: "deep_purple"))
 
         setContentView(R.layout.activity_main)
 

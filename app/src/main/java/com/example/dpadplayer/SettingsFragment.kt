@@ -35,6 +35,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        // Accent color — recreate activity to re-apply setTheme()
+        findPreference<ListPreference>("accent")?.setOnPreferenceChangeListener { _, _ ->
+            activity?.recreate()
+            true
+        }
+
         // Sort order — reload tracks with new ordering
         findPreference<ListPreference>("sort_order")?.setOnPreferenceChangeListener { _, newValue ->
             viewModel.loadTracks(newValue as String)
@@ -77,6 +83,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 else    -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             }
             AppCompatDelegate.setDefaultNightMode(mode)
+        }
+
+        fun accentThemeRes(accent: String): Int = when (accent) {
+            "purple"     -> R.style.Theme_DPadPlayer_Purple
+            "blue"       -> R.style.Theme_DPadPlayer_Blue
+            "teal"       -> R.style.Theme_DPadPlayer_Teal
+            "green"      -> R.style.Theme_DPadPlayer_Green
+            "red"        -> R.style.Theme_DPadPlayer_Red
+            "orange"     -> R.style.Theme_DPadPlayer_Orange
+            "yellow"     -> R.style.Theme_DPadPlayer_Yellow
+            "grey"       -> R.style.Theme_DPadPlayer_Grey
+            else         -> R.style.Theme_DPadPlayer   // deep_purple default
         }
     }
 }
