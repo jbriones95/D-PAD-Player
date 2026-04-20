@@ -225,6 +225,11 @@ class PlaybackService : Service() {
         }
     }
 
+    fun seekTo(positionMs: Long) {
+        player.seekTo(positionMs)
+        updatePlaybackState()
+    }
+
     val isPlaying get() = player.isPlaying
     val currentPosition get() = player.currentPosition
     val duration get() = if (tracks.isNotEmpty()) tracks[currentIndex].duration else 0L

@@ -3090,6 +3090,7 @@ drawable exo_styled_controls_speed
 drawable exo_styled_controls_subtitle_off
 drawable exo_styled_controls_subtitle_on
 drawable exo_styled_controls_vr
+drawable ic_arrow_back
 drawable ic_arrow_back_black_24
 drawable ic_call_answer
 drawable ic_call_answer_low
@@ -3290,6 +3291,7 @@ id bounce
 id bounceBoth
 id bounceEnd
 id bounceStart
+id btn_back
 id btn_next
 id btn_play
 id btn_prev
@@ -3446,6 +3448,7 @@ id fixed_width
 id flip
 id floating
 id forever
+id fragment_container
 id fragment_container_view_tag
 id frost
 id fullscreen_header
@@ -3521,6 +3524,11 @@ id media_controller_compat_view_tag
 id message
 id middle
 id mini
+id mini_art
+id mini_artist
+id mini_btn_play
+id mini_player
+id mini_title
 id month_grid
 id month_navigation_bar
 id month_navigation_fragment_toggle
@@ -3589,7 +3597,6 @@ id pathRelative
 id peekHeight
 id percent
 id pin
-id player_panel
 id playing_indicator
 id pooling_container_listener_holder_tag
 id position
@@ -3914,6 +3921,8 @@ layout exo_styled_settings_list
 layout exo_styled_settings_list_item
 layout exo_styled_sub_settings_list_item
 layout exo_track_selection_dialog
+layout fragment_library
+layout fragment_player
 layout item_track
 layout m3_alert_dialog
 layout m3_alert_dialog_actions

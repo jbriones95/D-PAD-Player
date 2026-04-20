@@ -20,6 +20,9 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
     private val _isPlaying = MutableLiveData<Boolean>(false)
     val isPlaying: LiveData<Boolean> = _isPlaying
 
+    private val _position = MutableLiveData<Long>(0L)
+    val position: LiveData<Long> = _position
+
     fun loadTracks() {
         viewModelScope.launch(Dispatchers.IO) {
             val result = MediaStoreScanner.loadTracks(getApplication())
@@ -29,4 +32,5 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setCurrentIndex(index: Int) { _currentIndex.value = index }
     fun setPlaying(playing: Boolean) { _isPlaying.value = playing }
+    fun setPosition(pos: Long)       { _position.value = pos }
 }

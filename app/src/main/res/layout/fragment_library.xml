@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Library screen: track list fills the screen.
+  A compact mini-player bar sits at the bottom. Tapping it opens PlayerFragment.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
+
+    <!-- Track list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/track_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="false"
+        android:descendantFocusability="afterDescendants"
+        android:clipToPadding="false"
+        android:paddingBottom="4dp" />
+
+    <!-- Mini now-playing bar — tap/select to open full player -->
+    <LinearLayout
+        android:id="@+id/mini_player"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="8dp"
+        android:gravity="center_vertical"
+        android:background="?attr/colorSurfaceVariant"
+        android:elevation="4dp"
+        android:focusable="true"
+        android:focusableInTouchMode="false"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/mini_art"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_music_note"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="Album art" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/mini_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No track playing"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/mini_artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- Mini play/pause button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mini_btn_play"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            app:icon="@drawable/ic_play"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:text=""
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="false" />
+
+    </LinearLayout>
+
+</LinearLayout>
