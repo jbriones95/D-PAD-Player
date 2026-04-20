@@ -49,7 +49,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_seek_bwd"
             style="@style/Widget.MaterialComponents.Button"
-            android:text="<<"
+            android:text="&lt;&lt;"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_columnWeight="1" />
@@ -65,7 +65,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_seek_fwd"
             style="@style/Widget.MaterialComponents.Button"
-            android:text=">>"
+            android:text="&gt;&gt;"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_columnWeight="1" />
