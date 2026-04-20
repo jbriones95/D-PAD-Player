@@ -1,6 +1,10 @@
 [
     {
-        "merged": "com.example.dpadplayer.app-merged_res-36:/layout_activity_main.xml.flat",
-        "source": "com.example.dpadplayer.app-main-38:/layout/activity_main.xml"
+        "merged": "com.example.dpadplayer.app-merged_res-39:/layout_activity_main.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-39:/layout_item_track.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/layout/item_track.xml"
     }
 ]

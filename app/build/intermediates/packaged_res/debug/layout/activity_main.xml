@@ -4,72 +4,188 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="?attr/colorSurface">
 
+    <!-- Track list (upper portion) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/track_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:focusable="true"
-        android:focusableInTouchMode="true"/>
+        android:focusableInTouchMode="false"
+        android:nextFocusDown="@id/btn_prev" />
 
-    <GridLayout
+    <!-- Now Playing panel -->
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:rowCount="2"
-        android:columnCount="3"
-        android:useDefaultMargins="true"
-        android:alignmentMode="alignMargins">
+        android:padding="8dp"
+        android:background="?attr/colorSurfaceVariant">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_prev"
-            style="@style/Widget.MaterialComponents.Button"
-            android:text="Prev"
-            android:layout_width="0dp"
+        <!-- Album art + track info row -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
+
+            <ImageView
+                android:id="@+id/album_art"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_media_play"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="Album art" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No track"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tv_artist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tv_album"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Seek bar + timestamps -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_position"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:gravity="start" />
+
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusUp="@id/btn_play"
+                android:nextFocusDown="@id/track_list" />
+
+            <TextView
+                android:id="@+id/tv_duration"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Transport controls: Prev | << | Play | >> | Next -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_columnWeight="1" />
+            android:layout_marginTop="4dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_play"
-            style="@style/Widget.MaterialComponents.Button"
-            android:text="Play"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_columnWeight="1" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_prev"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:text="|&lt;"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusRight="@id/btn_seek_bwd"
+                android:nextFocusUp="@id/track_list"
+                android:nextFocusDown="@id/seek_bar" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_next"
-            style="@style/Widget.MaterialComponents.Button"
-            android:text="Next"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_columnWeight="1" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_seek_bwd"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:text="&lt;&lt;"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusLeft="@id/btn_prev"
+                android:nextFocusRight="@id/btn_play"
+                android:nextFocusUp="@id/track_list"
+                android:nextFocusDown="@id/seek_bar" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_seek_bwd"
-            style="@style/Widget.MaterialComponents.Button"
-            android:text="&lt;&lt;"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_columnWeight="1" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_play"
+                style="@style/Widget.MaterialComponents.Button"
+                android:text="Play"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.4"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusLeft="@id/btn_seek_bwd"
+                android:nextFocusRight="@id/btn_seek_fwd"
+                android:nextFocusUp="@id/track_list"
+                android:nextFocusDown="@id/seek_bar" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_pause"
-            style="@style/Widget.MaterialComponents.Button"
-            android:text="Pause"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_columnWeight="1" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_seek_fwd"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:text="&gt;&gt;"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusLeft="@id/btn_play"
+                android:nextFocusRight="@id/btn_next"
+                android:nextFocusUp="@id/track_list"
+                android:nextFocusDown="@id/seek_bar" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_seek_fwd"
-            style="@style/Widget.MaterialComponents.Button"
-            android:text="&gt;&gt;"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_columnWeight="1" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_next"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:text="&gt;|"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusLeft="@id/btn_seek_fwd"
+                android:nextFocusUp="@id/track_list"
+                android:nextFocusDown="@id/seek_bar" />
 
-    </GridLayout>
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

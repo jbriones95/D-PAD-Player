@@ -8,7 +8,15 @@
         android:minSdkVersion="21"
         android:targetSdkVersion="34" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Storage permissions -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- Foreground service permissions -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <permission
@@ -23,12 +31,8 @@
         android:debuggable="true"
         android:extractNativeLibs="true"
         android:label="DPad Player"
-        android:supportsRtl="true" >
-        <service
-            android:name="com.example.dpadplayer.playback.PlaybackService"
-            android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
-
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DPadPlayer" >
         <activity
             android:name="com.example.dpadplayer.MainActivity"
             android:exported="true" >
@@ -38,6 +42,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name="com.example.dpadplayer.playback.PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"

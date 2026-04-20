@@ -3242,6 +3242,7 @@ id action_text
 id actions
 id activity_chooser_view_content
 id add
+id album_art
 id alertTitle
 id aligned
 id all
@@ -3270,7 +3271,6 @@ id bounceBoth
 id bounceEnd
 id bounceStart
 id btn_next
-id btn_pause
 id btn_play
 id btn_prev
 id btn_seek_bwd
@@ -3578,6 +3578,7 @@ id progress_horizontal
 id radio
 id ratio
 id rectangles
+id report_drawn
 id reverseSawtooth
 id right
 id rightToLeft
@@ -3619,6 +3620,7 @@ id search_view_status_bar_spacer
 id search_view_toolbar
 id search_view_toolbar_container
 id search_voice_btn
+id seek_bar
 id select_dialog_listview
 id selected
 id selection_type
@@ -3711,6 +3713,13 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tv_album
+id tv_artist
+id tv_duration
+id tv_item_artist
+id tv_item_title
+id tv_position
+id tv_title
 id unchecked
 id uniform
 id unlabeled
@@ -3880,6 +3889,7 @@ layout exo_styled_settings_list
 layout exo_styled_settings_list_item
 layout exo_styled_sub_settings_list_item
 layout exo_track_selection_dialog
+layout item_track
 layout m3_alert_dialog
 layout m3_alert_dialog_actions
 layout m3_alert_dialog_title
