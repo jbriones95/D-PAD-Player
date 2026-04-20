@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.dpadplayer.app-mergeDebugResources-43:/values-ml/values-ml.xml",
+            "outputFile": "com.example.dpadplayer.app-mergeDebugResources-47:/values-ml/values-ml.xml",
             "map": [
                 {
                     "source": "/Users/jbriones/.gradle/caches/8.9/transforms/c056743dc54a2d0e1cd9cf2a04d483f7/transformed/jetified-exoplayer-ui-2.19.1/res/values-ml/values-ml.xml",
