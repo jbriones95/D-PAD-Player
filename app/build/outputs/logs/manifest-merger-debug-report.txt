@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-35:12
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-35:12
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-35:12
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-35:12
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-42:12
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-42:12
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-42:12
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-42:12
 MERGED from [com.google.android.material:material:1.9.0] /Users/jbriones/.gradle/caches/8.9/transforms/a93d3b0ffde17be95493cdafc856d124/transformed/material-1.9.0/AndroidManifest.xml:17:1-26:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /Users/jbriones/.gradle/caches/8.9/transforms/a4c8c9f4c2f847d40b326a42d3f03a17/transformed/constraintlayout-2.1.4/AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/dda4bf4cb9bacbac6788e0d2bb48b4f2/transformed/jetified-appcompat-resources-1.6.1/AndroidManifest.xml:17:1-22:12
@@ -93,8 +93,8 @@ ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidMani
 	android:name
 		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:11:22-89
 application
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:5-33:19
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:5-33:19
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:5-40:19
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:5-40:19
 MERGED from [com.google.android.material:material:1.9.0] /Users/jbriones/.gradle/caches/8.9/transforms/a93d3b0ffde17be95493cdafc856d124/transformed/material-1.9.0/AndroidManifest.xml:24:5-20
 MERGED from [com.google.android.material:material:1.9.0] /Users/jbriones/.gradle/caches/8.9/transforms/a93d3b0ffde17be95493cdafc856d124/transformed/material-1.9.0/AndroidManifest.xml:24:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] /Users/jbriones/.gradle/caches/8.9/transforms/a4c8c9f4c2f847d40b326a42d3f03a17/transformed/constraintlayout-2.1.4/AndroidManifest.xml:9:5-20
@@ -147,6 +147,18 @@ ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidMani
 		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:31:13-58
 	android:name
 		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:29:13-53
+receiver#androidx.media.session.MediaButtonReceiver
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:33:9-38:20
+	android:exported
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:34:13-36
+	android:name
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:33:19-76
+intent-filter#action:name:android.intent.action.MEDIA_BUTTON
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:35:13-37:29
+action#android.intent.action.MEDIA_BUTTON
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:36:17-77
+	android:name
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:36:25-74
 uses-sdk
 INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml
