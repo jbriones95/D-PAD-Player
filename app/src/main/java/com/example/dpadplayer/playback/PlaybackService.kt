@@ -25,9 +25,8 @@ import com.example.dpadplayer.MediaStoreScanner
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.TimeUnit
+import android.os.Handler
+import android.os.Looper
 
 class PlaybackService : Service() {
 
@@ -89,8 +88,13 @@ class PlaybackService : Service() {
     var onRepeatChanged: ((Int) -> Unit)? = null
 
     // Seek-bar position polling
-    private val executor = Executors.newSingleThreadScheduledExecutor()
-    private var positionFuture: ScheduledFuture<*>? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val positionRunnable: Runnable = object : Runnable {
+        override fun run() {
+            onPositionChanged?.invoke(player.currentPosition)
+            mainHandler.postDelayed(this, 500)
+        }
+    }
 
     // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -153,7 +157,6 @@ class PlaybackService : Service() {
 
     override fun onDestroy() {
         stopPositionPolling()
-        executor.shutdownNow()
         abandonAudioFocus()
         mediaSession.isActive = false
         mediaSession.release()
@@ -389,13 +392,10 @@ class PlaybackService : Service() {
 
     private fun startPositionPolling() {
         stopPositionPolling()
-        positionFuture = executor.scheduleAtFixedRate({
-            onPositionChanged?.invoke(player.currentPosition)
-        }, 0, 500, TimeUnit.MILLISECONDS)
+        mainHandler.post(positionRunnable)
     }
 
     private fun stopPositionPolling() {
-        positionFuture?.cancel(false)
-        positionFuture = null
+        mainHandler.removeCallbacks(positionRunnable)
     }
 }
