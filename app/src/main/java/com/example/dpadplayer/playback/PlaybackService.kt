@@ -7,14 +7,14 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
-import androidx.media.MediaMetadataCompat
-import androidx.media.session.MediaSessionCompat
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
 import com.example.dpadplayer.MainActivity
 import com.google.android.exoplayer2.ExoPlayer
@@ -61,13 +61,11 @@ class PlaybackService : Service() {
             }
         })
 
-        // scan storage for mp3 files
         scanStorageForMp3()
         if (tracks.isNotEmpty()) prepareAndPlay(currentIndex)
     }
 
     private fun scanStorageForMp3() {
-        // Very small scanner: scan primary external storage directory recursively
         val external = getExternalFilesDir(null)?.parentFile?.parentFile ?: filesDir
         scanDirForMp3(external)
     }
@@ -123,14 +121,22 @@ class PlaybackService : Service() {
             nm.createNotificationChannel(ch)
         }
 
-        val openIntent = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val openIntent = PendingIntent.getActivity(
+            this, 0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val playPauseAction = if (isPlaying) {
-            NotificationCompat.Action.Builder(android.R.drawable.ic_media_pause, "Pause",
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, androidx.media.session.PlaybackStateCompat.ACTION_PAUSE)).build()
+            NotificationCompat.Action.Builder(
+                android.R.drawable.ic_media_pause, "Pause",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE)
+            ).build()
         } else {
-            NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, "Play",
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, androidx.media.session.PlaybackStateCompat.ACTION_PLAY)).build()
+            NotificationCompat.Action.Builder(
+                android.R.drawable.ic_media_play, "Play",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY)
+            ).build()
         }
 
         val notif = NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
@@ -138,12 +144,20 @@ class PlaybackService : Service() {
             .setContentText(mediaSession.controller.metadata?.description?.subtitle)
             .setSmallIcon(android.R.drawable.ic_media_play)
             .setContentIntent(openIntent)
-            .addAction(NotificationCompat.Action.Builder(android.R.drawable.ic_media_previous, "Prev",
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, androidx.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)).build())
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    android.R.drawable.ic_media_previous, "Prev",
+                    MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+                ).build()
+            )
             .addAction(playPauseAction)
-            .addAction(NotificationCompat.Action.Builder(android.R.drawable.ic_media_next, "Next",
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, androidx.media.session.PlaybackStateCompat.ACTION_SKIP_TO_NEXT)).build())
-            .setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSession.sessionToken))
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    android.R.drawable.ic_media_next, "Next",
+                    MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+                ).build()
+            )
+            .setStyle(MediaStyle().setMediaSession(mediaSession.sessionToken))
             .build()
 
         startForeground(NOTIF_ID, notif)
@@ -158,10 +172,7 @@ class PlaybackService : Service() {
             COMMAND_PREV -> prev()
             COMMAND_SEEK_FORWARD -> player.seekTo(player.currentPosition + 15000)
             COMMAND_SEEK_BACKWARD -> player.seekTo((player.currentPosition - 15000).coerceAtLeast(0))
-            else -> {
-                // Service started without action - ensure foreground
-                showNotification(player.isPlaying)
-            }
+            else -> showNotification(player.isPlaying)
         }
         return START_STICKY
     }

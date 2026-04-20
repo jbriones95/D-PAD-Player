@@ -1,40 +1,39 @@
-com.example.dpadplayer.app-jetified-startup-runtime-1.1.1-0 /Users/jbriones/.gradle/caches/transforms-3/079f91d65731b5827e3e5fc537e708d1/transformed/jetified-startup-runtime-1.1.1/res
-com.example.dpadplayer.app-transition-1.2.0-1 /Users/jbriones/.gradle/caches/transforms-3/0dfb4b4735b3df59b1bacddd607e6960/transformed/transition-1.2.0/res
-com.example.dpadplayer.app-constraintlayout-2.1.4-2 /Users/jbriones/.gradle/caches/transforms-3/1124a77e27720e46fabe3a1dfd13e98f/transformed/constraintlayout-2.1.4/res
-com.example.dpadplayer.app-jetified-lifecycle-runtime-ktx-2.6.1-3 /Users/jbriones/.gradle/caches/transforms-3/1a61fa5bf8f35ce310f165c042a81e9b/transformed/jetified-lifecycle-runtime-ktx-2.6.1/res
-com.example.dpadplayer.app-lifecycle-viewmodel-2.6.1-4 /Users/jbriones/.gradle/caches/transforms-3/4f21f1d1caf6017cb4ddc3e02798a3ff/transformed/lifecycle-viewmodel-2.6.1/res
-com.example.dpadplayer.app-cardview-1.0.0-5 /Users/jbriones/.gradle/caches/transforms-3/559bfdde540fb1b6f7900d3878e26b7d/transformed/cardview-1.0.0/res
-com.example.dpadplayer.app-core-runtime-2.2.0-6 /Users/jbriones/.gradle/caches/transforms-3/56278c1ec06cf1486cea355eb23b028f/transformed/core-runtime-2.2.0/res
-com.example.dpadplayer.app-jetified-profileinstaller-1.3.0-7 /Users/jbriones/.gradle/caches/transforms-3/5cc9b7092f364946926b4ee54ed73e7a/transformed/jetified-profileinstaller-1.3.0/res
-com.example.dpadplayer.app-fragment-1.3.6-8 /Users/jbriones/.gradle/caches/transforms-3/60762c0957f95b070d12fde7db7d0ad7/transformed/fragment-1.3.6/res
-com.example.dpadplayer.app-jetified-exoplayer-ui-2.19.1-9 /Users/jbriones/.gradle/caches/transforms-3/67088def7ac8cbe05496091699fe4c1f/transformed/jetified-exoplayer-ui-2.19.1/res
-com.example.dpadplayer.app-jetified-exoplayer-core-2.19.1-10 /Users/jbriones/.gradle/caches/transforms-3/70967c9cbaf75428a61b705f8b7d183a/transformed/jetified-exoplayer-core-2.19.1/res
-com.example.dpadplayer.app-appcompat-1.6.1-11 /Users/jbriones/.gradle/caches/transforms-3/76c7b6a88cd84ad11842e52c8db297bc/transformed/appcompat-1.6.1/res
-com.example.dpadplayer.app-jetified-core-ktx-1.10.1-12 /Users/jbriones/.gradle/caches/transforms-3/7d5536f798156f0b9925a8e746b74ecf/transformed/jetified-core-ktx-1.10.1/res
-com.example.dpadplayer.app-jetified-annotation-experimental-1.3.0-13 /Users/jbriones/.gradle/caches/transforms-3/804b84305f87844244dd854269fdc95e/transformed/jetified-annotation-experimental-1.3.0/res
-com.example.dpadplayer.app-jetified-emoji2-1.2.0-14 /Users/jbriones/.gradle/caches/transforms-3/841d381052889378a53fcdd517b95a4d/transformed/jetified-emoji2-1.2.0/res
-com.example.dpadplayer.app-media-1.6.0-15 /Users/jbriones/.gradle/caches/transforms-3/84229a996d2d6163218a299a83694ae2/transformed/media-1.6.0/res
-com.example.dpadplayer.app-lifecycle-livedata-core-2.6.1-16 /Users/jbriones/.gradle/caches/transforms-3/845bebc12ec5f748ad797fa4528c9a55/transformed/lifecycle-livedata-core-2.6.1/res
-com.example.dpadplayer.app-jetified-emoji2-views-helper-1.2.0-17 /Users/jbriones/.gradle/caches/transforms-3/908c933c759b5a2c94418511ac24dc35/transformed/jetified-emoji2-views-helper-1.2.0/res
-com.example.dpadplayer.app-jetified-lifecycle-process-2.6.1-18 /Users/jbriones/.gradle/caches/transforms-3/a29de8e58ce6e8358de2148cabc23a10/transformed/jetified-lifecycle-process-2.6.1/res
-com.example.dpadplayer.app-core-1.10.1-19 /Users/jbriones/.gradle/caches/transforms-3/afc4e5da0c4515ed119af8f4d9c07617/transformed/core-1.10.1/res
-com.example.dpadplayer.app-jetified-viewpager2-1.0.0-20 /Users/jbriones/.gradle/caches/transforms-3/b34063b3ab44b6daa9d9dbd2e23c33a7/transformed/jetified-viewpager2-1.0.0/res
-com.example.dpadplayer.app-lifecycle-runtime-2.6.1-21 /Users/jbriones/.gradle/caches/transforms-3/b723b33f53f17d2ba1285d6d39494a17/transformed/lifecycle-runtime-2.6.1/res
-com.example.dpadplayer.app-recyclerview-1.3.0-22 /Users/jbriones/.gradle/caches/transforms-3/b7cfbabe7629137bdbeca93af31c3a2a/transformed/recyclerview-1.3.0/res
-com.example.dpadplayer.app-material-1.9.0-23 /Users/jbriones/.gradle/caches/transforms-3/ba0dc946694a2c80c3cba69e68d05f38/transformed/material-1.9.0/res
-com.example.dpadplayer.app-coordinatorlayout-1.1.0-24 /Users/jbriones/.gradle/caches/transforms-3/be38d559fdc411e1f5da916ca1d9e268/transformed/coordinatorlayout-1.1.0/res
-com.example.dpadplayer.app-jetified-appcompat-resources-1.6.1-25 /Users/jbriones/.gradle/caches/transforms-3/c8667430ab2977a01a8a44df88cb0546/transformed/jetified-appcompat-resources-1.6.1/res
-com.example.dpadplayer.app-lifecycle-livedata-2.6.1-26 /Users/jbriones/.gradle/caches/transforms-3/cf5efdc4af566533154044f1289c61f7/transformed/lifecycle-livedata-2.6.1/res
-com.example.dpadplayer.app-jetified-customview-poolingcontainer-1.0.0-27 /Users/jbriones/.gradle/caches/transforms-3/d028f37bbfcf5e8457614326aabf9761/transformed/jetified-customview-poolingcontainer-1.0.0/res
-com.example.dpadplayer.app-drawerlayout-1.1.1-28 /Users/jbriones/.gradle/caches/transforms-3/e93508addbcf2fb2764a203695001e15/transformed/drawerlayout-1.1.1/res
-com.example.dpadplayer.app-jetified-activity-1.6.0-29 /Users/jbriones/.gradle/caches/transforms-3/ebbba6c2b7c068d9eaf17eb574c7bb02/transformed/jetified-activity-1.6.0/res
-com.example.dpadplayer.app-jetified-savedstate-1.2.1-30 /Users/jbriones/.gradle/caches/transforms-3/ef1822572986feb9a98da8120a8fccd3/transformed/jetified-savedstate-1.2.1/res
-com.example.dpadplayer.app-jetified-lifecycle-viewmodel-savedstate-2.6.1-31 /Users/jbriones/.gradle/caches/transforms-3/f92b7b3dd762503acb52223dbe6913e7/transformed/jetified-lifecycle-viewmodel-savedstate-2.6.1/res
+com.example.dpadplayer.app-jetified-core-ktx-1.10.1-0 /Users/jbriones/.gradle/caches/8.9/transforms/0736877ff4658dacf01916663b23ba93/transformed/jetified-core-ktx-1.10.1/res
+com.example.dpadplayer.app-core-1.10.1-1 /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/res
+com.example.dpadplayer.app-drawerlayout-1.1.1-2 /Users/jbriones/.gradle/caches/8.9/transforms/306a8962847195ae83ed7d9b5fb110eb/transformed/drawerlayout-1.1.1/res
+com.example.dpadplayer.app-appcompat-1.6.1-3 /Users/jbriones/.gradle/caches/8.9/transforms/3bdd79b55d66ac98847d0d5567f49065/transformed/appcompat-1.6.1/res
+com.example.dpadplayer.app-lifecycle-livedata-core-2.6.1-4 /Users/jbriones/.gradle/caches/8.9/transforms/3c650f80d68629311ca418244b939373/transformed/lifecycle-livedata-core-2.6.1/res
+com.example.dpadplayer.app-jetified-lifecycle-runtime-ktx-2.6.1-5 /Users/jbriones/.gradle/caches/8.9/transforms/4e18cfb852da25444f13e4896f9452d7/transformed/jetified-lifecycle-runtime-ktx-2.6.1/res
+com.example.dpadplayer.app-jetified-savedstate-1.2.1-6 /Users/jbriones/.gradle/caches/8.9/transforms/526b9dcd7af340c90cb01edb459fa3a6/transformed/jetified-savedstate-1.2.1/res
+com.example.dpadplayer.app-jetified-viewpager2-1.0.0-7 /Users/jbriones/.gradle/caches/8.9/transforms/584e46ceb3eba1d1b326551e3f4c51b4/transformed/jetified-viewpager2-1.0.0/res
+com.example.dpadplayer.app-jetified-annotation-experimental-1.3.0-8 /Users/jbriones/.gradle/caches/8.9/transforms/718c0cfdad7b6124b312025a708306f6/transformed/jetified-annotation-experimental-1.3.0/res
+com.example.dpadplayer.app-jetified-lifecycle-process-2.6.1-9 /Users/jbriones/.gradle/caches/8.9/transforms/7a2d4cabbf09681f67d117bee78e07c0/transformed/jetified-lifecycle-process-2.6.1/res
+com.example.dpadplayer.app-jetified-startup-runtime-1.1.1-10 /Users/jbriones/.gradle/caches/8.9/transforms/880382e721916ebe7d87d16c04e9853b/transformed/jetified-startup-runtime-1.1.1/res
+com.example.dpadplayer.app-media-1.6.0-11 /Users/jbriones/.gradle/caches/8.9/transforms/8c2cb02409c2141bddc2fae63092386a/transformed/media-1.6.0/res
+com.example.dpadplayer.app-lifecycle-runtime-2.6.1-12 /Users/jbriones/.gradle/caches/8.9/transforms/93a77927a4463159501108c3e19eeffd/transformed/lifecycle-runtime-2.6.1/res
+com.example.dpadplayer.app-jetified-lifecycle-viewmodel-savedstate-2.6.1-13 /Users/jbriones/.gradle/caches/8.9/transforms/93c508309ce4595cad464645680712cf/transformed/jetified-lifecycle-viewmodel-savedstate-2.6.1/res
+com.example.dpadplayer.app-recyclerview-1.3.0-14 /Users/jbriones/.gradle/caches/8.9/transforms/95d78b9179c76d53c677b14017301b24/transformed/recyclerview-1.3.0/res
+com.example.dpadplayer.app-jetified-exoplayer-core-2.19.1-15 /Users/jbriones/.gradle/caches/8.9/transforms/9da25ac72897a7ce812018dd83451e2e/transformed/jetified-exoplayer-core-2.19.1/res
+com.example.dpadplayer.app-constraintlayout-2.1.4-16 /Users/jbriones/.gradle/caches/8.9/transforms/a4c8c9f4c2f847d40b326a42d3f03a17/transformed/constraintlayout-2.1.4/res
+com.example.dpadplayer.app-core-runtime-2.2.0-17 /Users/jbriones/.gradle/caches/8.9/transforms/a6811ac4f0b782f2c09056a8cb4a053b/transformed/core-runtime-2.2.0/res
+com.example.dpadplayer.app-material-1.9.0-18 /Users/jbriones/.gradle/caches/8.9/transforms/a93d3b0ffde17be95493cdafc856d124/transformed/material-1.9.0/res
+com.example.dpadplayer.app-jetified-activity-1.6.0-19 /Users/jbriones/.gradle/caches/8.9/transforms/abc0ff3922daebbe051dab48237c4251/transformed/jetified-activity-1.6.0/res
+com.example.dpadplayer.app-lifecycle-livedata-2.6.1-20 /Users/jbriones/.gradle/caches/8.9/transforms/b6e5f6294b04beffdac0716e0dab9471/transformed/lifecycle-livedata-2.6.1/res
+com.example.dpadplayer.app-jetified-exoplayer-ui-2.19.1-21 /Users/jbriones/.gradle/caches/8.9/transforms/c056743dc54a2d0e1cd9cf2a04d483f7/transformed/jetified-exoplayer-ui-2.19.1/res
+com.example.dpadplayer.app-fragment-1.3.6-22 /Users/jbriones/.gradle/caches/8.9/transforms/d2d5478934f2074ceb707d2a621e0153/transformed/fragment-1.3.6/res
+com.example.dpadplayer.app-cardview-1.0.0-23 /Users/jbriones/.gradle/caches/8.9/transforms/d86c59fbf7dfffca6c1d32ec3a35ee67/transformed/cardview-1.0.0/res
+com.example.dpadplayer.app-jetified-appcompat-resources-1.6.1-24 /Users/jbriones/.gradle/caches/8.9/transforms/dda4bf4cb9bacbac6788e0d2bb48b4f2/transformed/jetified-appcompat-resources-1.6.1/res
+com.example.dpadplayer.app-coordinatorlayout-1.1.0-25 /Users/jbriones/.gradle/caches/8.9/transforms/e199b74cbb35d138e0d0a006b773fa4a/transformed/coordinatorlayout-1.1.0/res
+com.example.dpadplayer.app-jetified-customview-poolingcontainer-1.0.0-26 /Users/jbriones/.gradle/caches/8.9/transforms/e216160d5d2efecf5aa721a040ba242b/transformed/jetified-customview-poolingcontainer-1.0.0/res
+com.example.dpadplayer.app-jetified-profileinstaller-1.3.0-27 /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/res
+com.example.dpadplayer.app-lifecycle-viewmodel-2.6.1-28 /Users/jbriones/.gradle/caches/8.9/transforms/e8c32874d4f781eed2a1de5ae0908abb/transformed/lifecycle-viewmodel-2.6.1/res
+com.example.dpadplayer.app-jetified-emoji2-1.2.0-29 /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/res
+com.example.dpadplayer.app-transition-1.2.0-30 /Users/jbriones/.gradle/caches/8.9/transforms/f35784eeab1c13f4fc0b6655b66ba62d/transformed/transition-1.2.0/res
+com.example.dpadplayer.app-jetified-emoji2-views-helper-1.2.0-31 /Users/jbriones/.gradle/caches/8.9/transforms/fcf0b7ae5d58bf06fcde237d69b9d663/transformed/jetified-emoji2-views-helper-1.2.0/res
 com.example.dpadplayer.app-pngs-32 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/generated/res/pngs/debug
 com.example.dpadplayer.app-resValues-33 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/generated/res/resValues/debug
-com.example.dpadplayer.app-rs-34 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/generated/res/rs/debug
-com.example.dpadplayer.app-mergeDebugResources-35 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
-com.example.dpadplayer.app-mergeDebugResources-36 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
-com.example.dpadplayer.app-merged_res-37 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/intermediates/merged_res/debug
-com.example.dpadplayer.app-debug-38 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/debug/res
-com.example.dpadplayer.app-main-39 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/res
+com.example.dpadplayer.app-packageDebugResources-34 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.example.dpadplayer.app-packageDebugResources-35 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.example.dpadplayer.app-merged_res-36 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/build/intermediates/merged_res/debug
+com.example.dpadplayer.app-debug-37 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/debug/res
+com.example.dpadplayer.app-main-38 /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/res

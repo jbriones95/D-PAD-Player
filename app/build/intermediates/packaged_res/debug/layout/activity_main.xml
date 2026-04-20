@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/track_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:rowCount="2"
+        android:columnCount="3"
+        android:useDefaultMargins="true"
+        android:alignmentMode="alignMargins">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_prev"
+            style="@style/Widget.MaterialComponents.Button"
+            android:text="Prev"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_columnWeight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_play"
+            style="@style/Widget.MaterialComponents.Button"
+            android:text="Play"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_columnWeight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_next"
+            style="@style/Widget.MaterialComponents.Button"
+            android:text="Next"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_columnWeight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_seek_bwd"
+            style="@style/Widget.MaterialComponents.Button"
+            android:text="&lt;&lt;"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_columnWeight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pause"
+            style="@style/Widget.MaterialComponents.Button"
+            android:text="Pause"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_columnWeight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_seek_fwd"
+            style="@style/Widget.MaterialComponents.Button"
+            android:text="&gt;&gt;"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_columnWeight="1" />
+
+    </GridLayout>
+
+</LinearLayout>

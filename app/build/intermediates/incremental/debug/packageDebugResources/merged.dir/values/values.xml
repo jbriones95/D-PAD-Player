@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DPad Player</string>
+    <style name="Theme.DPadPlayer" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">#6200EE</item>
+    </style>
+</resources>
