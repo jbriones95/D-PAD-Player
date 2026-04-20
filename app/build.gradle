@@ -45,6 +45,7 @@ dependencies {
     // lifecycle
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
     implementation 'androidx.activity:activity-ktx:1.7.2'
     implementation 'androidx.fragment:fragment-ktx:1.6.1'
 
@@ -53,6 +54,9 @@ dependencies {
 
     // settings / preferences
     implementation 'androidx.preference:preference-ktx:1.2.1'
+
+    // ViewPager2 + tab navigation
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
     // Room (playlists + metadata cache)
     implementation 'androidx.room:room-runtime:2.6.1'

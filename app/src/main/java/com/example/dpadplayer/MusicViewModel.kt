@@ -11,7 +11,9 @@ import com.example.dpadplayer.db.PlaylistEntity
 import com.example.dpadplayer.db.PlaylistSongEntity
 import com.example.dpadplayer.playback.Track
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+
 
 class MusicViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -41,15 +43,14 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
         MusicLibrary.Library(emptyList(), emptyList(), emptyList(), emptyList()))
     val library: LiveData<MusicLibrary.Library> = _library
 
-    val albums:  LiveData<List<Album>>  get() = MutableLiveData<List<Album>>().also { ld ->
-        library.observeForever { ld.value = it.albums }
-    }
-    val artists: LiveData<List<Artist>> get() = MutableLiveData<List<Artist>>().also { ld ->
-        library.observeForever { ld.value = it.artists }
-    }
-    val genres:  LiveData<List<Genre>>  get() = MutableLiveData<List<Genre>>().also { ld ->
-        library.observeForever { ld.value = it.genres }
-    }
+    private val _albums  = MutableLiveData<List<Album>>(emptyList())
+    val albums:  LiveData<List<Album>>  = _albums
+
+    private val _artists = MutableLiveData<List<Artist>>(emptyList())
+    val artists: LiveData<List<Artist>> = _artists
+
+    private val _genres  = MutableLiveData<List<Genre>>(emptyList())
+    val genres:  LiveData<List<Genre>>  = _genres
 
     // ── Playlists (Room) ──────────────────────────────────────────────────────
 
@@ -63,8 +64,12 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
     fun loadTracks(sortOrder: String = "title") {
         viewModelScope.launch(Dispatchers.IO) {
             val result = MediaStoreScanner.loadTracks(getApplication(), sortOrder)
+            val lib    = MusicLibrary.build(result)
             _tracks.postValue(result)
-            _library.postValue(MusicLibrary.build(result))
+            _library.postValue(lib)
+            _albums.postValue(lib.albums)
+            _artists.postValue(lib.artists)
+            _genres.postValue(lib.genres)
         }
     }
 

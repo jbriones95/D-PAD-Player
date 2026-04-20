@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.dpadplayer.app-mergeDebugResources-47:/values-v18/values-v18.xml",
+            "outputFile": "com.example.dpadplayer.app-mergeDebugResources-48:/values-v18/values-v18.xml",
             "map": [
                 {
                     "source": "/Users/jbriones/.gradle/caches/8.9/transforms/3bdd79b55d66ac98847d0d5567f49065/transformed/appcompat-1.6.1/res/values-v18/values-v18.xml",

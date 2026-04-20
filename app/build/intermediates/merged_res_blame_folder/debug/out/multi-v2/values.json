@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.dpadplayer.app-mergeDebugResources-47:/values/values.xml",
+            "outputFile": "com.example.dpadplayer.app-mergeDebugResources-48:/values/values.xml",
             "map": [
                 {
                     "source": "/Users/jbriones/.gradle/caches/8.9/transforms/d86c59fbf7dfffca6c1d32ec3a35ee67/transformed/cardview-1.0.0/res/values/values.xml",
