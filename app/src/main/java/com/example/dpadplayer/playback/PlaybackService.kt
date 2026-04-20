@@ -43,6 +43,10 @@ class PlaybackService : Service() {
         const val EXTRA_INDEX         = "index"
         const val EXTRA_POSITION      = "position"
 
+        const val REPEAT_OFF = 0
+        const val REPEAT_ALL = 1
+        const val REPEAT_ONE = 2
+
         const val NOTIF_CHANNEL_ID = "dpad_player_channel"
         const val NOTIF_ID = 1
 
@@ -70,14 +74,23 @@ class PlaybackService : Service() {
     var currentIndex = 0
         private set
 
-    // Seek-bar position polling
-    private val executor = Executors.newSingleThreadScheduledExecutor()
-    private var positionFuture: ScheduledFuture<*>? = null
+    // Shuffle / repeat state
+    var shuffleOn  = false
+    var repeatMode = REPEAT_OFF  // 0=off, 1=all, 2=one
+    // Shuffled play order (indices into tracks)
+    private val shuffleOrder = mutableListOf<Int>()
+    private var shufflePos   = 0  // position within shuffleOrder
 
     // Callbacks for bound UI
     var onTrackChanged: ((Int) -> Unit)? = null
     var onPlaybackStateChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long) -> Unit)? = null
+    var onShuffleChanged: ((Boolean) -> Unit)? = null
+    var onRepeatChanged: ((Int) -> Unit)? = null
+
+    // Seek-bar position polling
+    private val executor = Executors.newSingleThreadScheduledExecutor()
+    private var positionFuture: ScheduledFuture<*>? = null
 
     // ─── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -211,18 +224,47 @@ class PlaybackService : Service() {
 
     fun next() {
         if (tracks.isEmpty()) return
-        prepareAndPlay((currentIndex + 1) % tracks.size)
+        when {
+            repeatMode == REPEAT_ONE -> { player.seekTo(0); player.play(); return }
+            shuffleOn -> {
+                shufflePos = (shufflePos + 1) % shuffleOrder.size
+                prepareAndPlay(shuffleOrder[shufflePos])
+            }
+            repeatMode == REPEAT_ALL -> prepareAndPlay((currentIndex + 1) % tracks.size)
+            currentIndex < tracks.size - 1 -> prepareAndPlay(currentIndex + 1)
+            else -> { player.seekTo(0); player.pause() } // end of list, stop
+        }
     }
 
     fun prev() {
         if (tracks.isEmpty()) return
-        // If more than 3s in, restart; otherwise go previous
         if (player.currentPosition > 3_000) {
-            player.seekTo(0)
-            updatePlaybackState()
-        } else {
-            prepareAndPlay(if (currentIndex - 1 < 0) tracks.size - 1 else currentIndex - 1)
+            player.seekTo(0); updatePlaybackState(); return
         }
+        when {
+            shuffleOn -> {
+                shufflePos = ((shufflePos - 1) + shuffleOrder.size) % shuffleOrder.size
+                prepareAndPlay(shuffleOrder[shufflePos])
+            }
+            else -> prepareAndPlay(if (currentIndex - 1 < 0) tracks.size - 1 else currentIndex - 1)
+        }
+    }
+
+    fun toggleShuffle() {
+        shuffleOn = !shuffleOn
+        if (shuffleOn) buildShuffleOrder()
+        onShuffleChanged?.invoke(shuffleOn)
+    }
+
+    fun cycleRepeat() {
+        repeatMode = (repeatMode + 1) % 3
+        onRepeatChanged?.invoke(repeatMode)
+    }
+
+    private fun buildShuffleOrder() {
+        shuffleOrder.clear()
+        shuffleOrder.addAll((tracks.indices).toMutableList().also { it.shuffle() })
+        shufflePos = shuffleOrder.indexOf(currentIndex).coerceAtLeast(0)
     }
 
     fun seekTo(positionMs: Long) {

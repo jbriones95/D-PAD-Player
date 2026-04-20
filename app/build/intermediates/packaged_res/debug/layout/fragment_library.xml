@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Library screen: track list fills the screen.
-  A compact mini-player bar sits at the bottom. Tapping it opens PlayerFragment.
+  Library screen: full-height track list + Auxio-style mini-player bar at bottom.
+  Mini-player: art | marquee title/artist | play-pause | next
+  LinearProgressIndicator runs along the very bottom edge of the bar.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface">
 
-    <!-- Track list -->
+    <!-- Track list fills all available space -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/track_list"
         android:layout_width="match_parent"
@@ -21,73 +23,123 @@
         android:clipToPadding="false"
         android:paddingBottom="4dp" />
 
-    <!-- Mini now-playing bar — tap/select to open full player -->
-    <LinearLayout
+    <!-- Mini now-playing bar — tap or D-pad center to open full player -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mini_player"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="8dp"
-        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
         android:background="?attr/colorSurfaceVariant"
         android:elevation="4dp"
         android:focusable="true"
         android:focusableInTouchMode="false"
         android:clickable="true">
 
+        <!-- Album art -->
         <ImageView
             android:id="@+id/mini_art"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_music_note"
-            android:layout_marginEnd="10dp"
-            android:contentDescription="Album art" />
+            android:layout_margin="8dp"
+            android:contentDescription="Album art"
+            app:layout_constraintBottom_toTopOf="@+id/mini_progress"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:orientation="vertical"
+        <!-- Title — marquee scrolling like Auxio -->
+        <TextView
+            android:id="@+id/mini_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:text="No track playing"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="false"
+            android:singleLine="true"
+            app:layout_constraintBottom_toTopOf="@+id/mini_artist"
+            app:layout_constraintEnd_toStartOf="@+id/mini_btn_play"
+            app:layout_constraintStart_toEndOf="@+id/mini_art"
+            app:layout_constraintTop_toTopOf="@+id/mini_art"
+            app:layout_constraintVertical_chainStyle="packed" />
 
-            <TextView
-                android:id="@+id/mini_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No track playing"
-                android:textAppearance="?attr/textAppearanceTitleSmall"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+        <!-- Artist -->
+        <TextView
+            android:id="@+id/mini_artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:text=""
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintBottom_toBottomOf="@+id/mini_art"
+            app:layout_constraintEnd_toStartOf="@+id/mini_btn_play"
+            app:layout_constraintStart_toEndOf="@+id/mini_art"
+            app:layout_constraintTop_toBottomOf="@+id/mini_title" />
 
-            <TextView
-                android:id="@+id/mini_artist"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:maxLines="1"
-                android:ellipsize="end" />
-        </LinearLayout>
-
-        <!-- Mini play/pause button -->
+        <!-- Play/pause button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/mini_btn_play"
             style="@style/Widget.MaterialComponents.Button.Icon"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             app:icon="@drawable/ic_play"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             android:text=""
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:minWidth="0dp"
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
             android:focusable="true"
-            android:focusableInTouchMode="false" />
+            android:focusableInTouchMode="false"
+            android:nextFocusRight="@id/mini_btn_next"
+            app:layout_constraintBottom_toTopOf="@+id/mini_progress"
+            app:layout_constraintEnd_toStartOf="@+id/mini_btn_next"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+        <!-- Next button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mini_btn_next"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+            app:icon="@drawable/ic_skip_next"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:text=""
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:minWidth="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="false"
+            android:nextFocusLeft="@id/mini_btn_play"
+            app:layout_constraintBottom_toTopOf="@+id/mini_progress"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="4dp" />
+
+        <!-- Auxio-style progress bar at very bottom edge of mini-player -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/mini_progress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:trackThickness="3dp"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="?attr/colorSurfaceVariant"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

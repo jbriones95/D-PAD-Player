@@ -185,6 +185,14 @@ class MainActivity : AppCompatActivity() {
         return if (idx >= 0 && idx < svc.tracks.size) svc.tracks[idx] else null
     }
 
+    fun toggleShuffle() {
+        service?.toggleShuffle()
+    }
+
+    fun cycleRepeat() {
+        service?.cycleRepeat()
+    }
+
     fun sendCmd(cmd: String) {
         val action = when (cmd) {
             "PLAY"     -> PlaybackService.COMMAND_PLAY
@@ -215,6 +223,16 @@ class MainActivity : AppCompatActivity() {
         svc.onPositionChanged = { pos ->
             runOnUiThread {
                 viewModel.setPosition(pos)
+            }
+        }
+        svc.onShuffleChanged = { on ->
+            runOnUiThread {
+                viewModel.setShuffleOn(on)
+            }
+        }
+        svc.onRepeatChanged = { mode ->
+            runOnUiThread {
+                viewModel.setRepeatMode(mode)
             }
         }
     }

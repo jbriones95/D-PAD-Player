@@ -12,10 +12,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.LinearProgressIndicator
 
 /**
- * Library screen: shows the full track list.
- * A mini now-playing bar at the bottom taps/D-pads into PlayerFragment.
+ * Library screen: full track list + Auxio-style mini-player bar at bottom.
  */
 class LibraryFragment : Fragment() {
 
@@ -28,6 +28,8 @@ class LibraryFragment : Fragment() {
     private lateinit var miniTitle: TextView
     private lateinit var miniArtist: TextView
     private lateinit var miniBtnPlay: MaterialButton
+    private lateinit var miniBtnNext: MaterialButton
+    private lateinit var miniProgress: LinearProgressIndicator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -36,12 +38,17 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recycler    = view.findViewById(R.id.track_list)
-        miniPlayer  = view.findViewById(R.id.mini_player)
-        miniArt     = view.findViewById(R.id.mini_art)
-        miniTitle   = view.findViewById(R.id.mini_title)
-        miniArtist  = view.findViewById(R.id.mini_artist)
-        miniBtnPlay = view.findViewById(R.id.mini_btn_play)
+        recycler     = view.findViewById(R.id.track_list)
+        miniPlayer   = view.findViewById(R.id.mini_player)
+        miniArt      = view.findViewById(R.id.mini_art)
+        miniTitle    = view.findViewById(R.id.mini_title)
+        miniArtist   = view.findViewById(R.id.mini_artist)
+        miniBtnPlay  = view.findViewById(R.id.mini_btn_play)
+        miniBtnNext  = view.findViewById(R.id.mini_btn_next)
+        miniProgress = view.findViewById(R.id.mini_progress)
+
+        // Marquee requires isSelected = true
+        miniTitle.isSelected = true
 
         adapter = TrackAdapter(emptyList()) { index ->
             (activity as? MainActivity)?.playTrack(index)
@@ -50,7 +57,7 @@ class LibraryFragment : Fragment() {
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 
-        // Mini player opens full player screen
+        // Tapping the bar body opens full player
         val openPlayer = View.OnClickListener {
             (activity as? MainActivity)?.openPlayer()
         }
@@ -66,20 +73,15 @@ class LibraryFragment : Fragment() {
         miniBtnPlay.setOnClickListener {
             (activity as? MainActivity)?.togglePlayPause()
         }
-
-        // D-pad: Down from last list item → mini player; Up from mini player → list
-        recycler.addOnChildAttachStateChangeListener(object :
-            RecyclerView.OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(v: View) {}
-            override fun onChildViewDetachedFromWindow(v: View) {}
-        })
+        miniBtnNext.setOnClickListener {
+            (activity as? MainActivity)?.sendCmd("NEXT")
+        }
 
         observeViewModel()
     }
 
     override fun onResume() {
         super.onResume()
-        // Restore focus to the playing track row or first item
         val idx = (viewModel.currentIndex.value ?: -1).coerceAtLeast(0)
         recycler.post {
             recycler.findViewHolderForAdapterPosition(idx)?.itemView?.requestFocus()
@@ -99,6 +101,9 @@ class LibraryFragment : Fragment() {
         viewModel.isPlaying.observe(viewLifecycleOwner) { playing ->
             updateMiniPlayIcon(playing)
         }
+        viewModel.position.observe(viewLifecycleOwner) { pos ->
+            updateProgressBar(pos)
+        }
     }
 
     private fun refreshMiniPlayer() {
@@ -106,6 +111,7 @@ class LibraryFragment : Fragment() {
         val track = activity.currentTrack() ?: return
         miniTitle.text  = track.title
         miniArtist.text = track.artist
+        miniProgress.max = track.duration.toInt()
 
         val loaded = try {
             requireContext().contentResolver.openInputStream(track.albumArtUri)?.use { true } ?: false
@@ -119,7 +125,12 @@ class LibraryFragment : Fragment() {
         miniBtnPlay.icon = ContextCompat.getDrawable(requireContext(), icon)
     }
 
-    /** Called by MainActivity's dispatchKeyEvent to handle D-pad navigation out of the list. */
+    private fun updateProgressBar(pos: Long) {
+        miniProgress.progress = pos.toInt()
+    }
+
+    // ── D-pad helpers called from MainActivity ────────────────────────────────
+
     fun onDpadDown(focusedPos: Int): Boolean {
         return if (focusedPos >= adapter.itemCount - 1) {
             miniPlayer.requestFocus()
@@ -138,7 +149,8 @@ class LibraryFragment : Fragment() {
     }
 
     fun isMiniPlayerFocused(): Boolean =
-        miniPlayer.hasFocus() || miniPlayer.isFocused || miniBtnPlay.hasFocus()
+        miniPlayer.hasFocus() || miniPlayer.isFocused ||
+        miniBtnPlay.hasFocus() || miniBtnNext.hasFocus()
 
     fun recyclerView(): RecyclerView = recycler
 }

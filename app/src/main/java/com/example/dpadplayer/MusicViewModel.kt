@@ -23,6 +23,19 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
     private val _position = MutableLiveData<Long>(0L)
     val position: LiveData<Long> = _position
 
+    // OFF / ALL / ONE
+    private val _repeatMode = MutableLiveData<Int>(REPEAT_OFF)
+    val repeatMode: LiveData<Int> = _repeatMode
+
+    private val _shuffleOn = MutableLiveData<Boolean>(false)
+    val shuffleOn: LiveData<Boolean> = _shuffleOn
+
+    companion object {
+        const val REPEAT_OFF = 0
+        const val REPEAT_ALL = 1
+        const val REPEAT_ONE = 2
+    }
+
     fun loadTracks() {
         viewModelScope.launch(Dispatchers.IO) {
             val result = MediaStoreScanner.loadTracks(getApplication())
@@ -33,4 +46,6 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
     fun setCurrentIndex(index: Int) { _currentIndex.value = index }
     fun setPlaying(playing: Boolean) { _isPlaying.value = playing }
     fun setPosition(pos: Long)       { _position.value = pos }
+    fun setRepeatMode(mode: Int)     { _repeatMode.value = mode }
+    fun setShuffleOn(on: Boolean)    { _shuffleOn.value = on }
 }

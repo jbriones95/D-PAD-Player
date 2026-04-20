@@ -16,6 +16,7 @@ import com.google.android.material.button.MaterialButton
 /**
  * Full now-playing screen.
  * Back button + D-pad BACK key return to LibraryFragment.
+ * D-pad LEFT/RIGHT on seekbar scrubs ±5 seconds.
  */
 class PlayerFragment : Fragment() {
 
@@ -30,11 +31,11 @@ class PlayerFragment : Fragment() {
     private lateinit var tvPosition: TextView
     private lateinit var tvDuration: TextView
     private lateinit var seekBar: SeekBar
+    private lateinit var btnRepeat: MaterialButton
     private lateinit var btnPrev: MaterialButton
-    private lateinit var btnSeekBwd: MaterialButton
     private lateinit var btnPlay: MaterialButton
-    private lateinit var btnSeekFwd: MaterialButton
     private lateinit var btnNext: MaterialButton
+    private lateinit var btnShuffle: MaterialButton
 
     private var seekBarDragging = false
 
@@ -54,14 +55,13 @@ class PlayerFragment : Fragment() {
         tvPosition     = view.findViewById(R.id.tv_position)
         tvDuration     = view.findViewById(R.id.tv_duration)
         seekBar        = view.findViewById(R.id.seek_bar)
+        btnRepeat      = view.findViewById(R.id.btn_repeat)
         btnPrev        = view.findViewById(R.id.btn_prev)
-        btnSeekBwd     = view.findViewById(R.id.btn_seek_bwd)
         btnPlay        = view.findViewById(R.id.btn_play)
-        btnSeekFwd     = view.findViewById(R.id.btn_seek_fwd)
         btnNext        = view.findViewById(R.id.btn_next)
+        btnShuffle     = view.findViewById(R.id.btn_shuffle)
 
         btnBack.setOnClickListener { navigateBack() }
-
         setupButtons()
         setupSeekBar()
         observeViewModel()
@@ -85,11 +85,11 @@ class PlayerFragment : Fragment() {
         btnPlay.setOnClickListener    { (activity as? MainActivity)?.togglePlayPause() }
         btnPrev.setOnClickListener    { (activity as? MainActivity)?.sendCmd("PREV") }
         btnNext.setOnClickListener    { (activity as? MainActivity)?.sendCmd("NEXT") }
-        btnSeekFwd.setOnClickListener { (activity as? MainActivity)?.sendCmd("SEEK_FWD") }
-        btnSeekBwd.setOnClickListener { (activity as? MainActivity)?.sendCmd("SEEK_BWD") }
+        btnRepeat.setOnClickListener  { (activity as? MainActivity)?.cycleRepeat() }
+        btnShuffle.setOnClickListener { (activity as? MainActivity)?.toggleShuffle() }
     }
 
-    // ── SeekBar ───────────────────────────────────────────────────────────────
+    // ── SeekBar — touch dragging + D-pad scrubbing ────────────────────────────
 
     private fun setupSeekBar() {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -102,6 +102,29 @@ class PlayerFragment : Fragment() {
                 (activity as? MainActivity)?.seekTo(sb.progress.toLong())
             }
         })
+
+        // D-pad LEFT/RIGHT on the seekbar scrubs ±5 seconds
+        seekBar.setOnKeyListener { _, keyCode, event ->
+            if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+            val step = 5_000
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    val newPos = (seekBar.progress - step).coerceAtLeast(0).toLong()
+                    seekBar.progress = newPos.toInt()
+                    tvPosition.text = formatMs(newPos)
+                    (activity as? MainActivity)?.seekTo(newPos)
+                    true
+                }
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    val newPos = (seekBar.progress + step).coerceAtMost(seekBar.max).toLong()
+                    seekBar.progress = newPos.toInt()
+                    tvPosition.text = formatMs(newPos)
+                    (activity as? MainActivity)?.seekTo(newPos)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     // ── ViewModel observation ─────────────────────────────────────────────────
@@ -120,6 +143,12 @@ class PlayerFragment : Fragment() {
                 tvPosition.text  = formatMs(pos)
             }
         }
+        viewModel.repeatMode.observe(viewLifecycleOwner) { mode ->
+            updateRepeatIcon(mode)
+        }
+        viewModel.shuffleOn.observe(viewLifecycleOwner) { on ->
+            updateShuffleIcon(on)
+        }
     }
 
     // ── UI refresh ────────────────────────────────────────────────────────────
@@ -133,6 +162,9 @@ class PlayerFragment : Fragment() {
         tvAlbum.text    = track.album
         tvDuration.text = formatMs(track.duration)
         seekBar.max     = track.duration.toInt()
+
+        // Marquee requires the view to be selected
+        tvTitle.isSelected = true
 
         updatePlayPauseIcon(viewModel.isPlaying.value ?: false)
         updateTrackCounter()
@@ -149,19 +181,24 @@ class PlayerFragment : Fragment() {
         btnPlay.icon = ContextCompat.getDrawable(requireContext(), icon)
     }
 
+    private fun updateRepeatIcon(mode: Int) {
+        val icon = when (mode) {
+            MusicViewModel.REPEAT_ALL -> R.drawable.ic_repeat_all
+            MusicViewModel.REPEAT_ONE -> R.drawable.ic_repeat_one
+            else                      -> R.drawable.ic_repeat_off
+        }
+        btnRepeat.icon = ContextCompat.getDrawable(requireContext(), icon)
+    }
+
+    private fun updateShuffleIcon(on: Boolean) {
+        val icon = if (on) R.drawable.ic_shuffle_on else R.drawable.ic_shuffle_off
+        btnShuffle.icon = ContextCompat.getDrawable(requireContext(), icon)
+    }
+
     private fun updateTrackCounter() {
         val total = viewModel.tracks.value?.size ?: 0
         val idx   = viewModel.currentIndex.value ?: -1
         tvTrackCounter.text = if (total > 0 && idx >= 0) "${idx + 1} / $total" else ""
-    }
-
-    // ── Position updates (called from MainActivity) ───────────────────────────
-
-    fun updatePosition(pos: Long) {
-        if (!seekBarDragging) {
-            seekBar.progress = pos.toInt()
-            tvPosition.text  = formatMs(pos)
-        }
     }
 
     private fun formatMs(ms: Long): String {
