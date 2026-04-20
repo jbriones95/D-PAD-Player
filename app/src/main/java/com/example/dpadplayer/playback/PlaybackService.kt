@@ -112,14 +112,7 @@ class PlaybackService : Service() {
             }
         })
 
-        // Load tracks from MediaStore
-        Thread {
-            tracks.addAll(MediaStoreScanner.loadTracks(this))
-            if (tracks.isNotEmpty()) {
-                updateMetadata(currentIndex)
-                updatePlaybackState()
-            }
-        }.start()
+        // Tracks are pushed in by MainActivity after binding; nothing to load here.
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

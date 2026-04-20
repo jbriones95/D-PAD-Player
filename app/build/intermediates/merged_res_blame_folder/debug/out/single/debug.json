@@ -1,10 +1,42 @@
 [
     {
+        "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-39:/layout_activity_main.xml.flat",
+        "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-41:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-39:/drawable_ic_fast_forward.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/drawable/ic_fast_forward.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-39:/drawable_ic_play.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/drawable/ic_play.xml"
+    },
+    {
+        "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-39:/layout_item_track.xml.flat",
+        "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-41:/layout/item_track.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-39:/drawable_ic_music_note.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/drawable/ic_music_note.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-39:/drawable_ic_skip_previous.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/drawable/ic_skip_previous.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-39:/drawable_ic_skip_next.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/drawable/ic_skip_next.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-39:/drawable_ic_pause.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/drawable/ic_pause.xml"
+    },
+    {
         "merged": "com.example.dpadplayer.app-merged_res-39:/layout_activity_main.xml.flat",
         "source": "com.example.dpadplayer.app-main-41:/layout/activity_main.xml"
     },
     {
-        "merged": "com.example.dpadplayer.app-merged_res-39:/layout_item_track.xml.flat",
-        "source": "com.example.dpadplayer.app-main-41:/layout/item_track.xml"
+        "merged": "com.example.dpadplayer.app-merged_res-39:/drawable_ic_fast_rewind.xml.flat",
+        "source": "com.example.dpadplayer.app-main-41:/drawable/ic_fast_rewind.xml"
     }
 ]

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Device: 480x640px @ 208dpi → 369x492dp, 4:3 ratio, "small" screen
+  Player panel budget: ~135dp (27% of 492dp height)
+    - Info row:      56dp  (art + title/artist)
+    - Seek row:      28dp  (timestamps + seekbar)
+    - Controls row:  44dp  (icon buttons)
+    - Padding:        7dp
+  Track list gets the remaining ~357dp
+-->
+<resources>
+    <!-- Player panel -->
+    <dimen name="player_panel_info_height">56dp</dimen>
+    <dimen name="player_album_art_size">48dp</dimen>
+    <dimen name="player_control_btn_height">44dp</dimen>
+    <dimen name="player_control_btn_min_width">44dp</dimen>
+    <dimen name="player_padding_h">10dp</dimen>
+    <dimen name="player_padding_v">6dp</dimen>
+    <dimen name="player_seek_row_height">28dp</dimen>
+    <dimen name="player_progress_height">3dp</dimen>
+
+    <!-- Track list item -->
+    <dimen name="item_track_height">52dp</dimen>
+    <dimen name="item_track_art_size">40dp</dimen>
+    <dimen name="item_track_padding_h">10dp</dimen>
+    <dimen name="item_track_padding_v">6dp</dimen>
+
+    <!-- Playing indicator bar -->
+    <dimen name="playing_indicator_width">3dp</dimen>
+</resources>
