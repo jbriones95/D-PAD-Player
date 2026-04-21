@@ -128,8 +128,9 @@ class MainActivity : AppCompatActivity() {
     fun openPlayer() {
         if (supportFragmentManager.findFragmentByTag(TAG_PLAYER) != null) return
         supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                R.anim.slide_in_right, R.anim.slide_out_left,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
             .replace(R.id.fragment_container, PlayerFragment(), TAG_PLAYER)
             .addToBackStack(null)
             .commit()
@@ -137,8 +138,9 @@ class MainActivity : AppCompatActivity() {
 
     fun openAlbumDetail(album: Album) {
         supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                R.anim.slide_in_right, R.anim.slide_out_left,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
             .replace(R.id.fragment_container, AlbumDetailFragment.newInstance(album.id), TAG_ALBUM)
             .addToBackStack(null)
             .commit()
