@@ -11,7 +11,8 @@ import com.example.dpadplayer.playback.Track
 
 class TrackAdapter(
     private var items: List<Track>,
-    private val onTrackClick: (Int) -> Unit
+    private val onTrackClick: (Int) -> Unit,
+    private val onTrackLongClick: ((Int) -> Boolean)? = null
 ) : RecyclerView.Adapter<TrackAdapter.VH>() {
 
     private var selectedIndex = -1
@@ -43,6 +44,9 @@ class TrackAdapter(
 
         init {
             view.setOnClickListener { onTrackClick(bindingAdapterPosition) }
+            view.setOnLongClickListener {
+                onTrackLongClick?.invoke(bindingAdapterPosition) ?: false
+            }
             view.setOnFocusChangeListener { v, hasFocus ->
                 v.isSelected = hasFocus
             }

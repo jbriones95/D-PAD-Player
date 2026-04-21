@@ -131,24 +131,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openArtistDetail(artist: Artist) {
-        // TODO: implement artist detail view (just show their songs for now)
-        // For now, play all songs by this artist with shuffle
-        viewModel.artists.value?.find { it.id == artist.id }?.let { a ->
-            if (a.songs.isNotEmpty()) {
-                service?.tracks?.clear()
-                service?.tracks?.addAll(a.songs)
-                service?.prepareAndPlay(0)
-            }
-        }
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, ArtistDetailFragment.newInstance(artist.id), TAG_ARTIST)
+            .addToBackStack(null)
+            .commit()
     }
 
     fun openGenreDetail(genre: Genre) {
-        // TODO: implement genre detail view (just show its songs for now)
-        if (genre.songs.isNotEmpty()) {
-            service?.tracks?.clear()
-            service?.tracks?.addAll(genre.songs)
-            service?.prepareAndPlay(0)
-        }
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, GenreDetailFragment.newInstance(genre.id), TAG_GENRE)
+            .addToBackStack(null)
+            .commit()
     }
 
     fun openPlaylistDetail(playlist: PlaylistEntity) {
@@ -359,5 +356,7 @@ class MainActivity : AppCompatActivity() {
         const val TAG_SETTINGS = "settings"
         const val TAG_ALBUM    = "album"
         const val TAG_PLAYLIST = "playlist"
+        const val TAG_ARTIST   = "artist"
+        const val TAG_GENRE    = "genre"
     }
 }

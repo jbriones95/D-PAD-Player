@@ -3249,6 +3249,7 @@ drawable exo_styled_controls_speed
 drawable exo_styled_controls_subtitle_off
 drawable exo_styled_controls_subtitle_on
 drawable exo_styled_controls_vr
+drawable ic_add
 drawable ic_arrow_back
 drawable ic_arrow_back_black_24
 drawable ic_arrow_down_24dp
@@ -3608,6 +3609,7 @@ id exo_track_selection_view
 id exo_vr
 id expand_activities_button
 id expanded_menu
+id fab_create_playlist
 id fade
 id fill
 id fill_horizontal
@@ -3798,8 +3800,11 @@ id radio
 id ratio
 id rectangles
 id recycler
+id recycler_albums
 id recycler_detail
+id recycler_genre
 id recycler_playlist
+id recycler_songs
 id recycler_view
 id report_drawn
 id reverseSawtooth
@@ -3964,6 +3969,8 @@ id tv_playlist_info
 id tv_playlist_name
 id tv_playlist_title
 id tv_position
+id tv_section_albums
+id tv_section_songs
 id tv_title
 id tv_track_counter
 id unchecked
@@ -4140,11 +4147,14 @@ layout exo_styled_sub_settings_list_item
 layout exo_track_selection_dialog
 layout expand_button
 layout fragment_album_detail
+layout fragment_artist_detail
+layout fragment_genre_detail
 layout fragment_library
 layout fragment_player
 layout fragment_playlist_detail
 layout fragment_settings
 layout fragment_tab_list
+layout fragment_tab_playlists
 layout image_frame
 layout item_album
 layout item_artist

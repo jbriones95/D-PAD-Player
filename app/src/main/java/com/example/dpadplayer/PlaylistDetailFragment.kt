@@ -44,10 +44,13 @@ class PlaylistDetailFragment : Fragment() {
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
-        val adapter = TrackAdapter(emptyList()) { index ->
-            // play resolved tracks starting at index
-            (activity as? MainActivity)?.playPlaylist(playlistId, index)
-        }
+        val adapter = TrackAdapter(
+            items = emptyList(),
+            onTrackClick = { index ->
+                // play resolved tracks starting at index
+                (activity as? MainActivity)?.playPlaylist(playlistId, index)
+            }
+        )
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 
