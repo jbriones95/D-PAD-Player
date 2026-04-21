@@ -45,10 +45,6 @@ class PlaylistDetailFragment : Fragment() {
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
         val adapter = TrackAdapter(emptyList()) { index ->
-            val tracks = (recycler.adapter as TrackAdapter).let {
-                // get the displayed track list and find global index
-                viewModel.resolvePlaylistTracks(playlistId)
-            }
             // play resolved tracks starting at index
             (activity as? MainActivity)?.playPlaylist(playlistId, index)
         }

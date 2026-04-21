@@ -98,6 +98,13 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun deletePlaylist(playlistId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val playlist = db.playlistDao().getPlaylist(playlistId) ?: return@launch
+            db.playlistDao().deletePlaylist(playlist)
+        }
+    }
+
     fun addTracksToPlaylist(playlistId: Long, newTracks: List<Track>) {
         viewModelScope.launch(Dispatchers.IO) {
             val existing = db.playlistDao().getSongsForPlaylistOnce(playlistId)
@@ -134,6 +141,15 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
         val rows = db.playlistDao().getSongsForPlaylistOnce(playlistId)
         val trackMap = (_tracks.value ?: emptyList()).associateBy { it.id }
         return rows.mapNotNull { trackMap[it.trackId] }
+    }
+
+    fun observePlaylistTracks(playlistId: Long): LiveData<List<Track>> {
+        return db.playlistDao().getSongsForPlaylist(playlistId)
+            .map { rows ->
+                val trackMap = (_tracks.value ?: emptyList()).associateBy { it.id }
+                rows.mapNotNull { row -> trackMap[row.trackId] }
+            }
+            .asLiveData()
     }
 
     // ── Setters (called by MainActivity from service callbacks) ───────────────

@@ -62,7 +62,6 @@
         app:tabIndicatorColor="?attr/colorPrimary"
         app:tabSelectedTextColor="?attr/colorPrimary"
         app:tabTextColor="?android:attr/textColorSecondary"
-        app:tabTextAppearance="?attr/textAppearanceLabelMedium"
         android:elevation="2dp" />
 
     <!-- Content pager — fills remaining space above mini-player -->

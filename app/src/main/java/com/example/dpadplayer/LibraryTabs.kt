@@ -13,13 +13,14 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 class SongsTabFragment : Fragment() {
     private val viewModel: MusicViewModel by activityViewModels()
+    private lateinit var recycler: RecyclerView
     private lateinit var adapter: TrackAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        recycler = view.findViewById(R.id.recycler)
         adapter = TrackAdapter(emptyList()) { index ->
             (activity as? MainActivity)?.playTrack(index)
         }
@@ -29,6 +30,8 @@ class SongsTabFragment : Fragment() {
         viewModel.tracks.observe(viewLifecycleOwner) { adapter.updateTracks(it) }
         viewModel.currentIndex.observe(viewLifecycleOwner) { adapter.setSelectedIndex(it) }
     }
+
+    fun recyclerView(): RecyclerView = recycler
 }
 
 // ── Albums tab ───────────────────────────────────────────────────────────────

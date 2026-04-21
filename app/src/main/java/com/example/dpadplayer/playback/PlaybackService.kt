@@ -214,7 +214,7 @@ class PlaybackService : Service() {
     }
 
     fun prepareAndPlay(index: Int) {
-        if (index < 0 || index >= tracks.size) return
+        if (index < 0 || index >= tracks.size) { isTransitioning = false; return }
         currentIndex = index
         player.clearMediaItems()
         player.setMediaItem(MediaItem.fromUri(tracks[index].uri))
@@ -223,10 +223,15 @@ class PlaybackService : Service() {
         updateMetadata(index)
         updatePlaybackState()
         onTrackChanged?.invoke(index)
+        isTransitioning = false
     }
 
+    private var isTransitioning = false
+
     fun next() {
-        if (tracks.isEmpty()) return
+        if (isTransitioning) return
+        isTransitioning = true
+        if (tracks.isEmpty()) { isTransitioning = false; return }
         when {
             repeatMode == REPEAT_ONE -> { player.seekTo(0); player.play(); return }
             shuffleOn -> {
@@ -240,9 +245,11 @@ class PlaybackService : Service() {
     }
 
     fun prev() {
-        if (tracks.isEmpty()) return
+        if (isTransitioning) return
+        isTransitioning = true
+        if (tracks.isEmpty()) { isTransitioning = false; return }
         if (player.currentPosition > 3_000) {
-            player.seekTo(0); updatePlaybackState(); return
+            player.seekTo(0); updatePlaybackState(); isTransitioning = false; return
         }
         when {
             shuffleOn -> {

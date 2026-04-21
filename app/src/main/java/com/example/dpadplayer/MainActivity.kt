@@ -17,6 +17,10 @@ import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.example.dpadplayer.playback.PlaybackService
 import com.example.dpadplayer.playback.Track
+import com.example.dpadplayer.db.PlaylistEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -117,6 +121,56 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
+    fun openAlbumDetail(album: Album) {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, AlbumDetailFragment.newInstance(album.id), TAG_ALBUM)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    fun openArtistDetail(artist: Artist) {
+        // TODO: implement artist detail view (just show their songs for now)
+        // For now, play all songs by this artist with shuffle
+        viewModel.artists.value?.find { it.id == artist.id }?.let { a ->
+            if (a.songs.isNotEmpty()) {
+                service?.tracks?.clear()
+                service?.tracks?.addAll(a.songs)
+                service?.prepareAndPlay(0)
+            }
+        }
+    }
+
+    fun openGenreDetail(genre: Genre) {
+        // TODO: implement genre detail view (just show its songs for now)
+        if (genre.songs.isNotEmpty()) {
+            service?.tracks?.clear()
+            service?.tracks?.addAll(genre.songs)
+            service?.prepareAndPlay(0)
+        }
+    }
+
+    fun openPlaylistDetail(playlist: PlaylistEntity) {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, PlaylistDetailFragment.newInstance(playlist.id), TAG_PLAYLIST)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    fun playPlaylist(playlistId: Long, startIndex: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val tracks = viewModel.resolvePlaylistTracks(playlistId)
+            if (tracks.isNotEmpty()) {
+                service?.tracks?.clear()
+                service?.tracks?.addAll(tracks)
+                service?.prepareAndPlay(startIndex.coerceIn(0, tracks.size - 1))
+            }
+        }
+    }
+
     private fun isPlayerVisible() =
         supportFragmentManager.findFragmentByTag(TAG_PLAYER)?.isVisible == true
 
@@ -142,11 +196,12 @@ class MainActivity : AppCompatActivity() {
             if (libFrag != null && libFrag.isVisible) {
                 val focused = currentFocus
                 val recycler = libFrag.recyclerView()
-                val isInRecycler = focused != null && isDescendantOf(focused, recycler)
+                val recyclerView: android.view.View? = recycler
+                val isInRecycler = focused != null && recyclerView != null && isDescendantOf(focused, recyclerView)
 
                 when (event.keyCode) {
                     KeyEvent.KEYCODE_DPAD_DOWN -> {
-                        if (isInRecycler) {
+                        if (isInRecycler && recycler != null) {
                             val pos = recycler.getChildAdapterPosition(focused!!)
                             if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
                                 if (libFrag.onDpadDown(pos)) return true
@@ -302,5 +357,7 @@ class MainActivity : AppCompatActivity() {
         const val TAG_LIBRARY  = "library"
         const val TAG_PLAYER   = "player"
         const val TAG_SETTINGS = "settings"
+        const val TAG_ALBUM    = "album"
+        const val TAG_PLAYLIST = "playlist"
     }
 }
