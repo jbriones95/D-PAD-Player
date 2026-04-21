@@ -21,7 +21,7 @@ class LibraryFragment : Fragment() {
 
     private lateinit var viewPager: androidx.viewpager2.widget.ViewPager2
     private lateinit var tabLayout: com.google.android.material.tabs.TabLayout
-    private lateinit var btnSettings: MaterialButton
+    private lateinit var btnBack: MaterialButton
     private lateinit var miniPlayer: View
     private lateinit var miniArt: ImageView
     private lateinit var miniTitle: TextView
@@ -32,6 +32,13 @@ class LibraryFragment : Fragment() {
 
     private val tabTitles = listOf("Songs", "Albums", "Artists", "Genres", "Playlists")
 
+    companion object {
+        private const val ARG_TAB = "tab"
+        fun newInstance(tabIndex: Int = 0) = LibraryFragment().apply {
+            arguments = Bundle().also { it.putInt(ARG_TAB, tabIndex) }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_library, container, false)
@@ -41,7 +48,7 @@ class LibraryFragment : Fragment() {
 
         viewPager    = view.findViewById(R.id.view_pager)
         tabLayout  = view.findViewById(R.id.tab_layout)
-        btnSettings = view.findViewById(R.id.btn_settings)
+        btnBack     = view.findViewById(R.id.btn_back)
         miniPlayer = view.findViewById(R.id.mini_player)
         miniArt    = view.findViewById(R.id.mini_art)
         miniTitle = view.findViewById(R.id.mini_title)
@@ -56,13 +63,15 @@ class LibraryFragment : Fragment() {
             tab.text = tabTitles[position]
         }.attach()
 
+        // Navigate to initial tab
+        val initialTab = arguments?.getInt(ARG_TAB, 0) ?: 0
+        if (initialTab > 0) viewPager.setCurrentItem(initialTab, false)
+
         // Marquee requires isSelected = true
         miniTitle.isSelected = true
 
-        // Three-dot settings button
-        btnSettings.setOnClickListener {
-            (activity as? MainActivity)?.openSettings()
-        }
+        // Back button
+        btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
 
         // Mini-player interactions
         miniPlayer.setOnClickListener {
@@ -84,6 +93,10 @@ class LibraryFragment : Fragment() {
         }
 
         observeViewModel()
+    }
+
+    fun selectTab(index: Int) {
+        if (::viewPager.isInitialized) viewPager.setCurrentItem(index, true)
     }
 
     private fun observeViewModel() {

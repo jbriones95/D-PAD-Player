@@ -2,6 +2,14 @@
 <resources>
     <string name="app_name">DPad Player</string>
 
+    <!-- Home menu items -->
+    <string name="menu_songs">Songs</string>
+    <string name="menu_albums">Albums</string>
+    <string name="menu_artists">Artists</string>
+    <string name="menu_genres">Genres</string>
+    <string name="menu_playlists">Playlists</string>
+    <string name="menu_settings">Settings</string>
+
     <!-- Theme preference -->
     <string-array name="pref_theme_labels">
         <item>Follow system</item>

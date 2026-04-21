@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -12,10 +13,15 @@ import com.example.dpadplayer.playback.Track
 class TrackAdapter(
     private var items: List<Track>,
     private val onTrackClick: (Int) -> Unit,
-    private val onTrackLongClick: ((Int) -> Boolean)? = null
+    private val onTrackLongClick: ((Int) -> Boolean)? = null,
+    /** Optional: override the popup menu items. If null, default (Add to playlist) is used. */
+    private val onMenuClick: ((anchor: View, track: Track, index: Int) -> Unit)? = null
 ) : RecyclerView.Adapter<TrackAdapter.VH>() {
 
     private var selectedIndex = -1
+
+    /** Called from outside to bind a popup-menu handler. */
+    var menuClickListener: ((anchor: View, track: Track, index: Int) -> Unit)? = onMenuClick
 
     fun updateTracks(newItems: List<Track>) {
         val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
@@ -39,7 +45,7 @@ class TrackAdapter(
         val art: ImageView     = view.findViewById(R.id.tv_item_art)
         val title: TextView    = view.findViewById(R.id.tv_item_title)
         val artist: TextView   = view.findViewById(R.id.tv_item_artist)
-        val duration: TextView = view.findViewById(R.id.tv_item_duration)
+        val menuBtn: ImageView = view.findViewById(R.id.btn_track_menu)
         val indicator: View    = view.findViewById(R.id.playing_indicator)
 
         init {
@@ -50,6 +56,22 @@ class TrackAdapter(
             view.setOnFocusChangeListener { v, hasFocus ->
                 v.isSelected = hasFocus
             }
+            menuBtn.setOnClickListener { v ->
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                val track = items[pos]
+                val listener = menuClickListener
+                if (listener != null) {
+                    listener(v, track, pos)
+                } else {
+                    showDefaultMenu(v, track)
+                }
+            }
+        }
+
+        private fun showDefaultMenu(anchor: View, track: Track) {
+            // Default menu: Add to playlist (handled by parent if they set menuClickListener)
+            // Fallback — show nothing; fragments should set menuClickListener
         }
     }
 
@@ -61,9 +83,9 @@ class TrackAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val track = items[position]
-        holder.title.text    = track.title
-        holder.artist.text   = track.artist
-        holder.duration.text = formatMs(track.duration)
+        holder.title.text  = track.title
+        // Show "Artist · 3:45" in secondary line
+        holder.artist.text = "${track.artist} · ${formatMs(track.duration)}"
 
         // Load album art thumbnail; fall back to music note placeholder
         val loaded = try {

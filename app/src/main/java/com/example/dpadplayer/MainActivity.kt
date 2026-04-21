@@ -70,10 +70,10 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // Show LibraryFragment as the root screen
+        // Show HomeFragment as the root screen
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, LibraryFragment(), TAG_LIBRARY)
+                .replace(R.id.fragment_container, HomeFragment(), TAG_HOME)
                 .commit()
         }
 
@@ -100,6 +100,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ── Fragment navigation ────────────────────────────────────────────────────
+
+    fun openLibraryTab(tabIndex: Int) {
+        val existing = supportFragmentManager.findFragmentByTag(TAG_LIBRARY) as? LibraryFragment
+        if (existing != null && existing.isVisible) {
+            existing.selectTab(tabIndex)
+            return
+        }
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, LibraryFragment.newInstance(tabIndex), TAG_LIBRARY)
+            .addToBackStack(null)
+            .commit()
+    }
 
     fun openSettings() {
         if (supportFragmentManager.findFragmentByTag(TAG_SETTINGS) != null) return
@@ -351,6 +365,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val TAG_HOME     = "home"
         const val TAG_LIBRARY  = "library"
         const val TAG_PLAYER   = "player"
         const val TAG_SETTINGS = "settings"

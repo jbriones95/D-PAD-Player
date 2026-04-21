@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -28,19 +28,26 @@ class SongsTabFragment : Fragment() {
         recycler = view.findViewById(R.id.recycler)
         adapter = TrackAdapter(
             items = emptyList(),
-            onTrackClick = { index -> (activity as? MainActivity)?.playTrack(index) },
-            onTrackLongClick = { index ->
-                val tracks = viewModel.tracks.value ?: return@TrackAdapter false
-                val track = tracks.getOrNull(index) ?: return@TrackAdapter false
-                showAddToPlaylistDialog(track)
-                true
-            }
+            onTrackClick = { index -> (activity as? MainActivity)?.playTrack(index) }
         )
+        adapter.menuClickListener = { anchor, track, _ ->
+            showTrackMenu(anchor, track)
+        }
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 
         viewModel.tracks.observe(viewLifecycleOwner) { adapter.updateTracks(it) }
         viewModel.currentIndex.observe(viewLifecycleOwner) { adapter.setSelectedIndex(it) }
+    }
+
+    private fun showTrackMenu(anchor: View, track: com.example.dpadplayer.playback.Track) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menu.add(0, 1, 0, "Add to playlist")
+        popup.setOnMenuItemClickListener { item ->
+            if (item.itemId == 1) showAddToPlaylistDialog(track)
+            true
+        }
+        popup.show()
     }
 
     private fun showAddToPlaylistDialog(track: com.example.dpadplayer.playback.Track) {

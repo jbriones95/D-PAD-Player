@@ -51,6 +51,15 @@ class PlaylistDetailFragment : Fragment() {
                 (activity as? MainActivity)?.playPlaylist(playlistId, index)
             }
         )
+        adapter.menuClickListener = { anchor, track, _ ->
+            val popup = android.widget.PopupMenu(requireContext(), anchor)
+            popup.menu.add(0, 1, 0, "Remove from playlist")
+            popup.setOnMenuItemClickListener { item ->
+                if (item.itemId == 1) viewModel.removeSongFromPlaylist(playlistId, track.id)
+                true
+            }
+            popup.show()
+        }
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 

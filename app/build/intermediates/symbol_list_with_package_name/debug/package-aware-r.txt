@@ -3249,7 +3249,9 @@ drawable exo_styled_controls_speed
 drawable exo_styled_controls_subtitle_off
 drawable exo_styled_controls_subtitle_on
 drawable exo_styled_controls_vr
+drawable ic_account_circle
 drawable ic_add
+drawable ic_album
 drawable ic_arrow_back
 drawable ic_arrow_back_black_24
 drawable ic_arrow_down_24dp
@@ -3259,10 +3261,12 @@ drawable ic_call_answer_video
 drawable ic_call_answer_video_low
 drawable ic_call_decline
 drawable ic_call_decline_low
+drawable ic_chevron_right
 drawable ic_clear_black_24
 drawable ic_clock_black_24dp
 drawable ic_fast_forward
 drawable ic_fast_rewind
+drawable ic_genre
 drawable ic_keyboard_black_24dp
 drawable ic_m3_chip_check
 drawable ic_m3_chip_checked_circle
@@ -3472,9 +3476,9 @@ id btn_play
 id btn_playlist_menu
 id btn_prev
 id btn_repeat
-id btn_settings
 id btn_settings_back
 id btn_shuffle
+id btn_track_menu
 id buttonPanel
 id cache_measures
 id callMeasure
@@ -3665,6 +3669,8 @@ id iv_album_art
 id iv_artist_icon
 id iv_detail_art
 id iv_genre_icon
+id iv_menu_chevron
+id iv_menu_icon
 id iv_playlist_icon
 id jumpToEnd
 id jumpToStart
@@ -3803,6 +3809,7 @@ id recycler
 id recycler_albums
 id recycler_detail
 id recycler_genre
+id recycler_menu
 id recycler_playlist
 id recycler_songs
 id recycler_view
@@ -3961,10 +3968,12 @@ id tv_detail_title
 id tv_duration
 id tv_genre_info
 id tv_genre_name
+id tv_home_title
 id tv_item_art
 id tv_item_artist
 id tv_item_duration
 id tv_item_title
+id tv_menu_label
 id tv_playlist_info
 id tv_playlist_name
 id tv_playlist_title
@@ -4149,6 +4158,7 @@ layout expand_button
 layout fragment_album_detail
 layout fragment_artist_detail
 layout fragment_genre_detail
+layout fragment_home
 layout fragment_library
 layout fragment_player
 layout fragment_playlist_detail
@@ -4159,6 +4169,7 @@ layout image_frame
 layout item_album
 layout item_artist
 layout item_genre
+layout item_home_menu
 layout item_playlist
 layout item_track
 layout m3_alert_dialog
@@ -4397,6 +4408,12 @@ string material_timepicker_minute
 string material_timepicker_pm
 string material_timepicker_select_time
 string material_timepicker_text_input_mode_description
+string menu_albums
+string menu_artists
+string menu_genres
+string menu_playlists
+string menu_settings
+string menu_songs
 string mtrl_badge_numberless_content_description
 string mtrl_checkbox_button_icon_path_checked
 string mtrl_checkbox_button_icon_path_group_name
