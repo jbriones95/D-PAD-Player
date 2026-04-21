@@ -1,5 +1,6 @@
 package com.example.dpadplayer
 
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -54,18 +55,40 @@ class TrackAdapter(
         init {
             // Use anrimian-style clickable overlay: background/ripple + focus are applied to clickable_item
             applyItemFocusBackground(clickable)
-            clickable.setOnClickListener { onTrackClick(bindingAdapterPosition) }
-            clickable.setOnLongClickListener {
-                onTrackLongClick?.invoke(bindingAdapterPosition) ?: false
+            clickable.setOnClickListener {
+                try {
+                    onTrackClick(bindingAdapterPosition)
+                } catch (e: Exception) {
+                    // Log the exception so we can capture a stack trace in logcat when reproducing the crash.
+                    Log.e("TrackAdapter", "onTrackClick failed for position=$bindingAdapterPosition", e)
+                }
             }
-            clickable.setupDpadItem { onTrackClick(bindingAdapterPosition) }
+            clickable.setOnLongClickListener {
+                try {
+                    onTrackLongClick?.invoke(bindingAdapterPosition) ?: false
+                } catch (e: Exception) {
+                    Log.e("TrackAdapter", "onTrackLongClick failed for position=$bindingAdapterPosition", e)
+                    false
+                }
+            }
+            clickable.setupDpadItem {
+                try {
+                    onTrackClick(bindingAdapterPosition)
+                } catch (e: Exception) {
+                    Log.e("TrackAdapter", "setupDpadItem onTrackClick failed for position=$bindingAdapterPosition", e)
+                }
+            }
             menuBtn.setOnClickListener { v ->
-                val pos = bindingAdapterPosition
-                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
-                val track = items[pos]
-                val listener = menuClickListener
-                if (listener != null) listener(v, track, pos)
-                else showDefaultMenu(v, track)
+                try {
+                    val pos = bindingAdapterPosition
+                    if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                    val track = items[pos]
+                    val listener = menuClickListener
+                    if (listener != null) listener(v, track, pos)
+                    else showDefaultMenu(v, track)
+                } catch (e: Exception) {
+                    Log.e("TrackAdapter", "menuBtn click failed", e)
+                }
             }
             // Also trigger menu on long-press Enter when btn_track_menu is focused
             menuBtn.setOnKeyListener { v, keyCode, event ->

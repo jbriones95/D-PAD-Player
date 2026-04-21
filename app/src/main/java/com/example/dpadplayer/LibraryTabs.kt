@@ -101,7 +101,9 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
             var target: View? = null
             try { target = lm?.findViewByPosition(preferred) } catch (_: Exception) { }
             if (target == null && recycler.childCount > 0) target = recycler.getChildAt(0)
-            target?.requestFocus()
+            // Prefer the clickable overlay inside the item so D-pad moves between items cleanly.
+            val clickable = target?.findViewById<View?>(R.id.clickable_item) ?: target
+            clickable?.requestFocus()
         }
     }
 }
@@ -132,7 +134,9 @@ class AlbumsTabFragment : Fragment(), TabWithRecycler {
         recyclerRef?.post {
             val lm = recyclerRef?.layoutManager
             val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
-            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+            val child = (target ?: recyclerRef?.getChildAt(0))
+            val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
+            clickable?.requestFocus()
         }
     }
 }
@@ -163,7 +167,9 @@ class ArtistsTabFragment : Fragment(), TabWithRecycler {
         recyclerRef?.post {
             val lm = recyclerRef?.layoutManager
             val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
-            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+            val child = (target ?: recyclerRef?.getChildAt(0))
+            val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
+            clickable?.requestFocus()
         }
     }
 }
@@ -194,7 +200,9 @@ class GenresTabFragment : Fragment(), TabWithRecycler {
         recyclerRef?.post {
             val lm = recyclerRef?.layoutManager
             val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
-            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+            val child = (target ?: recyclerRef?.getChildAt(0))
+            val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
+            clickable?.requestFocus()
         }
     }
 }
@@ -243,7 +251,9 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
         recyclerRef?.post {
             val lm = recyclerRef?.layoutManager
             val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
-            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+            val child = (target ?: recyclerRef?.getChildAt(0))
+            val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
+            clickable?.requestFocus()
         }
     }
 }

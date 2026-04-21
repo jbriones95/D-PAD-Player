@@ -215,9 +215,24 @@ class MainActivity : AppCompatActivity() {
                 when (event.keyCode) {
                     KeyEvent.KEYCODE_DPAD_DOWN -> {
                         if (isInRecycler && recycler != null) {
-                            val pos = recycler.getChildAdapterPosition(focused!!)
-                            if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
-                                if (libFrag.onDpadDown(pos)) return true
+                            try {
+                                // The currently focused view may be a descendant inside the item view
+                                // (for example our clickable overlay). getChildAdapterPosition expects
+                                // a direct child of the RecyclerView, otherwise it will attempt to
+                                // cast the LayoutParams and crash. Walk up the parent chain to the
+                                // immediate child and use that.
+                                var childView: android.view.View = focused!!
+                                while (childView.parent != recycler && childView.parent is android.view.View) {
+                                    childView = childView.parent as android.view.View
+                                }
+                                val pos = recycler.getChildAdapterPosition(childView)
+                                if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                                    if (libFrag.onDpadDown(pos)) return true
+                                }
+                            } catch (e: Exception) {
+                                // Log and swallow to avoid crashing the app; the adapter click
+                                // handlers will still be invoked via DPAD_CENTER.
+                                android.util.Log.e("MainActivity", "Error resolving child adapter position", e)
                             }
                         }
                     }
