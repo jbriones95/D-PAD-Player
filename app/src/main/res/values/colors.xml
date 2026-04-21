@@ -93,4 +93,18 @@
     <color name="grey_onSurfaceVariant">#41484D</color>
     <color name="grey_secondary">#566575</color>
     <color name="grey_secondaryVariant">#C4CDD6</color>
+
+    <!--
+      Retro — phosphor-green CRT terminal look.
+      Same colors used for both light and dark because this theme
+      is intentionally always dark (black background, green text).
+    -->
+    <color name="retro_primary">#00E676</color>
+    <color name="retro_onPrimary">#000000</color>
+    <color name="retro_surface">#0A0A0A</color>
+    <color name="retro_onSurface">#00E676</color>
+    <color name="retro_surfaceVariant">#1A1A1A</color>
+    <color name="retro_onSurfaceVariant">#00B248</color>
+    <color name="retro_secondary">#00B248</color>
+    <color name="retro_secondaryVariant">#004D20</color>
 </resources>

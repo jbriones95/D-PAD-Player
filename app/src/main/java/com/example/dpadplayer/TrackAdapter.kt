@@ -1,5 +1,6 @@
 package com.example.dpadplayer
 
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,23 +50,27 @@ class TrackAdapter(
         val indicator: View    = view.findViewById(R.id.playing_indicator)
 
         init {
+            applyItemFocusBackground(view)
             view.setOnClickListener { onTrackClick(bindingAdapterPosition) }
             view.setOnLongClickListener {
                 onTrackLongClick?.invoke(bindingAdapterPosition) ?: false
             }
-            view.setOnFocusChangeListener { v, hasFocus ->
-                v.isSelected = hasFocus
-            }
+            view.setupDpadItem { onTrackClick(bindingAdapterPosition) }
             menuBtn.setOnClickListener { v ->
                 val pos = bindingAdapterPosition
                 if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
                 val track = items[pos]
                 val listener = menuClickListener
-                if (listener != null) {
-                    listener(v, track, pos)
-                } else {
-                    showDefaultMenu(v, track)
-                }
+                if (listener != null) listener(v, track, pos)
+                else showDefaultMenu(v, track)
+            }
+            // Also trigger menu on long-press Enter when btn_track_menu is focused
+            menuBtn.setOnKeyListener { v, keyCode, event ->
+                if (event.action == KeyEvent.ACTION_DOWN &&
+                    (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    v.performClick()
+                    true
+                } else false
             }
         }
 

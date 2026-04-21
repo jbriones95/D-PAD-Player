@@ -92,4 +92,14 @@
     <color name="grey_onSurfaceVariant">#C4C7C7</color>
     <color name="grey_secondary">#C8C6C5</color>
     <color name="grey_secondaryVariant">#474746</color>
+
+    <!-- Retro — identical in night mode; theme is always dark -->
+    <color name="retro_primary">#00E676</color>
+    <color name="retro_onPrimary">#000000</color>
+    <color name="retro_surface">#0A0A0A</color>
+    <color name="retro_onSurface">#00E676</color>
+    <color name="retro_surfaceVariant">#1A1A1A</color>
+    <color name="retro_onSurfaceVariant">#00B248</color>
+    <color name="retro_secondary">#00B248</color>
+    <color name="retro_secondaryVariant">#004D20</color>
 </resources>

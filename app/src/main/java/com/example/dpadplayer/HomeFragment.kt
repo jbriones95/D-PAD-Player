@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -60,7 +59,7 @@ class HomeFragment : Fragment() {
         )
 
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_menu)
-        recycler.layoutManager = LinearLayoutManager(requireContext())
+        recycler.layoutManager = FocusLinearLayoutManager(requireContext())
         recycler.adapter = HomeMenuAdapter(menuItems) { item ->
             when (item.tag) {
                 "songs"     -> (activity as? MainActivity)?.openLibraryTab(0)
@@ -129,8 +128,9 @@ class HomeMenuAdapter(
         val label: TextView  = view.findViewById(R.id.tv_menu_label)
 
         init {
+            applyItemFocusBackground(view)
             view.setOnClickListener { onClick(items[bindingAdapterPosition]) }
-            view.setOnFocusChangeListener { v, hasFocus -> v.isSelected = hasFocus }
+            view.setupDpadItem { onClick(items[bindingAdapterPosition]) }
         }
     }
 

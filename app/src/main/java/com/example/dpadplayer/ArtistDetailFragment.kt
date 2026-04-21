@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 
@@ -44,7 +43,7 @@ class ArtistDetailFragment : Fragment() {
             (activity as? MainActivity)?.openAlbumDetail(album)
         }
         recyclerAlbums.adapter = albumAdapter
-        recyclerAlbums.layoutManager = LinearLayoutManager(requireContext())
+        recyclerAlbums.layoutManager = FocusLinearLayoutManager(requireContext())
         recyclerAlbums.isNestedScrollingEnabled = false
 
         val songAdapter = TrackAdapter(
@@ -57,7 +56,7 @@ class ArtistDetailFragment : Fragment() {
             }
         )
         recyclerSongs.adapter = songAdapter
-        recyclerSongs.layoutManager = LinearLayoutManager(requireContext())
+        recyclerSongs.layoutManager = FocusLinearLayoutManager(requireContext())
         recyclerSongs.isNestedScrollingEnabled = false
 
         viewModel.artists.observe(viewLifecycleOwner) { artists ->

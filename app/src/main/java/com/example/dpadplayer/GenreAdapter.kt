@@ -26,8 +26,11 @@ class GenreAdapter(
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tv_genre_name)
         val info: TextView = view.findViewById(R.id.tv_genre_info)
-        init { view.setOnClickListener { onGenreClick(items[bindingAdapterPosition]) }
-               view.setOnFocusChangeListener { v, f -> v.isSelected = f } }
+        init {
+            applyItemFocusBackground(view)
+            view.setOnClickListener { onGenreClick(items[bindingAdapterPosition]) }
+            view.setupDpadItem { onGenreClick(items[bindingAdapterPosition]) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

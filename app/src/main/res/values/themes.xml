@@ -152,4 +152,32 @@
         <item name="colorSurfaceVariant">@color/grey_surfaceVariant</item>
         <item name="colorOnSurfaceVariant">@color/grey_onSurfaceVariant</item>
     </style>
+
+    <!--
+      ── Retro ─────────────────────────────────────────────────────────
+      Phosphor-green CRT terminal aesthetic.
+      Forces dark mode regardless of system setting.
+      Uses a monospace typeface override and bright green primary on black.
+    -->
+    <style name="Theme.DPadPlayer.Retro" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/retro_primary</item>
+        <item name="colorPrimaryVariant">@color/retro_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/retro_onPrimary</item>
+        <item name="colorSecondary">@color/retro_secondary</item>
+        <item name="colorSecondaryVariant">@color/retro_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/retro_onPrimary</item>
+        <item name="android:colorBackground">@color/retro_surface</item>
+        <item name="colorSurface">@color/retro_surface</item>
+        <item name="colorOnSurface">@color/retro_onSurface</item>
+        <item name="colorSurfaceVariant">@color/retro_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/retro_onSurfaceVariant</item>
+        <!-- Monospace font for retro terminal feel -->
+        <item name="android:fontFamily">monospace</item>
+        <!-- Force dark window chrome -->
+        <item name="android:statusBarColor">@color/retro_surface</item>
+        <item name="android:navigationBarColor">@color/retro_surface</item>
+        <!-- Text colours: green on black -->
+        <item name="android:textColorPrimary">@color/retro_onSurface</item>
+        <item name="android:textColorSecondary">@color/retro_onSurfaceVariant</item>
+    </style>
 </resources>

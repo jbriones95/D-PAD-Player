@@ -11,7 +11,7 @@
     android:paddingBottom="@dimen/item_track_padding_v"
     android:focusable="true"
     android:focusableInTouchMode="false"
-    android:background="?attr/selectableItemBackground">
+    android:background="@android:color/transparent">
 
     <ImageView
         android:id="@+id/iv_genre_icon"

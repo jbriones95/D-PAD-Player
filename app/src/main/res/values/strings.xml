@@ -33,6 +33,7 @@
         <item>Orange</item>
         <item>Yellow</item>
         <item>Grey</item>
+        <item>Retro</item>
     </string-array>
     <string-array name="pref_accent_values">
         <item>deep_purple</item>
@@ -44,6 +45,7 @@
         <item>orange</item>
         <item>yellow</item>
         <item>grey</item>
+        <item>retro</item>
     </string-array>
 
     <!-- Seek step preference -->

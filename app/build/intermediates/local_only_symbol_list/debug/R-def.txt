@@ -64,6 +64,14 @@ color red_secondary
 color red_secondaryVariant
 color red_surface
 color red_surfaceVariant
+color retro_onPrimary
+color retro_onSurface
+color retro_onSurfaceVariant
+color retro_primary
+color retro_secondary
+color retro_secondaryVariant
+color retro_surface
+color retro_surfaceVariant
 color teal_onPrimary
 color teal_onSurface
 color teal_onSurfaceVariant
@@ -117,6 +125,7 @@ drawable ic_shuffle_off
 drawable ic_shuffle_on
 drawable ic_skip_next
 drawable ic_skip_previous
+drawable item_focus_bg
 id album_art
 id album_header
 id btn_back
@@ -219,6 +228,7 @@ style Theme.DPadPlayer.Grey
 style Theme.DPadPlayer.Orange
 style Theme.DPadPlayer.Purple
 style Theme.DPadPlayer.Red
+style Theme.DPadPlayer.Retro
 style Theme.DPadPlayer.Teal
 style Theme.DPadPlayer.Yellow
 xml preferences

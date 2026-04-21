@@ -42,8 +42,9 @@ class PlaylistAdapter(
 
     inner class CreateVH(view: View) : RecyclerView.ViewHolder(view) {
         init {
+            applyItemFocusBackground(view)
             view.setOnClickListener { onCreateClick?.invoke() }
-            view.setOnFocusChangeListener { v, f -> v.isSelected = f }
+            view.setupDpadItem { onCreateClick?.invoke() }
         }
     }
 
@@ -53,8 +54,9 @@ class PlaylistAdapter(
         val name: TextView = view.findViewById(R.id.tv_playlist_name)
         val info: TextView = view.findViewById(R.id.tv_playlist_info)
         init {
+            applyItemFocusBackground(view)
             view.setOnClickListener { onPlaylistClick(items[bindingAdapterPosition - 1]) }
-            view.setOnFocusChangeListener { v, f -> v.isSelected = f }
+            view.setupDpadItem { onPlaylistClick(items[bindingAdapterPosition - 1]) }
         }
     }
 

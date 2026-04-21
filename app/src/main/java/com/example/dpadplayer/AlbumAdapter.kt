@@ -28,8 +28,11 @@ class AlbumAdapter(
         val art: ImageView  = view.findViewById(R.id.iv_album_art)
         val name: TextView  = view.findViewById(R.id.tv_album_name)
         val info: TextView  = view.findViewById(R.id.tv_album_info)
-        init { view.setOnClickListener { onAlbumClick(items[bindingAdapterPosition]) }
-               view.setOnFocusChangeListener { v, f -> v.isSelected = f } }
+        init {
+            applyItemFocusBackground(view)
+            view.setOnClickListener { onAlbumClick(items[bindingAdapterPosition]) }
+            view.setupDpadItem { onAlbumClick(items[bindingAdapterPosition]) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

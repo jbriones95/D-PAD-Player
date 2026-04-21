@@ -26,8 +26,11 @@ class ArtistAdapter(
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tv_artist_name)
         val info: TextView = view.findViewById(R.id.tv_artist_info)
-        init { view.setOnClickListener { onArtistClick(items[bindingAdapterPosition]) }
-               view.setOnFocusChangeListener { v, f -> v.isSelected = f } }
+        init {
+            applyItemFocusBackground(view)
+            view.setOnClickListener { onArtistClick(items[bindingAdapterPosition]) }
+            view.setupDpadItem { onArtistClick(items[bindingAdapterPosition]) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

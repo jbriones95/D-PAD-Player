@@ -2216,6 +2216,14 @@ color red_secondary
 color red_secondaryVariant
 color red_surface
 color red_surfaceVariant
+color retro_onPrimary
+color retro_onSurface
+color retro_onSurfaceVariant
+color retro_primary
+color retro_secondary
+color retro_secondaryVariant
+color retro_surface
+color retro_surfaceVariant
 color ripple_material_dark
 color ripple_material_light
 color secondary_text_default_material_dark
@@ -3292,6 +3300,7 @@ drawable ic_shuffle_off
 drawable ic_shuffle_on
 drawable ic_skip_next
 drawable ic_skip_previous
+drawable item_focus_bg
 drawable m3_appbar_background
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
@@ -5109,6 +5118,7 @@ style Theme_DPadPlayer_Grey
 style Theme_DPadPlayer_Orange
 style Theme_DPadPlayer_Purple
 style Theme_DPadPlayer_Red
+style Theme_DPadPlayer_Retro
 style Theme_DPadPlayer_Teal
 style Theme_DPadPlayer_Yellow
 style Theme_Design
