@@ -128,9 +128,10 @@ class HomeMenuAdapter(
         val label: TextView  = view.findViewById(R.id.tv_menu_label)
 
         init {
-            applyItemFocusBackground(view)
-            view.setOnClickListener { onClick(items[bindingAdapterPosition]) }
-            view.setupDpadItem { onClick(items[bindingAdapterPosition]) }
+            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
+            applyItemFocusBackground(clickable)
+            clickable.setOnClickListener { onClick(items[bindingAdapterPosition]) }
+            clickable.setupDpadItem { onClick(items[bindingAdapterPosition]) }
         }
     }
 

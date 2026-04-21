@@ -16,7 +16,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 // ── Songs tab ────────────────────────────────────────────────────────────────
 
-class SongsTabFragment : Fragment() {
+class SongsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: TrackAdapter
@@ -91,19 +91,33 @@ class SongsTabFragment : Fragment() {
             .show()
     }
 
-    fun recyclerView(): RecyclerView = recycler
+    override fun recyclerView(): RecyclerView = recycler
+
+    override fun requestInitialFocus() {
+        // Try to focus the currently selected track or the first visible child.
+        recycler.post {
+            val preferred = viewModel.currentIndex.value ?: 0
+            val lm = recycler.layoutManager
+            var target: View? = null
+            try { target = lm?.findViewByPosition(preferred) } catch (_: Exception) { }
+            if (target == null && recycler.childCount > 0) target = recycler.getChildAt(0)
+            target?.requestFocus()
+        }
+    }
 }
 
 // ── Albums tab ───────────────────────────────────────────────────────────────
 
-class AlbumsTabFragment : Fragment() {
+class AlbumsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
+    private var recyclerRef: RecyclerView? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        recyclerRef = recycler
         val adapter = AlbumAdapter(emptyList()) { album ->
             (activity as? MainActivity)?.openAlbumDetail(album)
         }
@@ -111,18 +125,30 @@ class AlbumsTabFragment : Fragment() {
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
         viewModel.albums.observe(viewLifecycleOwner) { adapter.update(it) }
     }
+
+    override fun recyclerView(): RecyclerView? = recyclerRef
+
+    override fun requestInitialFocus() {
+        recyclerRef?.post {
+            val lm = recyclerRef?.layoutManager
+            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
+            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+        }
+    }
 }
 
 // ── Artists tab ──────────────────────────────────────────────────────────────
 
-class ArtistsTabFragment : Fragment() {
+class ArtistsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
+    private var recyclerRef: RecyclerView? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        recyclerRef = recycler
         val adapter = ArtistAdapter(emptyList()) { artist ->
             (activity as? MainActivity)?.openArtistDetail(artist)
         }
@@ -130,18 +156,30 @@ class ArtistsTabFragment : Fragment() {
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
         viewModel.artists.observe(viewLifecycleOwner) { adapter.update(it) }
     }
+
+    override fun recyclerView(): RecyclerView? = recyclerRef
+
+    override fun requestInitialFocus() {
+        recyclerRef?.post {
+            val lm = recyclerRef?.layoutManager
+            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
+            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+        }
+    }
 }
 
 // ── Genres tab ───────────────────────────────────────────────────────────────
 
-class GenresTabFragment : Fragment() {
+class GenresTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
+    private var recyclerRef: RecyclerView? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        recyclerRef = recycler
         val adapter = GenreAdapter(emptyList()) { genre ->
             (activity as? MainActivity)?.openGenreDetail(genre)
         }
@@ -149,18 +187,30 @@ class GenresTabFragment : Fragment() {
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
         viewModel.genres.observe(viewLifecycleOwner) { adapter.update(it) }
     }
+
+    override fun recyclerView(): RecyclerView? = recyclerRef
+
+    override fun requestInitialFocus() {
+        recyclerRef?.post {
+            val lm = recyclerRef?.layoutManager
+            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
+            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+        }
+    }
 }
 
 // ── Playlists tab ─────────────────────────────────────────────────────────────
 
-class PlaylistsTabFragment : Fragment() {
+class PlaylistsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
+    private var recyclerRef: RecyclerView? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        recyclerRef = recycler
 
         val adapter = PlaylistAdapter(
             items = emptyList(),
@@ -185,6 +235,16 @@ class PlaylistsTabFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    override fun recyclerView(): RecyclerView? = recyclerRef
+
+    override fun requestInitialFocus() {
+        recyclerRef?.post {
+            val lm = recyclerRef?.layoutManager
+            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
+            (target ?: recyclerRef?.getChildAt(0))?.requestFocus()
+        }
     }
 }
 

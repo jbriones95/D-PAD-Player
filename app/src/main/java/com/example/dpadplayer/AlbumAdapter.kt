@@ -29,9 +29,10 @@ class AlbumAdapter(
         val name: TextView  = view.findViewById(R.id.tv_album_name)
         val info: TextView  = view.findViewById(R.id.tv_album_info)
         init {
-            applyItemFocusBackground(view)
-            view.setOnClickListener { onAlbumClick(items[bindingAdapterPosition]) }
-            view.setupDpadItem { onAlbumClick(items[bindingAdapterPosition]) }
+            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
+            applyItemFocusBackground(clickable)
+            clickable.setOnClickListener { onAlbumClick(items[bindingAdapterPosition]) }
+            clickable.setupDpadItem { onAlbumClick(items[bindingAdapterPosition]) }
         }
     }
 

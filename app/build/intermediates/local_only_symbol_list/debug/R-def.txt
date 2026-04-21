@@ -137,6 +137,7 @@ id btn_repeat
 id btn_settings_back
 id btn_shuffle
 id btn_track_menu
+id clickable_item
 id fab_create_playlist
 id fragment_container
 id iv_album_art

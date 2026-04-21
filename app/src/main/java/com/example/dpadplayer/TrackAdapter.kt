@@ -49,13 +49,16 @@ class TrackAdapter(
         val menuBtn: ImageView = view.findViewById(R.id.btn_track_menu)
         val indicator: View    = view.findViewById(R.id.playing_indicator)
 
+        private val clickable: View = view.findViewById(R.id.clickable_item)
+
         init {
-            applyItemFocusBackground(view)
-            view.setOnClickListener { onTrackClick(bindingAdapterPosition) }
-            view.setOnLongClickListener {
+            // Use anrimian-style clickable overlay: background/ripple + focus are applied to clickable_item
+            applyItemFocusBackground(clickable)
+            clickable.setOnClickListener { onTrackClick(bindingAdapterPosition) }
+            clickable.setOnLongClickListener {
                 onTrackLongClick?.invoke(bindingAdapterPosition) ?: false
             }
-            view.setupDpadItem { onTrackClick(bindingAdapterPosition) }
+            clickable.setupDpadItem { onTrackClick(bindingAdapterPosition) }
             menuBtn.setOnClickListener { v ->
                 val pos = bindingAdapterPosition
                 if (pos == RecyclerView.NO_POSITION) return@setOnClickListener

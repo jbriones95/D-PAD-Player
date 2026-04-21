@@ -80,6 +80,22 @@ class LibraryFragment : Fragment() {
         val initialTab = arguments?.getInt(ARG_TAB, 0) ?: 0
         if (initialTab > 0) viewPager.setCurrentItem(initialTab, false)
 
+        // Ensure viewPager doesn't steal focus; when page changes, request focus into the child recycler
+        viewPager.isFocusable = false
+        viewPager.registerOnPageChangeCallback(object: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                // Give the newly visible fragment a chance to move focus into its recycler
+                val fragments = childFragmentManager.fragments
+                for (f in fragments) {
+                    if (f is TabWithRecycler && f.isVisible) {
+                        f.requestInitialFocus()
+                        break
+                    }
+                }
+            }
+        })
+
         // Marquee requires isSelected = true
         miniTitle.isSelected = true
 
@@ -184,7 +200,15 @@ class LibraryFragment : Fragment() {
         miniBtnPlay.hasFocus() || miniBtnNext.hasFocus()
 
     fun recyclerView(): RecyclerView? {
-        val frag = childFragmentManager.findFragmentById(R.id.view_pager)
+        // Find the active child fragment inside the ViewPager and return its RecyclerView if available
+        val fragments = childFragmentManager.fragments
+        for (f in fragments) {
+            if (f != null && f.isVisible && f is TabWithRecycler) {
+                return f.recyclerView()
+            }
+        }
+        // Fallback: try to find the SongsTabFragment specifically
+        val frag = childFragmentManager.findFragmentByTag("f0")
         return if (frag is SongsTabFragment) frag.recyclerView() else null
     }
 }

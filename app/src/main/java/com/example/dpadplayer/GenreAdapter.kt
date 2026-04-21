@@ -27,9 +27,10 @@ class GenreAdapter(
         val name: TextView = view.findViewById(R.id.tv_genre_name)
         val info: TextView = view.findViewById(R.id.tv_genre_info)
         init {
-            applyItemFocusBackground(view)
-            view.setOnClickListener { onGenreClick(items[bindingAdapterPosition]) }
-            view.setupDpadItem { onGenreClick(items[bindingAdapterPosition]) }
+            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
+            applyItemFocusBackground(clickable)
+            clickable.setOnClickListener { onGenreClick(items[bindingAdapterPosition]) }
+            clickable.setupDpadItem { onGenreClick(items[bindingAdapterPosition]) }
         }
     }
 

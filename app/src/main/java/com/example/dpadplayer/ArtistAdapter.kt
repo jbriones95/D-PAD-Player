@@ -27,9 +27,10 @@ class ArtistAdapter(
         val name: TextView = view.findViewById(R.id.tv_artist_name)
         val info: TextView = view.findViewById(R.id.tv_artist_info)
         init {
-            applyItemFocusBackground(view)
-            view.setOnClickListener { onArtistClick(items[bindingAdapterPosition]) }
-            view.setupDpadItem { onArtistClick(items[bindingAdapterPosition]) }
+            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
+            applyItemFocusBackground(clickable)
+            clickable.setOnClickListener { onArtistClick(items[bindingAdapterPosition]) }
+            clickable.setupDpadItem { onArtistClick(items[bindingAdapterPosition]) }
         }
     }
 

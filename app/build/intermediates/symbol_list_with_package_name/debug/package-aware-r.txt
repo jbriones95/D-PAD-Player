@@ -3507,6 +3507,7 @@ id checked
 id chronometer
 id circle_center
 id clear_text
+id clickable_item
 id clip_horizontal
 id clip_vertical
 id clockwise
