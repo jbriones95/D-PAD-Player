@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+
 
 // ── Songs tab ────────────────────────────────────────────────────────────────
 
@@ -76,6 +76,7 @@ class SongsTabFragment : Fragment() {
     private fun showCreateAndAddDialog(track: com.example.dpadplayer.playback.Track) {
         val editText = EditText(requireContext())
         editText.hint = "Playlist name"
+        editText.requestFocus()
         AlertDialog.Builder(requireContext())
             .setTitle("New playlist")
             .setView(editText)
@@ -156,25 +157,25 @@ class PlaylistsTabFragment : Fragment() {
     private val viewModel: MusicViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
-        inflater.inflate(R.layout.fragment_tab_playlists, container, false)
+        inflater.inflate(R.layout.fragment_tab_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
-        val fab = view.findViewById<FloatingActionButton>(R.id.fab_create_playlist)
 
-        val adapter = PlaylistAdapter(emptyList()) { playlist ->
-            (activity as? MainActivity)?.openPlaylistDetail(playlist)
-        }
+        val adapter = PlaylistAdapter(
+            items = emptyList(),
+            onPlaylistClick = { playlist -> (activity as? MainActivity)?.openPlaylistDetail(playlist) }
+        )
+        adapter.onCreateClick = { showCreatePlaylistDialog() }
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
         viewModel.playlists.observe(viewLifecycleOwner) { adapter.update(it) }
-
-        fab.setOnClickListener { showCreatePlaylistDialog() }
     }
 
     private fun showCreatePlaylistDialog() {
         val editText = EditText(requireContext())
         editText.hint = "Playlist name"
+        editText.requestFocus()
         AlertDialog.Builder(requireContext())
             .setTitle("New playlist")
             .setView(editText)

@@ -46,4 +46,12 @@
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_sort" />
 
+    <!-- Show / hide top library bar (tabs + pager) to favour iPod-style navigation -->
+    <SwitchPreferenceCompat
+        app:key="show_top_bar"
+        app:title="Show top library bar"
+        app:defaultValue="true"
+        app:summary="When off, the tab bar and pager are hidden for a simpler iPod-like experience"
+        app:icon="@drawable/ic_settings_theme" />
+
 </PreferenceScreen>

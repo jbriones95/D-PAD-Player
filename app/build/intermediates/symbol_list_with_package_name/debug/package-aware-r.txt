@@ -3667,6 +3667,7 @@ id italic
 id item_touch_helper_previous_elevation
 id iv_album_art
 id iv_artist_icon
+id iv_create_icon
 id iv_detail_art
 id iv_genre_icon
 id iv_menu_chevron
@@ -3961,6 +3962,7 @@ id tv_app_title
 id tv_artist
 id tv_artist_info
 id tv_artist_name
+id tv_create_label
 id tv_detail_album
 id tv_detail_artist
 id tv_detail_meta
@@ -4168,6 +4170,7 @@ layout fragment_tab_playlists
 layout image_frame
 layout item_album
 layout item_artist
+layout item_create_playlist
 layout item_genre
 layout item_home_menu
 layout item_playlist

@@ -10,6 +10,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.preference.PreferenceManager
+import android.content.SharedPreferences
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -63,6 +65,17 @@ class LibraryFragment : Fragment() {
             tab.text = tabTitles[position]
         }.attach()
 
+        // Apply "show_top_bar" preference immediately — hide only the tab bar, keep the pager content
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val showTopBar = prefs.getBoolean("show_top_bar", true)
+        tabLayout.visibility = if (showTopBar) View.VISIBLE else View.GONE
+
+        // Always keep the pager visible so users can navigate directly to the Songs/Albums content
+        viewPager.visibility = View.VISIBLE
+
+        // Listen for changes to apply immediately
+        prefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
+
         // Navigate to initial tab
         val initialTab = arguments?.getInt(ARG_TAB, 0) ?: 0
         if (initialTab > 0) viewPager.setCurrentItem(initialTab, false)
@@ -94,6 +107,25 @@ class LibraryFragment : Fragment() {
 
         observeViewModel()
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Unregister preference listener to avoid leaks
+        try {
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .unregisterOnSharedPreferenceChangeListener(prefChangeListener)
+        } catch (_: Exception) { }
+    }
+
+    private val prefChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+            if (key == "show_top_bar") {
+                val show = prefs.getBoolean(key, true)
+                tabLayout.visibility = if (show) View.VISIBLE else View.GONE
+                // Keep viewPager visible regardless — preference hides only the top bar
+                viewPager.visibility = View.VISIBLE
+            }
+        }
 
     fun selectTab(index: Int) {
         if (::viewPager.isInitialized) viewPager.setCurrentItem(index, true)

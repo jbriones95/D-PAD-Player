@@ -95,6 +95,7 @@ class PlaylistDetailFragment : Fragment() {
         val current = viewModel.playlists.value?.find { it.id == playlistId }?.name ?: ""
         editText.setText(current)
         editText.selectAll()
+        editText.requestFocus()
         AlertDialog.Builder(requireContext())
             .setTitle("Rename playlist")
             .setView(editText)
