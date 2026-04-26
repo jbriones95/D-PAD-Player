@@ -182,6 +182,7 @@
                 android:focusable="true"
                 android:focusableInTouchMode="false"
                 android:nextFocusRight="@id/btn_prev"
+                android:nextFocusLeft="@id/btn_shuffle"
                 android:nextFocusUp="@id/seek_bar"
                 android:contentDescription="Repeat mode" />
 
@@ -263,6 +264,7 @@
                 android:focusable="true"
                 android:focusableInTouchMode="false"
                 android:nextFocusLeft="@id/btn_next"
+                android:nextFocusRight="@id/btn_repeat"
                 android:nextFocusUp="@id/seek_bar"
                 android:contentDescription="Shuffle" />
 

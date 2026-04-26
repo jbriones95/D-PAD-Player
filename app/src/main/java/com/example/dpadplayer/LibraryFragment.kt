@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import android.content.SharedPreferences
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.tabs.TabLayoutMediator
@@ -24,13 +23,13 @@ class LibraryFragment : Fragment() {
     private lateinit var viewPager: androidx.viewpager2.widget.ViewPager2
     private lateinit var tabLayout: com.google.android.material.tabs.TabLayout
     private lateinit var btnBack: MaterialButton
-    private lateinit var miniPlayer: View
     private lateinit var miniArt: ImageView
     private lateinit var miniTitle: TextView
     private lateinit var miniArtist: TextView
     private lateinit var miniBtnPlay: MaterialButton
     private lateinit var miniBtnNext: MaterialButton
     private lateinit var miniProgress: LinearProgressIndicator
+    private lateinit var miniOpenPlayer: View
 
     private val tabTitles = listOf("Songs", "Albums", "Artists", "Genres", "Playlists")
 
@@ -48,16 +47,16 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewPager    = view.findViewById(R.id.view_pager)
-        tabLayout  = view.findViewById(R.id.tab_layout)
-        btnBack     = view.findViewById(R.id.btn_back)
-        miniPlayer = view.findViewById(R.id.mini_player)
-        miniArt    = view.findViewById(R.id.mini_art)
-        miniTitle = view.findViewById(R.id.mini_title)
-        miniArtist = view.findViewById(R.id.mini_artist)
-        miniBtnPlay = view.findViewById(R.id.mini_btn_play)
-        miniBtnNext = view.findViewById(R.id.mini_btn_next)
-        miniProgress = view.findViewById(R.id.mini_progress)
+        viewPager       = view.findViewById(R.id.view_pager)
+        tabLayout       = view.findViewById(R.id.tab_layout)
+        btnBack         = view.findViewById(R.id.btn_back)
+        miniArt         = view.findViewById(R.id.mini_art)
+        miniTitle       = view.findViewById(R.id.mini_title)
+        miniArtist      = view.findViewById(R.id.mini_artist)
+        miniBtnPlay     = view.findViewById(R.id.mini_btn_play)
+        miniBtnNext     = view.findViewById(R.id.mini_btn_next)
+        miniProgress    = view.findViewById(R.id.mini_progress)
+        miniOpenPlayer  = view.findViewById(R.id.mini_open_player)
 
         // Setup ViewPager2 with tabs
         viewPager.adapter = LibraryPagerAdapter(this)
@@ -65,27 +64,23 @@ class LibraryFragment : Fragment() {
             tab.text = tabTitles[position]
         }.attach()
 
-        // Apply "show_top_bar" preference immediately — hide only the tab bar, keep the pager content
+        // Apply "show_top_bar" preference immediately
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val showTopBar = prefs.getBoolean("show_top_bar", true)
         tabLayout.visibility = if (showTopBar) View.VISIBLE else View.GONE
-
-        // Always keep the pager visible so users can navigate directly to the Songs/Albums content
         viewPager.visibility = View.VISIBLE
 
-        // Listen for changes to apply immediately
         prefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
 
         // Navigate to initial tab
         val initialTab = arguments?.getInt(ARG_TAB, 0) ?: 0
         if (initialTab > 0) viewPager.setCurrentItem(initialTab, false)
 
-        // Ensure viewPager doesn't steal focus; when page changes, request focus into the child recycler
+        // ViewPager must not steal focus; delegate to active tab's recycler
         viewPager.isFocusable = false
         viewPager.registerOnPageChangeCallback(object: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                // Give the newly visible fragment a chance to move focus into its recycler
                 val fragments = childFragmentManager.fragments
                 for (f in fragments) {
                     if (f is TabWithRecycler && f.isVisible) {
@@ -96,37 +91,43 @@ class LibraryFragment : Fragment() {
             }
         })
 
-        // Marquee requires isSelected = true
+        // Fire initial focus for the starting tab (onPageSelected won't fire for position 0)
+        viewPager.post {
+            val fragments = childFragmentManager.fragments
+            for (f in fragments) {
+                if (f is TabWithRecycler && f.isVisible) {
+                    f.requestInitialFocus()
+                    break
+                }
+            }
+        }
+
         miniTitle.isSelected = true
 
         // Back button
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+        applyItemFocusBackground(btnBack)
+        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
 
-        // Mini-player interactions
-        miniPlayer.setOnClickListener {
-            (activity as? MainActivity)?.openPlayer()
-        }
-        miniPlayer.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN &&
-                (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER)) {
-                (activity as? MainActivity)?.openPlayer()
-                true
-            } else false
-        }
+        // Mini-player: left area opens full player
+        applyItemFocusBackground(miniOpenPlayer)
+        miniOpenPlayer.setOnClickListener { (activity as? MainActivity)?.openPlayer() }
+        miniOpenPlayer.setupDpadItem { (activity as? MainActivity)?.openPlayer() }
 
-        miniBtnPlay.setOnClickListener {
-            (activity as? MainActivity)?.togglePlayPause()
-        }
-        miniBtnNext.setOnClickListener {
-            (activity as? MainActivity)?.sendCmd("NEXT")
-        }
+        // Play / Next buttons
+        applyItemFocusBackground(miniBtnPlay)
+        miniBtnPlay.setupDpadItem { (activity as? MainActivity)?.togglePlayPause() }
+        miniBtnPlay.setOnClickListener { (activity as? MainActivity)?.togglePlayPause() }
+
+        applyItemFocusBackground(miniBtnNext)
+        miniBtnNext.setupDpadItem { (activity as? MainActivity)?.sendCmd("NEXT") }
+        miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
 
         observeViewModel()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Unregister preference listener to avoid leaks
         try {
             PreferenceManager.getDefaultSharedPreferences(requireContext())
                 .unregisterOnSharedPreferenceChangeListener(prefChangeListener)
@@ -138,7 +139,6 @@ class LibraryFragment : Fragment() {
             if (key == "show_top_bar") {
                 val show = prefs.getBoolean(key, true)
                 tabLayout.visibility = if (show) View.VISIBLE else View.GONE
-                // Keep viewPager visible regardless — preference hides only the top bar
                 viewPager.visibility = View.VISIBLE
             }
         }
@@ -148,15 +148,9 @@ class LibraryFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.currentIndex.observe(viewLifecycleOwner) { _ ->
-            refreshMiniPlayer()
-        }
-        viewModel.isPlaying.observe(viewLifecycleOwner) { playing ->
-            updateMiniPlayIcon(playing)
-        }
-        viewModel.position.observe(viewLifecycleOwner) { pos ->
-            updateProgressBar(pos)
-        }
+        viewModel.currentIndex.observe(viewLifecycleOwner) { _ -> refreshMiniPlayer() }
+        viewModel.isPlaying.observe(viewLifecycleOwner)   { playing -> updateMiniPlayIcon(playing) }
+        viewModel.position.observe(viewLifecycleOwner)    { pos -> updateProgressBar(pos) }
     }
 
     private fun refreshMiniPlayer() {
@@ -165,7 +159,6 @@ class LibraryFragment : Fragment() {
         miniTitle.text  = track.title
         miniArtist.text = track.artist
         miniProgress.max = track.duration.toInt()
-
         val loaded = try {
             requireContext().contentResolver.openInputStream(track.albumArtUri)?.use { true } ?: false
         } catch (_: Exception) { false }
@@ -180,35 +173,5 @@ class LibraryFragment : Fragment() {
 
     private fun updateProgressBar(pos: Long) {
         miniProgress.progress = pos.toInt()
-    }
-
-    fun onDpadDown(focusedPos: Int): Boolean {
-        val itemCount = viewPager.adapter?.itemCount ?: 0
-        return if (focusedPos >= itemCount - 1) {
-            miniPlayer.requestFocus()
-            true
-        } else false
-    }
-
-    fun onDpadUpFromMini(): Boolean {
-        viewPager.requestFocus()
-        return true
-    }
-
-    fun isMiniPlayerFocused(): Boolean =
-        miniPlayer.hasFocus() || miniPlayer.isFocused ||
-        miniBtnPlay.hasFocus() || miniBtnNext.hasFocus()
-
-    fun recyclerView(): RecyclerView? {
-        // Find the active child fragment inside the ViewPager and return its RecyclerView if available
-        val fragments = childFragmentManager.fragments
-        for (f in fragments) {
-            if (f != null && f.isVisible && f is TabWithRecycler) {
-                return f.recyclerView()
-            }
-        }
-        // Fallback: try to find the SongsTabFragment specifically
-        val frag = childFragmentManager.findFragmentByTag("f0")
-        return if (frag is SongsTabFragment) frag.recyclerView() else null
     }
 }

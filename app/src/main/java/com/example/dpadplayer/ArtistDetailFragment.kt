@@ -1,6 +1,7 @@
 package com.example.dpadplayer
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +38,9 @@ class ArtistDetailFragment : Fragment() {
         val recyclerAlbums = view.findViewById<RecyclerView>(R.id.recycler_albums)
         val recyclerSongs  = view.findViewById<RecyclerView>(R.id.recycler_songs)
 
+        applyItemFocusBackground(btnBack)
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
 
         val albumAdapter = AlbumAdapter(emptyList()) { album ->
             (activity as? MainActivity)?.openAlbumDetail(album)
@@ -59,6 +62,54 @@ class ArtistDetailFragment : Fragment() {
         recyclerSongs.layoutManager = FocusLinearLayoutManager(requireContext())
         recyclerSongs.isNestedScrollingEnabled = false
 
+        // Bridge focus: DPAD_DOWN past the last album row moves to the first song row,
+        // and DPAD_UP from the first song row moves back to the last album row.
+        recyclerAlbums.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                val lm = recyclerAlbums.layoutManager ?: return@setOnKeyListener false
+                val focused = recyclerAlbums.findFocus() ?: return@setOnKeyListener false
+                // Walk up to the immediate child of recyclerAlbums
+                var child: View = focused
+                while (child.parent != recyclerAlbums && child.parent is View) child = child.parent as View
+                val pos = recyclerAlbums.getChildAdapterPosition(child)
+                if (pos == (recyclerAlbums.adapter?.itemCount ?: 0) - 1) {
+                    // At last album item — move focus to first song row
+                    recyclerSongs.post {
+                        val first = recyclerSongs.layoutManager?.findViewByPosition(0)
+                            ?: recyclerSongs.getChildAt(0)
+                        val clickable = first?.findViewById<View?>(R.id.clickable_item) ?: first
+                        clickable?.requestFocus()
+                    }
+                    return@setOnKeyListener true
+                }
+            }
+            false
+        }
+
+        recyclerSongs.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                val focused = recyclerSongs.findFocus() ?: return@setOnKeyListener false
+                var child: View = focused
+                while (child.parent != recyclerSongs && child.parent is View) child = child.parent as View
+                val pos = recyclerSongs.getChildAdapterPosition(child)
+                if (pos == 0) {
+                    // At first song item — move focus to last album row (if visible)
+                    val albumCount = recyclerAlbums.adapter?.itemCount ?: 0
+                    if (albumCount > 0) {
+                        recyclerAlbums.post {
+                            val last = recyclerAlbums.layoutManager?.findViewByPosition(albumCount - 1)
+                                ?: recyclerAlbums.getChildAt(recyclerAlbums.childCount - 1)
+                            val clickable = last?.findViewById<View?>(R.id.clickable_item) ?: last
+                            clickable?.requestFocus()
+                        }
+                        return@setOnKeyListener true
+                    }
+                }
+            }
+            false
+        }
+
+        var focusRequested = false
         viewModel.artists.observe(viewLifecycleOwner) { artists ->
             val artist = artists.find { it.id == artistId } ?: return@observe
             tvName.text = artist.name
@@ -68,6 +119,15 @@ class ArtistDetailFragment : Fragment() {
             recyclerAlbums.visibility  = if (artist.albums.isEmpty()) View.GONE else View.VISIBLE
 
             songAdapter.updateTracks(artist.songs)
+
+            if (!focusRequested) {
+                focusRequested = true
+                val targetRv = if (artist.albums.isNotEmpty()) recyclerAlbums else recyclerSongs
+                targetRv.post {
+                    val first = targetRv.layoutManager?.findViewByPosition(0) ?: targetRv.getChildAt(0)
+                    (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                }
+            }
         }
 
         viewModel.currentIndex.observe(viewLifecycleOwner) { songAdapter.setSelectedIndex(it) }

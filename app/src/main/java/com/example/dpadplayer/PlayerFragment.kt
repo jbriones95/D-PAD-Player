@@ -63,6 +63,8 @@ class PlayerFragment : Fragment() {
         btnShuffle     = view.findViewById(R.id.btn_shuffle)
 
         btnBack.setOnClickListener { navigateBack() }
+        applyItemFocusBackground(btnBack)
+        btnBack.setupDpadItem { navigateBack() }
         setupButtons()
         setupSeekBar()
         observeViewModel()

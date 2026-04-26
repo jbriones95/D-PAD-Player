@@ -36,6 +36,8 @@ class GenreDetailFragment : Fragment() {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_genre)
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+        applyItemFocusBackground(btnBack)
+        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
 
         val adapter = TrackAdapter(
             items = emptyList(),
@@ -49,10 +51,18 @@ class GenreDetailFragment : Fragment() {
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 
+        var focusRequested = false
         viewModel.genres.observe(viewLifecycleOwner) { genres ->
             val genre = genres.find { it.id == genreId } ?: return@observe
             tvName.text = genre.name
             adapter.updateTracks(genre.songs)
+            if (!focusRequested && genre.songs.isNotEmpty()) {
+                focusRequested = true
+                recycler.post {
+                    val first = recycler.layoutManager?.findViewByPosition(0) ?: recycler.getChildAt(0)
+                    (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                }
+            }
         }
 
         viewModel.currentIndex.observe(viewLifecycleOwner) { adapter.setSelectedIndex(it) }

@@ -192,72 +192,17 @@ class MainActivity : AppCompatActivity() {
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
-                // Back key / Back button on D-pad
+                // Back key always pops the stack
                 KeyEvent.KEYCODE_BACK -> {
-                    if (isPlayerVisible()) {
+                    if (supportFragmentManager.backStackEntryCount > 0) {
                         supportFragmentManager.popBackStack()
                         return true
                     }
                 }
+                // Media keys work from any screen
                 KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> { togglePlayPause(); return true }
                 KeyEvent.KEYCODE_MEDIA_NEXT       -> { sendCmd("NEXT"); return true }
                 KeyEvent.KEYCODE_MEDIA_PREVIOUS   -> { sendCmd("PREV"); return true }
-            }
-
-            // Library-fragment D-pad handling
-            val libFrag = libraryFragment()
-            if (libFrag != null && libFrag.isVisible) {
-                val focused = currentFocus
-                val recycler = libFrag.recyclerView()
-                val recyclerView: android.view.View? = recycler
-                val isInRecycler = focused != null && recyclerView != null && isDescendantOf(focused, recyclerView)
-
-                when (event.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_DOWN -> {
-                        if (isInRecycler && recycler != null) {
-                            try {
-                                // The currently focused view may be a descendant inside the item view
-                                // (for example our clickable overlay). getChildAdapterPosition expects
-                                // a direct child of the RecyclerView, otherwise it will attempt to
-                                // cast the LayoutParams and crash. Walk up the parent chain to the
-                                // immediate child and use that.
-                                var childView: android.view.View = focused!!
-                                while (childView.parent != recycler && childView.parent is android.view.View) {
-                                    childView = childView.parent as android.view.View
-                                }
-                                val pos = recycler.getChildAdapterPosition(childView)
-                                if (pos != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
-                                    if (libFrag.onDpadDown(pos)) return true
-                                }
-                            } catch (e: Exception) {
-                                // Log and swallow to avoid crashing the app; the adapter click
-                                // handlers will still be invoked via DPAD_CENTER.
-                                android.util.Log.e("MainActivity", "Error resolving child adapter position", e)
-                            }
-                        }
-                    }
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        if (libFrag.isMiniPlayerFocused()) {
-                            return libFrag.onDpadUpFromMini()
-                        }
-                    }
-                    KeyEvent.KEYCODE_DPAD_CENTER,
-                    KeyEvent.KEYCODE_ENTER -> {
-                        focused?.performClick()
-                        return true
-                    }
-                }
-            }
-
-            // Player-fragment D-pad handling
-            if (isPlayerVisible()) {
-                when (event.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_CENTER,
-                    KeyEvent.KEYCODE_ENTER -> {
-                        currentFocus?.performClick()
-                        return true
-                    }
-                }
             }
         }
         return super.dispatchKeyEvent(event)

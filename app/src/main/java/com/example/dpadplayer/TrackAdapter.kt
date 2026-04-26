@@ -90,6 +90,7 @@ class TrackAdapter(
                     Log.e("TrackAdapter", "menuBtn click failed", e)
                 }
             }
+            applyItemFocusBackground(menuBtn)
             // Also trigger menu on long-press Enter when btn_track_menu is focused
             menuBtn.setOnKeyListener { v, keyCode, event ->
                 if (event.action == KeyEvent.ACTION_DOWN &&

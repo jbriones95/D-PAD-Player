@@ -3734,6 +3734,7 @@ id mini_art
 id mini_artist
 id mini_btn_next
 id mini_btn_play
+id mini_open_player
 id mini_player
 id mini_progress
 id mini_title

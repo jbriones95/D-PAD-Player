@@ -6,10 +6,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 /**
- * LinearLayoutManager that:
- *  1. Scrolls the D-pad focused item into view (keeps it visible without forcing it to the top).
- *  2. Returns true from onRequestChildFocus so the RecyclerView does not try to do its own
- *     (often broken) focus scroll.
+ * LinearLayoutManager with reliable D-pad focus behaviour for Android TV / D-pad remotes.
+ *
+ * What it does:
+ *  1. onRequestChildFocus — scrolls the focused item into view smoothly.
+ *  2. onInterceptFocusSearch — when navigating UP/DOWN, finds the next item's
+ *     clickable_item overlay (or the item root) and returns it, so the framework
+ *     moves focus there directly instead of doing its own unpredictable search.
  */
 class FocusLinearLayoutManager(context: Context) : LinearLayoutManager(context) {
 
@@ -19,53 +22,48 @@ class FocusLinearLayoutManager(context: Context) : LinearLayoutManager(context) 
         child: View,
         focused: View?
     ): Boolean {
-        // Bring child into view without snapping to offset 0.
-        // scrollToPosition() ensures visibility; if already visible it's a no-op.
         val position = getPosition(child)
         if (position != RecyclerView.NO_POSITION) {
             scrollToPosition(position)
         }
-        return true   // consume — prevent RecyclerView's own scroll
+        return true
     }
 
     override fun onInterceptFocusSearch(focused: View, direction: Int): View? {
-        // Intercept DPAD_UP / DPAD_DOWN so focus moves between list items predictably.
-        // If focus is inside a RecyclerView child, find the next/previous child and return
-        // its focusable clickable overlay (if present). Returning a view here tells the
-        // framework where to move focus next and prevents jumps.
-        val parentRv = findParentRecyclerView(focused) ?: return null
+        if (direction != View.FOCUS_DOWN && direction != View.FOCUS_UP) return null
 
-        val childCount = parentRv.childCount
-        if (childCount == 0) return null
+        // Find the RecyclerView that uses THIS layout manager as parent of focused
+        val rv = findOwnerRecyclerView(focused) ?: return null
 
-        // Find the immediate child that contains the focused view
-        var currentChild: View? = focused
-        while (currentChild != null && currentChild.parent != parentRv) {
-            currentChild = currentChild.parent as? View
+        // Walk up from focused view to find the direct RV child that contains it
+        var itemView: View = focused
+        while (itemView.parent !== rv) {
+            itemView = (itemView.parent as? View) ?: return null
         }
-        val currentIndex = if (currentChild != null) parentRv.getChildAdapterPosition(currentChild) else RecyclerView.NO_POSITION
-        if (currentIndex == RecyclerView.NO_POSITION) return null
 
-        val nextIndex = when (direction) {
-            View.FOCUS_DOWN -> currentIndex + 1
-            View.FOCUS_UP   -> currentIndex - 1
+        val currentPos = rv.getChildAdapterPosition(itemView)
+        if (currentPos == RecyclerView.NO_POSITION) return null
+
+        val nextPos = when (direction) {
+            View.FOCUS_DOWN -> currentPos + 1
+            View.FOCUS_UP   -> currentPos - 1
             else -> return null
         }
-        if (nextIndex < 0 || nextIndex >= parentRv.adapter?.itemCount ?: childCount) return null
 
-        // Try to find the next child's main focusable overlay (clickable_item) and return it.
-        val nextChild = try { parentRv.layoutManager?.findViewByPosition(nextIndex) } catch (_: Exception) { null }
-            ?: parentRv.getChildAt(nextIndex)
-        if (nextChild == null) return null
+        val itemCount = rv.adapter?.itemCount ?: return null
+        if (nextPos < 0 || nextPos >= itemCount) return null
 
-        // Look for a view with id clickable_item inside the child, otherwise return the child itself.
-        val clickable = nextChild.findViewById<View?>(R.id.clickable_item) ?: nextChild
-        return clickable
+        val nextView = findViewByPosition(nextPos) ?: return null
+        return nextView.findViewById<View?>(R.id.clickable_item) ?: nextView
     }
 
-    private fun findParentRecyclerView(view: View): RecyclerView? {
+    /** Walks up the view hierarchy to find the RecyclerView that owns this layout manager. */
+    private fun findOwnerRecyclerView(view: View): RecyclerView? {
         var v: View? = view
-        while (v != null && v !is RecyclerView) v = v.parent as? View
-        return v as? RecyclerView
+        while (v != null) {
+            if (v is RecyclerView && v.layoutManager === this) return v
+            v = v.parent as? View
+        }
+        return null
     }
 }

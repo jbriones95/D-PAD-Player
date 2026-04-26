@@ -1,7 +1,6 @@
 package com.example.dpadplayer
 
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +22,7 @@ class HomeFragment : Fragment() {
     private val viewModel: MusicViewModel by activityViewModels()
 
     private lateinit var miniPlayer: View
+    private lateinit var miniOpenPlayer: View
     private lateinit var miniArt: ImageView
     private lateinit var miniTitle: TextView
     private lateinit var miniArtist: TextView
@@ -40,6 +40,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         miniPlayer   = view.findViewById(R.id.mini_player)
+        miniOpenPlayer = view.findViewById(R.id.mini_open_player)
         miniArt      = view.findViewById(R.id.mini_art)
         miniTitle    = view.findViewById(R.id.mini_title)
         miniArtist   = view.findViewById(R.id.mini_artist)
@@ -71,17 +72,22 @@ class HomeFragment : Fragment() {
             }
         }
 
-        miniPlayer.setOnClickListener {
-            (activity as? MainActivity)?.openPlayer()
+        // Request focus on the first item once the recycler is laid out
+        recycler.post {
+            val firstChild = recycler.findViewHolderForAdapterPosition(0)?.itemView
+            val target = firstChild?.findViewById<View>(R.id.clickable_item) ?: firstChild
+            target?.requestFocus()
         }
-        miniPlayer.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN &&
-                (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER)) {
-                (activity as? MainActivity)?.openPlayer()
-                true
-            } else false
-        }
+
+        miniPlayer.setOnClickListener(null)
+        applyItemFocusBackground(miniOpenPlayer)
+        miniOpenPlayer.setOnClickListener { (activity as? MainActivity)?.openPlayer() }
+        miniOpenPlayer.setupDpadItem { (activity as? MainActivity)?.openPlayer() }
+        applyItemFocusBackground(miniBtnPlay)
+        miniBtnPlay.setupDpadItem { (activity as? MainActivity)?.togglePlayPause() }
         miniBtnPlay.setOnClickListener { (activity as? MainActivity)?.togglePlayPause() }
+        applyItemFocusBackground(miniBtnNext)
+        miniBtnNext.setupDpadItem { (activity as? MainActivity)?.sendCmd("NEXT") }
         miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
 
         observeViewModel()

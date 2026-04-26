@@ -41,6 +41,8 @@ class AlbumDetailFragment : Fragment() {
         val recycler     = view.findViewById<RecyclerView>(R.id.recycler_detail)
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+        applyItemFocusBackground(btnBack)
+        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
 
         val adapter = TrackAdapter(
             items = emptyList(),
@@ -55,6 +57,7 @@ class AlbumDetailFragment : Fragment() {
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 
+        var focusRequested = false
         viewModel.albums.observe(viewLifecycleOwner) { albums ->
             val album = albums.find { it.id == albumId } ?: return@observe
             tvTitle.text  = album.name
@@ -71,6 +74,13 @@ class AlbumDetailFragment : Fragment() {
             else { ivArt.setImageURI(null); ivArt.setImageResource(R.drawable.ic_music_note) }
 
             adapter.updateTracks(album.songs)
+            if (!focusRequested && album.songs.isNotEmpty()) {
+                focusRequested = true
+                recycler.post {
+                    val first = recycler.layoutManager?.findViewByPosition(0) ?: recycler.getChildAt(0)
+                    (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                }
+            }
         }
     }
 }

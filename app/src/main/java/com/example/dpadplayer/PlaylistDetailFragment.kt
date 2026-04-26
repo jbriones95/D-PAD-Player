@@ -43,6 +43,8 @@ class PlaylistDetailFragment : Fragment() {
         val recycler   = view.findViewById<RecyclerView>(R.id.recycler_playlist)
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+        applyItemFocusBackground(btnBack)
+        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
 
         val adapter = TrackAdapter(
             items = emptyList(),
@@ -63,6 +65,8 @@ class PlaylistDetailFragment : Fragment() {
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 
+        var focusRequested = false
+
         // Observe playlists for name updates
         viewModel.playlists.observe(viewLifecycleOwner) { list ->
             val pl = list.find { it.id == playlistId }
@@ -72,9 +76,30 @@ class PlaylistDetailFragment : Fragment() {
         // Observe playlist songs
         viewModel.observePlaylistTracks(playlistId).observe(viewLifecycleOwner) { tracks ->
             adapter.updateTracks(tracks)
+            if (!focusRequested && tracks.isNotEmpty()) {
+                focusRequested = true
+                recycler.post {
+                    val first = recycler.layoutManager?.findViewByPosition(0) ?: recycler.getChildAt(0)
+                    (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                }
+            }
         }
 
         // Overflow menu: rename / delete
+        applyItemFocusBackground(btnMenu)
+        btnMenu.setupDpadItem {
+            val popup = PopupMenu(requireContext(), btnMenu)
+            popup.menu.add(0, 1, 0, "Rename")
+            popup.menu.add(0, 2, 1, "Delete playlist")
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    1 -> showRenameDialog()
+                    2 -> confirmDelete()
+                }
+                true
+            }
+            popup.show()
+        }
         btnMenu.setOnClickListener { anchor ->
             val popup = PopupMenu(requireContext(), anchor)
             popup.menu.add(0, 1, 0, "Rename")
