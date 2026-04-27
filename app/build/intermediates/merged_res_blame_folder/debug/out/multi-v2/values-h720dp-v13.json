@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.dpadplayer.app-mergeDebugResources-48:/values-h720dp-v13/values-h720dp-v13.xml",
+            "map": [
+                {
+                    "source": "/Users/jbriones/.gradle/caches/8.9/transforms/3bdd79b55d66ac98847d0d5567f49065/transformed/appcompat-1.6.1/res/values-h720dp-v13/values-h720dp-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "66",
+                        "endOffsets": "117"
+                    }
+                }
+            ]
+        }
+    ]
+}

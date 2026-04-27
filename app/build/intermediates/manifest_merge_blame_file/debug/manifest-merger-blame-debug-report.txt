@@ -1,0 +1,192 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.dpadplayer"
+4    android:versionCode="1"
+5    android:versionName="0.1" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- Storage permissions -->
+12    <uses-permission
+12-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:5:5-6:38
+13        android:name="android.permission.READ_EXTERNAL_STORAGE"
+13-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:5:22-77
+14        android:maxSdkVersion="32" />
+14-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:6:9-35
+15    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+15-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:7:5-75
+15-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:7:22-72
+16
+17    <!-- Foreground service permissions -->
+18    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+18-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:10:5-77
+18-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:10:22-74
+19    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+19-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:11:5-92
+19-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:11:22-89
+20    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+20-->[com.google.android.exoplayer:exoplayer-core:2.19.1] /Users/jbriones/.gradle/caches/8.9/transforms/9da25ac72897a7ce812018dd83451e2e/transformed/jetified-exoplayer-core-2.19.1/AndroidManifest.xml:24:5-79
+20-->[com.google.android.exoplayer:exoplayer-core:2.19.1] /Users/jbriones/.gradle/caches/8.9/transforms/9da25ac72897a7ce812018dd83451e2e/transformed/jetified-exoplayer-core-2.19.1/AndroidManifest.xml:24:22-76
+21
+22    <permission
+22-->[androidx.core:core:1.10.1] /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/AndroidManifest.xml:22:5-24:47
+23        android:name="com.example.dpadplayer.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+23-->[androidx.core:core:1.10.1] /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/AndroidManifest.xml:23:9-81
+24        android:protectionLevel="signature" />
+24-->[androidx.core:core:1.10.1] /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/AndroidManifest.xml:24:9-44
+25
+26    <uses-permission android:name="com.example.dpadplayer.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+26-->[androidx.core:core:1.10.1] /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/AndroidManifest.xml:26:5-97
+26-->[androidx.core:core:1.10.1] /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/AndroidManifest.xml:26:22-94
+27
+28    <application
+28-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:5-42:19
+29        android:allowBackup="true"
+29-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:14:9-35
+30        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+30-->[androidx.core:core:1.10.1] /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/AndroidManifest.xml:28:18-86
+31        android:debuggable="true"
+32        android:extractNativeLibs="true"
+33        android:icon="@mipmap/ic_launcher"
+33-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:16:9-43
+34        android:label="DPad Player"
+34-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:15:9-36
+35        android:roundIcon="@mipmap/ic_launcher_round"
+35-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:17:9-54
+36        android:supportsRtl="true"
+36-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:19:9-35
+37        android:theme="@style/Theme.DPadPlayer" >
+37-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:18:9-48
+38        <activity
+38-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:21:9-28:20
+39            android:name="com.example.dpadplayer.MainActivity"
+39-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:22:13-41
+40            android:exported="true" >
+40-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:23:13-36
+41            <intent-filter>
+41-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:24:13-27:29
+42                <action android:name="android.intent.action.MAIN" />
+42-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:25:17-69
+42-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:25:25-66
+43
+44                <category android:name="android.intent.category.LAUNCHER" />
+44-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:26:17-77
+44-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:26:27-74
+45            </intent-filter>
+46        </activity>
+47
+48        <service
+48-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:30:9-33:61
+49            android:name="com.example.dpadplayer.playback.PlaybackService"
+49-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:31:13-53
+50            android:exported="false"
+50-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:32:13-37
+51            android:foregroundServiceType="mediaPlayback" />
+51-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:33:13-58
+52
+53        <receiver
+53-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:35:9-40:20
+54            android:name="androidx.media.session.MediaButtonReceiver"
+54-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:35:19-76
+55            android:exported="true" >
+55-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:36:13-36
+56            <intent-filter>
+56-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:37:13-39:29
+57                <action android:name="android.intent.action.MEDIA_BUTTON" />
+57-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:38:17-77
+57-->/Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:38:25-74
+58            </intent-filter>
+59        </receiver>
+60
+61        <service
+61-->[androidx.room:room-runtime:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/3831639f275f5d43c84ce6f53ae1470d/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+62            android:name="androidx.room.MultiInstanceInvalidationService"
+62-->[androidx.room:room-runtime:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/3831639f275f5d43c84ce6f53ae1470d/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+63            android:directBootAware="true"
+63-->[androidx.room:room-runtime:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/3831639f275f5d43c84ce6f53ae1470d/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+64            android:exported="false" />
+64-->[androidx.room:room-runtime:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/3831639f275f5d43c84ce6f53ae1470d/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+65
+66        <provider
+66-->[androidx.emoji2:emoji2:1.2.0] /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
+67            android:name="androidx.startup.InitializationProvider"
+67-->[androidx.emoji2:emoji2:1.2.0] /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:25:13-67
+68            android:authorities="com.example.dpadplayer.androidx-startup"
+68-->[androidx.emoji2:emoji2:1.2.0] /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:26:13-68
+69            android:exported="false" >
+69-->[androidx.emoji2:emoji2:1.2.0] /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:27:13-37
+70            <meta-data
+70-->[androidx.emoji2:emoji2:1.2.0] /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+71                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+71-->[androidx.emoji2:emoji2:1.2.0] /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:30:17-75
+72                android:value="androidx.startup" />
+72-->[androidx.emoji2:emoji2:1.2.0] /Users/jbriones/.gradle/caches/8.9/transforms/f1dbd41aa8aabbce25eaa933daff7752/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:31:17-49
+73            <meta-data
+73-->[androidx.lifecycle:lifecycle-process:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/7a2d4cabbf09681f67d117bee78e07c0/transformed/jetified-lifecycle-process-2.6.1/AndroidManifest.xml:29:13-31:52
+74                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+74-->[androidx.lifecycle:lifecycle-process:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/7a2d4cabbf09681f67d117bee78e07c0/transformed/jetified-lifecycle-process-2.6.1/AndroidManifest.xml:30:17-78
+75                android:value="androidx.startup" />
+75-->[androidx.lifecycle:lifecycle-process:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/7a2d4cabbf09681f67d117bee78e07c0/transformed/jetified-lifecycle-process-2.6.1/AndroidManifest.xml:31:17-49
+76            <meta-data
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+77                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+77-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+78                android:value="androidx.startup" />
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+79        </provider>
+80
+81        <uses-library
+81-->[androidx.window:window:1.0.0] /Users/jbriones/.gradle/caches/8.9/transforms/fce276d276a4f113f7fa70c0e8fdc859/transformed/jetified-window-1.0.0/AndroidManifest.xml:25:9-27:40
+82            android:name="androidx.window.extensions"
+82-->[androidx.window:window:1.0.0] /Users/jbriones/.gradle/caches/8.9/transforms/fce276d276a4f113f7fa70c0e8fdc859/transformed/jetified-window-1.0.0/AndroidManifest.xml:26:13-54
+83            android:required="false" />
+83-->[androidx.window:window:1.0.0] /Users/jbriones/.gradle/caches/8.9/transforms/fce276d276a4f113f7fa70c0e8fdc859/transformed/jetified-window-1.0.0/AndroidManifest.xml:27:13-37
+84        <uses-library
+84-->[androidx.window:window:1.0.0] /Users/jbriones/.gradle/caches/8.9/transforms/fce276d276a4f113f7fa70c0e8fdc859/transformed/jetified-window-1.0.0/AndroidManifest.xml:28:9-30:40
+85            android:name="androidx.window.sidecar"
+85-->[androidx.window:window:1.0.0] /Users/jbriones/.gradle/caches/8.9/transforms/fce276d276a4f113f7fa70c0e8fdc859/transformed/jetified-window-1.0.0/AndroidManifest.xml:29:13-51
+86            android:required="false" />
+86-->[androidx.window:window:1.0.0] /Users/jbriones/.gradle/caches/8.9/transforms/fce276d276a4f113f7fa70c0e8fdc859/transformed/jetified-window-1.0.0/AndroidManifest.xml:30:13-37
+87
+88        <receiver
+88-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+89            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+90            android:directBootAware="false"
+90-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+91            android:enabled="true"
+91-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+92            android:exported="true"
+92-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+93            android:permission="android.permission.DUMP" >
+93-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+94            <intent-filter>
+94-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+95                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+95-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+95-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+96            </intent-filter>
+97            <intent-filter>
+97-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+98                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+98-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+99            </intent-filter>
+100            <intent-filter>
+100-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+101                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+101-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+101-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+102            </intent-filter>
+103            <intent-filter>
+103-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+104                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] /Users/jbriones/.gradle/caches/8.9/transforms/e433ca035781fa8e994a9bfb1d938aa7/transformed/jetified-profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+105            </intent-filter>
+106        </receiver>
+107    </application>
+108
+109</manifest>
