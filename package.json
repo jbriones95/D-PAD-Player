@@ -1,0 +1,16 @@
+{
+  "name": "dpad-tools",
+  "version": "0.1.0",
+  "description": "A small package from D-PAD Tools",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
