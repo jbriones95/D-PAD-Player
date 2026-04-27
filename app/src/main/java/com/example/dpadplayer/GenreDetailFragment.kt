@@ -36,8 +36,10 @@ class GenreDetailFragment : Fragment() {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_genre)
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
-        applyItemFocusBackground(btnBack)
-        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
+        applyPlayerControlFocusBackground(btnBack)
+        btnBack.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnBack)) {
+            parentFragmentManager.popBackStack()
+        }
 
         val adapter = TrackAdapter(
             items = emptyList(),

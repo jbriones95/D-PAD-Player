@@ -38,9 +38,11 @@ class ArtistDetailFragment : Fragment() {
         val recyclerAlbums = view.findViewById<RecyclerView>(R.id.recycler_albums)
         val recyclerSongs  = view.findViewById<RecyclerView>(R.id.recycler_songs)
 
-        applyItemFocusBackground(btnBack)
+        applyPlayerControlFocusBackground(btnBack)
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
-        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
+        btnBack.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnBack)) {
+            parentFragmentManager.popBackStack()
+        }
 
         val albumAdapter = AlbumAdapter(emptyList()) { album ->
             (activity as? MainActivity)?.openAlbumDetail(album)

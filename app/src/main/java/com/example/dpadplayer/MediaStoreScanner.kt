@@ -3,9 +3,11 @@ package com.example.dpadplayer
 import android.content.ContentUris
 import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import com.example.dpadplayer.playback.Track
+import java.io.File
 
 /**
  * Scans all MediaStore audio volumes (external + internal) and enriches each
@@ -119,6 +121,8 @@ object MediaStoreScanner {
         var year        = 0
         var genre       = ""
         var duration    = row.msDuration
+        var embeddedAlbumArtUri: Uri? = null
+        val mediaStoreAlbumArtUri = Track.albumArtUri(row.msAlbumId)
 
         try {
             mmr.setDataSource(context, row.uri)
@@ -144,6 +148,10 @@ object MediaStoreScanner {
             // Disc number — may be "X/Y"
             tag(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)?.let {
                 discNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
+            }
+
+            mmr.embeddedPicture?.takeIf { it.isNotEmpty() }?.let { bytes ->
+                embeddedAlbumArtUri = persistEmbeddedArtwork(context, row.id, bytes)
             }
 
             // If albumArtist is still just the track artist, and no album artist tag was found,
@@ -176,8 +184,21 @@ object MediaStoreScanner {
             genre           = genre,
             duration        = duration,
             dateAdded       = row.msDateAdded,
-            albumArtUri     = Track.albumArtUri(row.msAlbumId),
+            albumArtUri     = embeddedAlbumArtUri ?: mediaStoreAlbumArtUri,
+            mediaStoreAlbumArtUri = mediaStoreAlbumArtUri,
         )
+    }
+
+    private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray): Uri? {
+        return try {
+            val dir = File(context.cacheDir, "album_art")
+            if (!dir.exists()) dir.mkdirs()
+            val file = File(dir, "track_$trackId.jpg")
+            file.writeBytes(bytes)
+            Uri.fromFile(file)
+        } catch (_: Exception) {
+            null
+        }
     }
 
     // ── Step 3: sort ──────────────────────────────────────────────────────────

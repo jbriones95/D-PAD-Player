@@ -43,8 +43,10 @@ class PlaylistDetailFragment : Fragment() {
         val recycler   = view.findViewById<RecyclerView>(R.id.recycler_playlist)
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
-        applyItemFocusBackground(btnBack)
-        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
+        applyPlayerControlFocusBackground(btnBack)
+        btnBack.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnBack)) {
+            parentFragmentManager.popBackStack()
+        }
 
         val adapter = TrackAdapter(
             items = emptyList(),
@@ -86,8 +88,8 @@ class PlaylistDetailFragment : Fragment() {
         }
 
         // Overflow menu: rename / delete
-        applyItemFocusBackground(btnMenu)
-        btnMenu.setupDpadItem {
+        applyPlayerControlFocusBackground(btnMenu)
+        btnMenu.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnMenu)) {
             val popup = PopupMenu(requireContext(), btnMenu)
             popup.menu.add(0, 1, 0, "Rename")
             popup.menu.add(0, 2, 1, "Delete playlist")

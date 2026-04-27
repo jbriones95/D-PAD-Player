@@ -44,6 +44,7 @@ data class Track(
 
     // ── Art ───────────────────────────────────────────────────────────────────
     val albumArtUri: Uri,
+    val mediaStoreAlbumArtUri: Uri,
 ) {
     companion object {
         fun albumArtUri(albumId: Long): Uri =

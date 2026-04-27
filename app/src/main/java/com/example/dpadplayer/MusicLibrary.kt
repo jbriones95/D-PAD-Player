@@ -83,8 +83,8 @@ object MusicLibrary {
                 compareBy({ it.discNumber.let { d -> if (d == 0) Int.MAX_VALUE else d } },
                           { it.trackNumber.let { n -> if (n == 0) Int.MAX_VALUE else n } },
                           { it.sortTitle.lowercase() }))
-            val art = sorted.firstOrNull { it.albumId != 0L }?.albumArtUri
-                ?: Track.albumArtUri(representative.albumId)
+            val art = sorted.firstOrNull { it.albumArtUri.toString().isNotBlank() }?.albumArtUri
+                ?: representative.mediaStoreAlbumArtUri
             Album(
                 id          = key,
                 name        = representative.album,

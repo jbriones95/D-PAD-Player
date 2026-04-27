@@ -109,8 +109,10 @@ class LibraryFragment : Fragment() {
 
         // Back button
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
-        applyItemFocusBackground(btnBack)
-        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
+        applyPlayerControlFocusBackground(btnBack)
+        btnBack.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnBack)) {
+            parentFragmentManager.popBackStack()
+        }
 
         // Mini-player: left area opens full player
         applyMiniPlayerFocusBackground(miniOpenPlayer)
