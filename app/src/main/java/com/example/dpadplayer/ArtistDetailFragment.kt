@@ -56,8 +56,7 @@ class ArtistDetailFragment : Fragment() {
             onTrackClick = { index ->
                 val artist = viewModel.artists.value?.find { it.id == artistId } ?: return@TrackAdapter
                 val track = artist.songs.getOrNull(index) ?: return@TrackAdapter
-                val globalIndex = viewModel.tracks.value?.indexOfFirst { it.id == track.id } ?: -1
-                if (globalIndex >= 0) (activity as? MainActivity)?.playTrack(globalIndex)
+                (activity as? MainActivity)?.playTracks(artist.songs, index)
             },
             onMenuClick = { anchor, track, _ ->
                 (activity as? MainActivity)?.showTrackMenu(anchor, track)

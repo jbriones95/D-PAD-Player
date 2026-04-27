@@ -14,6 +14,7 @@ import com.example.dpadplayer.playback.Track
 
 class TrackAdapter(
     private var items: List<Track>,
+    private val isQueue: Boolean = false,
     private val onTrackClick: (Int) -> Unit,
     private val onTrackLongClick: ((Int) -> Boolean)? = null,
     /** Optional: override the popup menu items. If null, default (Add to playlist) is used. */
@@ -26,6 +27,11 @@ class TrackAdapter(
     var menuClickListener: ((anchor: View, track: Track, index: Int) -> Unit)? = onMenuClick
 
     fun updateTracks(newItems: List<Track>) {
+        if (isQueue) {
+            items = newItems
+            notifyDataSetChanged()
+            return
+        }
         val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize() = items.size
             override fun getNewListSize() = newItems.size

@@ -49,6 +49,9 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
     private val _shuffleOn = MutableLiveData<Boolean>(false)
     val shuffleOn: LiveData<Boolean> = _shuffleOn
 
+    private val _queue = MutableLiveData<List<Track>>(emptyList())
+    val queue: LiveData<List<Track>> = _queue
+
     // ── Library (albums / artists / genres) ───────────────────────────────────
 
     private val _library = MutableLiveData<MusicLibrary.Library>(
@@ -171,6 +174,7 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
     fun setPosition(pos: Long)       { _position.value = pos }
     fun setRepeatMode(mode: Int)     { _repeatMode.value = mode }
     fun setShuffleOn(on: Boolean)    { _shuffleOn.value = on }
+    fun setQueue(q: List<Track>)     { _queue.value = q }
 
     companion object {
         const val REPEAT_OFF = 0

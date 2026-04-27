@@ -34,16 +34,20 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
             service = (binder as PlaybackService.LocalBinder).getService()
             bound = true
-            // Push current track list into service
+            // Push current track list into service only if the service queue is empty
             viewModel.tracks.value?.let { tracks ->
-                if (tracks.isNotEmpty()) {
-                    service!!.tracks.clear()
+                if (service!!.tracks.isEmpty() && tracks.isNotEmpty()) {
                     service!!.tracks.addAll(tracks)
+                    // (Optional) service!!.notifyQueueChanged() if you exposed it publicly
                 }
             }
             // Restore selected index in adapter
             val idx = service!!.currentIndex
             if (idx >= 0) viewModel.setCurrentIndex(idx)
+            
+            // Set initial queue state to ViewModel
+            viewModel.setQueue(service!!.tracks.toList())
+            
             setupServiceCallbacks()
         }
         override fun onServiceDisconnected(name: ComponentName) {
@@ -75,13 +79,6 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, HomeFragment(), TAG_HOME)
                 .commit()
-        }
-
-        viewModel.tracks.observe(this) { tracks ->
-            service?.let { svc ->
-                svc.tracks.clear()
-                svc.tracks.addAll(tracks)
-            }
         }
 
         checkPermissionsAndLoad()
@@ -187,20 +184,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getQueue(): List<Track> {
-        return service?.tracks ?: emptyList()
+        return viewModel.queue.value ?: service?.tracks ?: emptyList()
     }
 
     fun playQueueItem(index: Int) {
         service?.prepareAndPlay(index)
     }
 
+    fun playTracks(tracks: List<Track>, startIndex: Int) {
+        service?.playTracks(tracks, startIndex)
+    }
+
     fun playPlaylist(playlistId: Long, startIndex: Int) {
-        CoroutineScope(Dispatchers.Main).launch {
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
             val tracks = viewModel.resolvePlaylistTracks(playlistId)
             if (tracks.isNotEmpty()) {
-                service?.tracks?.clear()
-                service?.tracks?.addAll(tracks)
-                service?.prepareAndPlay(startIndex.coerceIn(0, tracks.size - 1))
+                playTracks(tracks, startIndex.coerceIn(0, tracks.size - 1))
             }
         }
     }
@@ -364,6 +363,11 @@ class MainActivity : AppCompatActivity() {
         svc.onRepeatChanged = { mode ->
             runOnUiThread {
                 viewModel.setRepeatMode(mode)
+            }
+        }
+        svc.onQueueChanged = { q ->
+            runOnUiThread {
+                viewModel.setQueue(q)
             }
         }
     }

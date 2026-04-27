@@ -31,7 +31,12 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
         lastFocusedPos = viewModel.getLibraryTabFocusPosition(0)
         adapter = TrackAdapter(
             items = emptyList(),
-            onTrackClick = { index -> (activity as? MainActivity)?.playTrack(index) }
+            onTrackClick = { index -> 
+                val tracks = viewModel.tracks.value ?: emptyList()
+                if (tracks.isNotEmpty()) {
+                    (activity as? MainActivity)?.playTracks(tracks, index)
+                }
+            }
         )
         adapter.menuClickListener = { anchor, track, _ ->
             showTrackMenu(anchor, track)

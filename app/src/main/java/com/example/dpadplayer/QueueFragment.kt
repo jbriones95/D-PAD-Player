@@ -31,10 +31,10 @@ class QueueFragment : Fragment() {
         }
 
         val activity = activity as? MainActivity
-        val queue = activity?.getQueue() ?: emptyList()
 
         val adapter = TrackAdapter(
-            items = queue,
+            items = emptyList(),
+            isQueue = true,
             onTrackClick = { index ->
                 activity?.playQueueItem(index)
             },
@@ -46,18 +46,24 @@ class QueueFragment : Fragment() {
         recycler.adapter = adapter
         recycler.layoutManager = FocusLinearLayoutManager(requireContext())
 
-        // Focus the currently playing track
-        viewModel.currentIndex.observe(viewLifecycleOwner) { currentIndex ->
-            adapter.setSelectedIndex(currentIndex)
+        var hasScrolled = false
+
+        viewModel.queue.observe(viewLifecycleOwner) { q ->
+            adapter.updateTracks(q)
+            if (!hasScrolled && q.isNotEmpty()) {
+                hasScrolled = true
+                recycler.post {
+                    val targetIndex = viewModel.currentIndex.value ?: 0
+                    recycler.scrollToPosition(targetIndex)
+                    val first = recycler.layoutManager?.findViewByPosition(targetIndex) ?: recycler.getChildAt(0)
+                    (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                }
+            }
         }
 
-        if (queue.isNotEmpty()) {
-            recycler.post {
-                val targetIndex = viewModel.currentIndex.value ?: 0
-                recycler.scrollToPosition(targetIndex)
-                val first = recycler.layoutManager?.findViewByPosition(targetIndex) ?: recycler.getChildAt(0)
-                (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
-            }
+        // Focus the currently playing track highlight
+        viewModel.currentIndex.observe(viewLifecycleOwner) { currentIndex ->
+            adapter.setSelectedIndex(currentIndex)
         }
     }
 }

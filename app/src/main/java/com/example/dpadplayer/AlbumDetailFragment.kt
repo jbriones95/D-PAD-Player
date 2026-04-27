@@ -49,11 +49,9 @@ class AlbumDetailFragment : Fragment() {
         val adapter = TrackAdapter(
             items = emptyList(),
             onTrackClick = { index ->
-                // find global index in full track list
                 val album = viewModel.albums.value?.find { it.id == albumId } ?: return@TrackAdapter
                 val track = album.songs.getOrNull(index) ?: return@TrackAdapter
-                val globalIndex = viewModel.tracks.value?.indexOfFirst { it.id == track.id } ?: -1
-                if (globalIndex >= 0) (activity as? MainActivity)?.playTrack(globalIndex)
+                (activity as? MainActivity)?.playTracks(album.songs, index)
             },
             onMenuClick = { anchor, track, _ ->
                 (activity as? MainActivity)?.showTrackMenu(anchor, track)

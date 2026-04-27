@@ -87,6 +87,7 @@ class PlaybackService : Service() {
     var onPositionChanged: ((Long) -> Unit)? = null
     var onShuffleChanged: ((Boolean) -> Unit)? = null
     var onRepeatChanged: ((Int) -> Unit)? = null
+    var onQueueChanged: ((List<Track>) -> Unit)? = null
 
     // Seek-bar position polling
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -232,6 +233,18 @@ class PlaybackService : Service() {
         }
     }
 
+    private fun notifyQueueChanged() {
+        onQueueChanged?.invoke(tracks.toList())
+    }
+
+    fun playTracks(newTracks: List<Track>, startIndex: Int) {
+        tracks.clear()
+        tracks.addAll(newTracks)
+        if (shuffleOn) buildShuffleOrder()
+        prepareAndPlay(startIndex)
+        notifyQueueChanged()
+    }
+
     fun prepareAndPlay(index: Int) {
         if (index < 0 || index >= tracks.size) { isTransitioning = false; return }
         currentIndex = index
@@ -289,6 +302,7 @@ class PlaybackService : Service() {
         if (tracks.isEmpty()) {
             tracks.add(track)
             prepareAndPlay(0)
+            notifyQueueChanged()
             return
         }
         val insertIndex = currentIndex + 1
@@ -301,18 +315,21 @@ class PlaybackService : Service() {
                 }
             }
         }
+        notifyQueueChanged()
     }
 
     fun enqueueTrack(track: Track) {
         if (tracks.isEmpty()) {
             tracks.add(track)
             prepareAndPlay(0)
+            notifyQueueChanged()
             return
         }
         tracks.add(track)
         if (shuffleOn) {
             shuffleOrder.add(tracks.size - 1)
         }
+        notifyQueueChanged()
     }
 
     fun cycleRepeat() {
