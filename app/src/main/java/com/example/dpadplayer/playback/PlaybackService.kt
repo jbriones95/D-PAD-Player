@@ -121,9 +121,15 @@ class PlaybackService : Service() {
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 updatePlaybackState()
-                updateNotification()
+                if (isPlaying) {
+                    tryStartForeground()
+                    startPositionPolling()
+                } else {
+                    ServiceCompat.stopForeground(this@PlaybackService, ServiceCompat.STOP_FOREGROUND_DETACH)
+                    updateNotification()
+                    stopPositionPolling()
+                }
                 onPlaybackStateChanged?.invoke(isPlaying)
-                if (isPlaying) startPositionPolling() else stopPositionPolling()
             }
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == Player.STATE_ENDED) next()
