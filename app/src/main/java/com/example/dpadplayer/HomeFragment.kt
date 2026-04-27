@@ -42,6 +42,8 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        lastFocusedPos = viewModel.homeMenuFocusPos
+
         miniPlayer   = view.findViewById(R.id.mini_player)
         miniOpenPlayer = view.findViewById(R.id.mini_open_player)
         miniArt      = view.findViewById(R.id.mini_art)
@@ -64,7 +66,10 @@ class HomeFragment : Fragment() {
 
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_menu)
         val lm = FocusLinearLayoutManager(requireContext())
-        lm.onFocusPosition = { lastFocusedPos = it }
+        lm.onFocusPosition = {
+            lastFocusedPos = it
+            viewModel.homeMenuFocusPos = it
+        }
         recycler.layoutManager = lm
         recycler.adapter = HomeMenuAdapter(menuItems) { item ->
             when (item.tag) {
@@ -78,30 +83,32 @@ class HomeFragment : Fragment() {
         }
 
         // Request focus on the last-focused item once the recycler is laid out
-        recycler.post {
-            val child = recycler.findViewHolderForAdapterPosition(lastFocusedPos)?.itemView
-                ?: recycler.findViewHolderForAdapterPosition(0)?.itemView
-            val target = child?.findViewById<View>(R.id.clickable_item) ?: child
-            target?.requestFocus()
-        }
+        focusMenuItem(recycler)
 
         miniPlayer.setOnClickListener(null)
-        applyItemFocusBackground(miniOpenPlayer)
+        applyMiniPlayerFocusBackground(miniOpenPlayer)
         miniOpenPlayer.setOnClickListener { (activity as? MainActivity)?.openPlayer() }
         miniOpenPlayer.setupDpadItem { (activity as? MainActivity)?.openPlayer() }
-        applyItemFocusBackground(miniBtnPlay)
+        applyMiniPlayerFocusBackground(miniBtnPlay)
         miniBtnPlay.setupDpadItem { (activity as? MainActivity)?.togglePlayPause() }
         miniBtnPlay.setOnClickListener { (activity as? MainActivity)?.togglePlayPause() }
-        applyItemFocusBackground(miniBtnNext)
+        applyMiniPlayerFocusBackground(miniBtnNext)
         miniBtnNext.setupDpadItem { (activity as? MainActivity)?.sendCmd("NEXT") }
         miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
         listOf(miniOpenPlayer, miniBtnPlay, miniBtnNext).forEach { miniControl ->
-            miniControl.setOnKeyListener { _, keyCode, event ->
-                if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    focusMenuItem(recycler)
-                    true
-                } else {
-                    false
+            miniControl.setOnKeyListener { v, keyCode, event ->
+                if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP -> {
+                        focusMenuItem(recycler)
+                        true
+                    }
+                    KeyEvent.KEYCODE_DPAD_CENTER,
+                    KeyEvent.KEYCODE_ENTER -> {
+                        v.performClick()
+                        true
+                    }
+                    else -> false
                 }
             }
         }
@@ -116,11 +123,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun focusMenuItem(recycler: RecyclerView) {
-        recycler.post {
+        fun requestFocusNow() {
+            if (!isAdded || view == null || !isVisible) return
             val child = recycler.findViewHolderForAdapterPosition(lastFocusedPos)?.itemView
                 ?: recycler.findViewHolderForAdapterPosition(0)?.itemView
             val target = child?.findViewById<View>(R.id.clickable_item) ?: child
             target?.requestFocus()
+        }
+        if (recycler.isLaidOut) {
+            requestFocusNow()
+        } else {
+            recycler.post {
+                if (!isAdded || view == null || !isVisible) return@post
+                requestFocusNow()
+            }
         }
     }
 

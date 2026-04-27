@@ -17,6 +17,17 @@ import kotlinx.coroutines.launch
 
 class MusicViewModel(app: Application) : AndroidViewModel(app) {
     var activeLibraryTab = -1
+    var homeMenuFocusPos = 0
+    private val libraryTabFocusPositions = IntArray(5) { -1 }
+
+    fun getLibraryTabFocusPosition(tab: Int): Int =
+        libraryTabFocusPositions.getOrElse(tab) { -1 }
+
+    fun setLibraryTabFocusPosition(tab: Int, position: Int) {
+        if (tab in libraryTabFocusPositions.indices) {
+            libraryTabFocusPositions[tab] = position.coerceAtLeast(0)
+        }
+    }
 
     // ── Playback state ────────────────────────────────────────────────────────
 

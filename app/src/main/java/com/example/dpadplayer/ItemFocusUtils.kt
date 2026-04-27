@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.StateListDrawable
@@ -15,27 +16,54 @@ import android.view.View
  * Applies a D-pad-friendly focus background to a list item view.
  *
  * Layers (bottom → top):
- *   1. Transparent base
- *   2. State-list overlay: colorPrimary@18% when focused (isSelected), colorPrimary@10% when activated
+ *   1. Focused state: high-contrast outline with a very light tint
+ *   2. Activated state: subtle now-playing tint
  *   3. RippleDrawable for touch feedback
  *
  * Call this once per ViewHolder in its `init` block.
  */
 fun applyItemFocusBackground(view: View) {
     val primary = resolveColor(view.context, com.google.android.material.R.attr.colorPrimary)
+    val onSurface = resolveColor(view.context, com.google.android.material.R.attr.colorOnSurface)
 
-    // Focus highlight (state_selected = hasFocus proxy)
-    val focusColor   = Color.argb(0x2E, Color.red(primary), Color.green(primary), Color.blue(primary))
-    // Activated highlight (currently-playing track)
-    val activeColor  = Color.argb(0x1F, Color.red(primary), Color.green(primary), Color.blue(primary))
+    // Keep fill light so overlay-based focus targets do not hide underlying titles.
+    val focusFill = Color.argb(0x16, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val activeFill = Color.argb(0x12, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val focusOuterStroke = Color.argb(0xD9, Color.red(onSurface), Color.green(onSurface), Color.blue(onSurface))
+    val focusInnerStroke = Color.argb(0xFF, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val activeStroke = Color.argb(0xB3, Color.red(primary), Color.green(primary), Color.blue(primary))
+
+    val focusOuter = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 10f)
+        setColor(Color.TRANSPARENT)
+        setStroke(dp(view.context, 2f).toInt(), focusOuterStroke)
+    }
+
+    val focusInner = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 8f)
+        setColor(focusFill)
+        setStroke(dp(view.context, 2f).toInt(), focusInnerStroke)
+    }
+
+    val focusDrawable = LayerDrawable(arrayOf(focusOuter, focusInner)).apply {
+        val inset = dp(view.context, 2f).toInt()
+        setLayerInset(1, inset, inset, inset, inset)
+    }
+
+    val activeDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 8f)
+        setColor(activeFill)
+        setStroke(dp(view.context, 1.5f).toInt(), activeStroke)
+    }
 
     val stateDrawable = StateListDrawable().apply {
-        // focused + playing: show focus color (stronger, so user knows what's selected)
-        addState(intArrayOf(android.R.attr.state_selected, android.R.attr.state_activated), ColorDrawable(focusColor))
-        // focused only
-        addState(intArrayOf(android.R.attr.state_selected),   ColorDrawable(focusColor))
-        // playing only (not focused)
-        addState(intArrayOf(android.R.attr.state_activated),  ColorDrawable(activeColor))
+        // focused + playing: focus remains dominant over the now-playing state
+        addState(intArrayOf(android.R.attr.state_selected, android.R.attr.state_activated), focusDrawable)
+        addState(intArrayOf(android.R.attr.state_selected), focusDrawable)
+        addState(intArrayOf(android.R.attr.state_activated), activeDrawable)
         addState(intArrayOf(),                                ColorDrawable(Color.TRANSPARENT))
     }
 
@@ -47,6 +75,60 @@ fun applyItemFocusBackground(view: View) {
     )
     view.background = ripple
 }
+
+fun applyMiniPlayerFocusBackground(view: View) {
+    val primary = resolveColor(view.context, com.google.android.material.R.attr.colorPrimary)
+    val onSurface = resolveColor(view.context, com.google.android.material.R.attr.colorOnSurface)
+
+    val focusFill = Color.argb(0x1E, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val activeFill = Color.argb(0x10, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val focusOuterStroke = Color.argb(0xFF, Color.red(onSurface), Color.green(onSurface), Color.blue(onSurface))
+    val focusInnerStroke = Color.argb(0xFF, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val activeStroke = Color.argb(0xCC, Color.red(primary), Color.green(primary), Color.blue(primary))
+
+    val focusOuter = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 14f)
+        setColor(Color.TRANSPARENT)
+        setStroke(dp(view.context, 3f).toInt(), focusOuterStroke)
+    }
+
+    val focusInner = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 11f)
+        setColor(focusFill)
+        setStroke(dp(view.context, 2f).toInt(), focusInnerStroke)
+    }
+
+    val focusDrawable = LayerDrawable(arrayOf(focusOuter, focusInner)).apply {
+        val inset = dp(view.context, 3f).toInt()
+        setLayerInset(1, inset, inset, inset, inset)
+    }
+
+    val activeDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 11f)
+        setColor(activeFill)
+        setStroke(dp(view.context, 2f).toInt(), activeStroke)
+    }
+
+    val stateDrawable = StateListDrawable().apply {
+        addState(intArrayOf(android.R.attr.state_selected, android.R.attr.state_activated), focusDrawable)
+        addState(intArrayOf(android.R.attr.state_selected), focusDrawable)
+        addState(intArrayOf(android.R.attr.state_activated), activeDrawable)
+        addState(intArrayOf(), ColorDrawable(Color.TRANSPARENT))
+    }
+
+    val rippleColor = resolveColor(view.context, android.R.attr.colorControlHighlight)
+    view.background = RippleDrawable(
+        ColorStateList.valueOf(rippleColor),
+        stateDrawable,
+        null
+    )
+}
+
+private fun dp(context: Context, value: Float): Float =
+    value * context.resources.displayMetrics.density
 
 /**
  * Resolves a theme color attribute to an ARGB int.

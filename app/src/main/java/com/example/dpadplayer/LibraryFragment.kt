@@ -31,6 +31,8 @@ class LibraryFragment : Fragment() {
     private lateinit var miniBtnNext: MaterialButton
     private lateinit var miniProgress: LinearProgressIndicator
     private lateinit var miniOpenPlayer: View
+    private var restoringInitialTab = false
+    private var requestedInitialTab = 0
 
     private val tabTitles = listOf("Songs", "Albums", "Artists", "Genres", "Playlists")
 
@@ -73,49 +75,34 @@ class LibraryFragment : Fragment() {
 
         prefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
 
-        // Restore tab position from memory or arguments
-        val initialTab = if (viewModel.activeLibraryTab >= 0) viewModel.activeLibraryTab else (arguments?.getInt(ARG_TAB, 0) ?: 0)
-        viewPager.setCurrentItem(initialTab, false)
-
         // ViewPager must not steal focus directly, but it acts as a group
         viewPager.isFocusable = true
         viewPager.descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
         viewPager.registerOnPageChangeCallback(object: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+                if (restoringInitialTab && position != requestedInitialTab) {
+                    Log.d("DPAD_FOCUS", "Ignoring unexpected onPageSelected position=$position while restoring tab=$requestedInitialTab")
+                    return
+                }
                 Log.d("DPAD_FOCUS", "ViewPager onPageSelected: position=$position (old activeTabPosition=${viewModel.activeLibraryTab})")
                 viewModel.activeLibraryTab = position
-                val tag = "f$position"
-                val f = childFragmentManager.findFragmentByTag(tag)
-                if (f is TabWithRecycler) {
-                    f.requestInitialFocus()
-                } else {
-                    // Fallback to searching all fragments
-                    for (frag in childFragmentManager.fragments) {
-                        if (frag is TabWithRecycler && frag.isResumed) {
-                            frag.requestInitialFocus()
-                            break
-                        }
-                    }
-                }
+                requestFocusForTab(position)
             }
         })
 
-        // Fire initial focus for the starting tab (onPageSelected won't fire for position 0)
+        // Restore tab position from memory or arguments
+        requestedInitialTab = if (viewModel.activeLibraryTab >= 0) viewModel.activeLibraryTab else (arguments?.getInt(ARG_TAB, 0) ?: 0)
+        restoringInitialTab = true
+        viewPager.setCurrentItem(requestedInitialTab, false)
+
+        // Fire initial focus for the starting tab once the pager settles.
         viewPager.post {
-            val position = viewPager.currentItem
-            val tag = "f$position"
-            val f = childFragmentManager.findFragmentByTag(tag)
-            if (f is TabWithRecycler) {
-                f.requestInitialFocus()
-            } else {
-                for (frag in childFragmentManager.fragments) {
-                    if (frag is TabWithRecycler && frag.isResumed) {
-                        frag.requestInitialFocus()
-                        break
-                    }
-                }
+            if (viewPager.currentItem != requestedInitialTab) {
+                viewPager.setCurrentItem(requestedInitialTab, false)
             }
+            restoringInitialTab = false
+            requestFocusForTab(viewPager.currentItem)
         }
 
         miniTitle.isSelected = true
@@ -126,18 +113,35 @@ class LibraryFragment : Fragment() {
         btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
 
         // Mini-player: left area opens full player
-        applyItemFocusBackground(miniOpenPlayer)
+        applyMiniPlayerFocusBackground(miniOpenPlayer)
         miniOpenPlayer.setOnClickListener { (activity as? MainActivity)?.openPlayer() }
         miniOpenPlayer.setupDpadItem { (activity as? MainActivity)?.openPlayer() }
 
         // Play / Next buttons
-        applyItemFocusBackground(miniBtnPlay)
+        applyMiniPlayerFocusBackground(miniBtnPlay)
         miniBtnPlay.setupDpadItem { (activity as? MainActivity)?.togglePlayPause() }
         miniBtnPlay.setOnClickListener { (activity as? MainActivity)?.togglePlayPause() }
 
-        applyItemFocusBackground(miniBtnNext)
+        applyMiniPlayerFocusBackground(miniBtnNext)
         miniBtnNext.setupDpadItem { (activity as? MainActivity)?.sendCmd("NEXT") }
         miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
+        listOf(miniOpenPlayer, miniBtnPlay, miniBtnNext).forEach { miniControl ->
+            miniControl.setOnKeyListener { v, keyCode, event ->
+                if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP -> {
+                        requestFocusForCurrentTab()
+                        true
+                    }
+                    KeyEvent.KEYCODE_DPAD_CENTER,
+                    KeyEvent.KEYCODE_ENTER -> {
+                        v.performClick()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
 
         observeViewModel()
     }
@@ -146,13 +150,7 @@ class LibraryFragment : Fragment() {
         super.onResume()
         Log.d("DPAD_FOCUS", "LibraryFragment.onResume — re-requesting focus into active tab")
         viewPager.post {
-            val currentItem = viewPager.currentItem
-            val tag = "f$currentItem"
-            val f = childFragmentManager.findFragmentByTag(tag)
-            Log.d("DPAD_FOCUS", "LibraryFragment.onResume — active tab is position=$currentItem (tag=$tag), fragment=$f")
-            if (f is TabWithRecycler) {
-                f.requestInitialFocus()
-            }
+            requestFocusForCurrentTab()
         }
     }
 
@@ -174,7 +172,35 @@ class LibraryFragment : Fragment() {
         }
 
     fun selectTab(index: Int) {
-        if (::viewPager.isInitialized) viewPager.setCurrentItem(index, true)
+        if (::viewPager.isInitialized) {
+            viewModel.activeLibraryTab = index
+            viewPager.setCurrentItem(index, true)
+        }
+    }
+
+    private fun requestFocusForTab(position: Int) {
+        val tag = "f$position"
+        val f = childFragmentManager.findFragmentByTag(tag)
+        Log.d("DPAD_FOCUS", "requestFocusForTab position=$position tag=$tag fragment=$f")
+        if (f is TabWithRecycler) {
+            f.requestInitialFocus()
+            return
+        }
+        for (frag in childFragmentManager.fragments) {
+            if (frag is TabWithRecycler && frag.isResumed) {
+                frag.requestInitialFocus()
+                break
+            }
+        }
+    }
+
+    private fun requestFocusForCurrentTab() {
+        val currentItem = viewModel.activeLibraryTab.takeIf { it >= 0 } ?: viewPager.currentItem
+        if (viewPager.currentItem != currentItem) {
+            viewPager.setCurrentItem(currentItem, false)
+        }
+        Log.d("DPAD_FOCUS", "LibraryFragment.onResume — active tab is position=$currentItem")
+        requestFocusForTab(currentItem)
     }
 
     private fun observeViewModel() {

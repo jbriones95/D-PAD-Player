@@ -77,6 +77,13 @@ class MainActivity : AppCompatActivity() {
                 .commit()
         }
 
+        viewModel.tracks.observe(this) { tracks ->
+            service?.let { svc ->
+                svc.tracks.clear()
+                svc.tracks.addAll(tracks)
+            }
+        }
+
         checkPermissionsAndLoad()
     }
 
@@ -103,7 +110,7 @@ class MainActivity : AppCompatActivity() {
 
     fun openLibraryTab(tabIndex: Int) {
         viewModel.activeLibraryTab = tabIndex
-        if (supportFragmentManager.findFragmentByTag(TAG_LIBRARY) != null) return
+        if (supportFragmentManager.findFragmentByTag(TAG_LIBRARY)?.isVisible == true) return
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                  android.R.anim.slide_in_left, android.R.anim.slide_out_right)
@@ -113,7 +120,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openSettings() {
-        if (supportFragmentManager.findFragmentByTag(TAG_SETTINGS) != null) return
+        if (supportFragmentManager.findFragmentByTag(TAG_SETTINGS)?.isVisible == true) return
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                  android.R.anim.slide_in_left, android.R.anim.slide_out_right)
@@ -123,7 +130,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openPlayer() {
-        if (supportFragmentManager.findFragmentByTag(TAG_PLAYER) != null) return
+        if (supportFragmentManager.findFragmentByTag(TAG_PLAYER)?.isVisible == true) return
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_in_right, R.anim.slide_out_left,
@@ -300,13 +307,6 @@ class MainActivity : AppCompatActivity() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val sortOrder = prefs.getString("sort_order", "title") ?: "title"
         viewModel.loadTracks(sortOrder)
-        // After tracks load, push them into the service
-        viewModel.tracks.observeForever { tracks ->
-            service?.let { svc ->
-                svc.tracks.clear()
-                svc.tracks.addAll(tracks)
-            }
-        }
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────

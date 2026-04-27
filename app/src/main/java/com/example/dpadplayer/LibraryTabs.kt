@@ -21,12 +21,14 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: TrackAdapter
+    private var lastFocusedPos = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recycler = view.findViewById(R.id.recycler)
+        lastFocusedPos = viewModel.getLibraryTabFocusPosition(0)
         adapter = TrackAdapter(
             items = emptyList(),
             onTrackClick = { index -> (activity as? MainActivity)?.playTrack(index) }
@@ -35,7 +37,12 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
             showTrackMenu(anchor, track)
         }
         recycler.adapter = adapter
-        recycler.layoutManager = FocusLinearLayoutManager(requireContext())
+        val lm = FocusLinearLayoutManager(requireContext())
+        lm.onFocusPosition = {
+            lastFocusedPos = it
+            viewModel.setLibraryTabFocusPosition(0, it)
+        }
+        recycler.layoutManager = lm
 
         viewModel.tracks.observe(viewLifecycleOwner) { adapter.updateTracks(it) }
         viewModel.currentIndex.observe(viewLifecycleOwner) { adapter.setSelectedIndex(it) }
@@ -97,7 +104,7 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
     override fun requestInitialFocus() {
         // Try to focus the currently selected track or the first visible child.
         recycler.post {
-            val preferred = viewModel.currentIndex.value ?: 0
+            val preferred = lastFocusedPos.takeIf { it >= 0 } ?: (viewModel.currentIndex.value ?: 0)
             val lm = recycler.layoutManager
             var target: View? = null
             try { target = lm?.findViewByPosition(preferred) } catch (_: Exception) { }
@@ -121,12 +128,16 @@ class AlbumsTabFragment : Fragment(), TabWithRecycler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
         recyclerRef = recycler
+        lastFocusedPos = viewModel.getLibraryTabFocusPosition(1)
         val adapter = AlbumAdapter(emptyList()) { album ->
             (activity as? MainActivity)?.openAlbumDetail(album)
         }
         recycler.adapter = adapter
         val lm = FocusLinearLayoutManager(requireContext())
-        lm.onFocusPosition = { lastFocusedPos = it }
+        lm.onFocusPosition = {
+            lastFocusedPos = it
+            viewModel.setLibraryTabFocusPosition(1, it)
+        }
         recycler.layoutManager = lm
         viewModel.albums.observe(viewLifecycleOwner) { adapter.update(it) }
     }
@@ -157,12 +168,16 @@ class ArtistsTabFragment : Fragment(), TabWithRecycler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
         recyclerRef = recycler
+        lastFocusedPos = viewModel.getLibraryTabFocusPosition(2)
         val adapter = ArtistAdapter(emptyList()) { artist ->
             (activity as? MainActivity)?.openArtistDetail(artist)
         }
         recycler.adapter = adapter
         val lm = FocusLinearLayoutManager(requireContext())
-        lm.onFocusPosition = { lastFocusedPos = it }
+        lm.onFocusPosition = {
+            lastFocusedPos = it
+            viewModel.setLibraryTabFocusPosition(2, it)
+        }
         recycler.layoutManager = lm
         viewModel.artists.observe(viewLifecycleOwner) { adapter.update(it) }
     }
@@ -193,12 +208,16 @@ class GenresTabFragment : Fragment(), TabWithRecycler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
         recyclerRef = recycler
+        lastFocusedPos = viewModel.getLibraryTabFocusPosition(3)
         val adapter = GenreAdapter(emptyList()) { genre ->
             (activity as? MainActivity)?.openGenreDetail(genre)
         }
         recycler.adapter = adapter
         val lm = FocusLinearLayoutManager(requireContext())
-        lm.onFocusPosition = { lastFocusedPos = it }
+        lm.onFocusPosition = {
+            lastFocusedPos = it
+            viewModel.setLibraryTabFocusPosition(3, it)
+        }
         recycler.layoutManager = lm
         viewModel.genres.observe(viewLifecycleOwner) { adapter.update(it) }
     }
@@ -248,6 +267,7 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
         recyclerRef = recycler
+        lastFocusedPos = viewModel.getLibraryTabFocusPosition(4)
 
         val adapter = PlaylistAdapter(
             items = emptyList(),
@@ -256,7 +276,10 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
         adapter.onCreateClick = { showCreatePlaylistDialog() }
         recycler.adapter = adapter
         val lm = FocusLinearLayoutManager(requireContext())
-        lm.onFocusPosition = { lastFocusedPos = it }
+        lm.onFocusPosition = {
+            lastFocusedPos = it
+            viewModel.setLibraryTabFocusPosition(4, it)
+        }
         recycler.layoutManager = lm
         viewModel.playlists.observe(viewLifecycleOwner) { adapter.update(it) }
     }
