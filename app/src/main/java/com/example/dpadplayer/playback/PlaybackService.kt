@@ -16,6 +16,7 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.preference.PreferenceManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.media.app.NotificationCompat.MediaStyle
@@ -139,8 +140,8 @@ class PlaybackService : Service() {
             COMMAND_PAUSE      -> pausePlayback()
             COMMAND_NEXT       -> next()
             COMMAND_PREV       -> prev()
-            COMMAND_SEEK_FWD   -> { player.seekTo(player.currentPosition + 15_000); updatePlaybackState() }
-            COMMAND_SEEK_BWD   -> { player.seekTo((player.currentPosition - 15_000).coerceAtLeast(0)); updatePlaybackState() }
+            COMMAND_SEEK_FWD   -> seekBy(configuredSeekStepMs())
+            COMMAND_SEEK_BWD   -> seekBy(-configuredSeekStepMs())
             COMMAND_SEEK_TO    -> { intent.getLongExtra(EXTRA_POSITION, 0).let { player.seekTo(it); updatePlaybackState() } }
             COMMAND_PLAY_INDEX -> {
                 val idx = intent.getIntExtra(EXTRA_INDEX, 0)
@@ -151,6 +152,18 @@ class PlaybackService : Service() {
         // Ensure we stay in foreground
         tryStartForeground()
         return START_STICKY
+    }
+
+    private fun configuredSeekStepMs(): Long {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        return prefs.getString("seek_step", "15000")?.toLongOrNull() ?: 15_000L
+    }
+
+    private fun seekBy(deltaMs: Long) {
+        val duration = player.duration.takeIf { it >= 0 } ?: Long.MAX_VALUE
+        val target = (player.currentPosition + deltaMs).coerceIn(0L, duration)
+        player.seekTo(target)
+        updatePlaybackState()
     }
 
     override fun onBind(intent: Intent?): IBinder = binder

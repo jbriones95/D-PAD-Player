@@ -135,6 +135,54 @@ fun applyPlayerControlFocusBackground(view: View) {
     applyMiniPlayerFocusBackground(view)
 }
 
+fun applyTopBarTabFocusBackground(view: View) {
+    val onPrimary = resolveColor(view.context, com.google.android.material.R.attr.colorOnPrimary)
+
+    val selectedFill = Color.argb(0x14, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
+    val focusFill = Color.argb(0x24, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
+    val focusOuterStroke = Color.argb(0xF2, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
+    val focusInnerStroke = Color.argb(0x99, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
+
+    val selectedDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 12f)
+        setColor(selectedFill)
+    }
+
+    val focusOuter = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 12f)
+        setColor(Color.TRANSPARENT)
+        setStroke(dp(view.context, 2f).toInt(), focusOuterStroke)
+    }
+
+    val focusInner = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(view.context, 10f)
+        setColor(focusFill)
+        setStroke(dp(view.context, 1.5f).toInt(), focusInnerStroke)
+    }
+
+    val focusDrawable = LayerDrawable(arrayOf(focusOuter, focusInner)).apply {
+        val inset = dp(view.context, 2f).toInt()
+        setLayerInset(1, inset, inset, inset, inset)
+    }
+
+    val stateDrawable = StateListDrawable().apply {
+        addState(intArrayOf(android.R.attr.state_focused, android.R.attr.state_selected), focusDrawable)
+        addState(intArrayOf(android.R.attr.state_focused), focusDrawable)
+        addState(intArrayOf(android.R.attr.state_selected), selectedDrawable)
+        addState(intArrayOf(), ColorDrawable(Color.TRANSPARENT))
+    }
+
+    val rippleColor = Color.argb(0x33, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
+    view.background = RippleDrawable(
+        ColorStateList.valueOf(rippleColor),
+        stateDrawable,
+        null
+    )
+}
+
 fun materialButtonFocusChangeHandler(button: MaterialButton): (View, Boolean) -> Unit {
     val context = button.context
     val primary = resolveColor(context, com.google.android.material.R.attr.colorPrimary)

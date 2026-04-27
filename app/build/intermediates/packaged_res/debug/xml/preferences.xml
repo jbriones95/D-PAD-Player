@@ -24,14 +24,14 @@
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_theme" />
 
-    <!-- Seek step size -->
+    <!-- Seek / skip duration -->
     <ListPreference
         app:key="seek_step"
-        app:title="Seek step"
+        app:title="Seek and skip duration"
         app:summary="%s"
         app:entries="@array/pref_seek_labels"
         app:entryValues="@array/pref_seek_values"
-        app:defaultValue="5000"
+        app:defaultValue="15000"
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_seek" />
 

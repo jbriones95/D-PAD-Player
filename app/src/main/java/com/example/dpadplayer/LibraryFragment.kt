@@ -66,6 +66,10 @@ class LibraryFragment : Fragment() {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabTitles[position]
         }.attach()
+        tabLayout.isFocusable = false
+        tabLayout.isFocusableInTouchMode = false
+        tabLayout.descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
+        styleTabViews()
 
         // Apply "show_top_bar" preference immediately
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
@@ -181,6 +185,32 @@ class LibraryFragment : Fragment() {
         if (::viewPager.isInitialized) {
             viewModel.activeLibraryTab = index
             viewPager.setCurrentItem(index, true)
+        }
+    }
+
+    private fun styleTabViews() {
+        tabLayout.post {
+            val tabStrip = tabLayout.getChildAt(0) as? ViewGroup ?: return@post
+            val horizontalMargin = (4 * resources.displayMetrics.density).toInt()
+            val verticalMargin = (4 * resources.displayMetrics.density).toInt()
+            for (i in 0 until tabStrip.childCount) {
+                val tabView = tabStrip.getChildAt(i)
+                applyTopBarTabFocusBackground(tabView)
+                tabView.isFocusable = true
+                tabView.isFocusableInTouchMode = false
+
+                val params = tabView.layoutParams as? ViewGroup.MarginLayoutParams ?: continue
+                if (params.marginStart != horizontalMargin ||
+                    params.marginEnd != horizontalMargin ||
+                    params.topMargin != verticalMargin ||
+                    params.bottomMargin != verticalMargin) {
+                    params.marginStart = horizontalMargin
+                    params.marginEnd = horizontalMargin
+                    params.topMargin = verticalMargin
+                    params.bottomMargin = verticalMargin
+                    tabView.layoutParams = params
+                }
+            }
         }
     }
 

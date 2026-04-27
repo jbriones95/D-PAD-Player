@@ -131,13 +131,13 @@ drawable item_focus_bg
 id album_art
 id album_header
 id btn_back
+id btn_forward
 id btn_next
 id btn_play
 id btn_playlist_menu
 id btn_prev
 id btn_repeat
 id btn_settings_back
-id btn_shuffle
 id btn_track_menu
 id clickable_item
 id fab_create_playlist

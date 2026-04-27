@@ -47,7 +47,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        // Seek step — no immediate side-effect; PlayerFragment reads it at runtime
+        // Seek / skip duration — PlayerFragment and PlaybackService read it at runtime
     }
 
     // ── View wrapping — inject our header above the preference list ───────────

@@ -3482,13 +3482,13 @@ id bounceBoth
 id bounceEnd
 id bounceStart
 id btn_back
+id btn_forward
 id btn_next
 id btn_play
 id btn_playlist_menu
 id btn_prev
 id btn_repeat
 id btn_settings_back
-id btn_shuffle
 id btn_track_menu
 id buttonPanel
 id cache_measures

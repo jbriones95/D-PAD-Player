@@ -6,7 +6,7 @@
     - Album art: square, full width                     ~180dp
     - Title / Artist (marquee)                          ~52dp
     - Seekbar row                                       ~32dp
-    - Controls row: repeat | prev | play | next | shuffle  ~52dp
+    - Controls row: repeat | prev | play | next | forward skip  ~52dp
   Focus chain: back → play (default) → transport row → seekbar → back
   D-pad LEFT/RIGHT on seekbar scrubs. BACK key pops fragment.
 -->
@@ -157,7 +157,7 @@
                 android:gravity="end" />
         </LinearLayout>
 
-        <!-- Transport controls row: repeat | prev | play | next | shuffle -->
+        <!-- Transport controls row: repeat | prev | play | next | forward skip -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -182,7 +182,7 @@
                 android:focusable="true"
                 android:focusableInTouchMode="false"
                 android:nextFocusRight="@id/btn_prev"
-                android:nextFocusLeft="@id/btn_shuffle"
+                android:nextFocusLeft="@id/btn_forward"
                 android:nextFocusUp="@id/seek_bar"
                 android:contentDescription="Repeat mode" />
 
@@ -243,14 +243,14 @@
                 android:focusable="true"
                 android:focusableInTouchMode="false"
                 android:nextFocusLeft="@id/btn_play"
-                android:nextFocusRight="@id/btn_shuffle"
+                android:nextFocusRight="@id/btn_forward"
                 android:nextFocusUp="@id/seek_bar" />
 
-            <!-- Shuffle toggle -->
+            <!-- Forward skip -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_shuffle"
+                android:id="@+id/btn_forward"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
-                app:icon="@drawable/ic_shuffle_off"
+                app:icon="@drawable/ic_fast_forward"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 android:text=""
@@ -265,7 +265,7 @@
                 android:nextFocusLeft="@id/btn_next"
                 android:nextFocusRight="@id/btn_repeat"
                 android:nextFocusUp="@id/seek_bar"
-                android:contentDescription="Shuffle" />
+                android:contentDescription="Skip forward 15 seconds" />
 
         </LinearLayout>
     </LinearLayout>

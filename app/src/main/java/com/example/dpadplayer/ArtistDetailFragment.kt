@@ -68,7 +68,6 @@ class ArtistDetailFragment : Fragment() {
         // and DPAD_UP from the first song row moves back to the last album row.
         recyclerAlbums.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-                val lm = recyclerAlbums.layoutManager ?: return@setOnKeyListener false
                 val focused = recyclerAlbums.findFocus() ?: return@setOnKeyListener false
                 // Walk up to the immediate child of recyclerAlbums
                 var child: View = focused

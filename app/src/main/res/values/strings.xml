@@ -48,17 +48,21 @@
         <item>retro</item>
     </string-array>
 
-    <!-- Seek step preference -->
+    <!-- Seek / skip duration preference -->
     <string-array name="pref_seek_labels">
         <item>5 seconds</item>
         <item>10 seconds</item>
         <item>15 seconds</item>
+        <item>20 seconds</item>
+        <item>25 seconds</item>
         <item>30 seconds</item>
     </string-array>
     <string-array name="pref_seek_values">
         <item>5000</item>
         <item>10000</item>
         <item>15000</item>
+        <item>20000</item>
+        <item>25000</item>
         <item>30000</item>
     </string-array>
 

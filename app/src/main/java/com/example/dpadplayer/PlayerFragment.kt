@@ -17,7 +17,7 @@ import com.google.android.material.button.MaterialButton
 /**
  * Full now-playing screen.
  * Back button + D-pad BACK key return to LibraryFragment.
- * D-pad LEFT/RIGHT on seekbar scrubs ±5 seconds.
+ * D-pad LEFT/RIGHT on seekbar scrubs by the configured seek/skip duration.
  */
 class PlayerFragment : Fragment() {
 
@@ -36,7 +36,7 @@ class PlayerFragment : Fragment() {
     private lateinit var btnPrev: MaterialButton
     private lateinit var btnPlay: MaterialButton
     private lateinit var btnNext: MaterialButton
-    private lateinit var btnShuffle: MaterialButton
+    private lateinit var btnForward: MaterialButton
 
     private var seekBarDragging = false
 
@@ -60,7 +60,7 @@ class PlayerFragment : Fragment() {
         btnPrev        = view.findViewById(R.id.btn_prev)
         btnPlay        = view.findViewById(R.id.btn_play)
         btnNext        = view.findViewById(R.id.btn_next)
-        btnShuffle     = view.findViewById(R.id.btn_shuffle)
+        btnForward     = view.findViewById(R.id.btn_forward)
 
         btnBack.setOnClickListener { navigateBack() }
         applyPlayerControlFocusBackground(btnBack)
@@ -70,9 +70,10 @@ class PlayerFragment : Fragment() {
         setupButtons()
         setupSeekBar()
         observeViewModel()
+        updateForwardSkipDescription()
 
         // Apply focus styling to all transport buttons
-        listOf(btnRepeat, btnPrev, btnPlay, btnNext, btnShuffle).forEach { btn ->
+        listOf(btnRepeat, btnPrev, btnPlay, btnNext, btnForward).forEach { btn ->
             applyPlayerControlFocusBackground(btn)
             btn.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btn)) {
                 btn.performClick()
@@ -84,6 +85,7 @@ class PlayerFragment : Fragment() {
         super.onResume()
         btnPlay.requestFocus()
         refreshNowPlaying()
+        updateForwardSkipDescription()
     }
 
     // ── Back navigation ───────────────────────────────────────────────────────
@@ -99,7 +101,7 @@ class PlayerFragment : Fragment() {
         btnPrev.setOnClickListener    { (activity as? MainActivity)?.sendCmd("PREV") }
         btnNext.setOnClickListener    { (activity as? MainActivity)?.sendCmd("NEXT") }
         btnRepeat.setOnClickListener  { (activity as? MainActivity)?.cycleRepeat() }
-        btnShuffle.setOnClickListener { (activity as? MainActivity)?.toggleShuffle() }
+        btnForward.setOnClickListener { (activity as? MainActivity)?.sendCmd("SEEK_FWD") }
     }
 
     // ── SeekBar — touch dragging + D-pad scrubbing ────────────────────────────
@@ -119,8 +121,7 @@ class PlayerFragment : Fragment() {
         // D-pad LEFT/RIGHT on the seekbar scrubs by the user's configured step
         seekBar.setOnKeyListener { _, keyCode, event ->
             if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
-            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-            val step = prefs.getString("seek_step", "5000")?.toLongOrNull() ?: 5_000L
+            val step = configuredSeekStepMs()
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_LEFT -> {
                     val newPos = (seekBar.progress.toLong() - step).coerceAtLeast(0L)
@@ -159,9 +160,6 @@ class PlayerFragment : Fragment() {
         }
         viewModel.repeatMode.observe(viewLifecycleOwner) { mode ->
             updateRepeatIcon(mode)
-        }
-        viewModel.shuffleOn.observe(viewLifecycleOwner) { on ->
-            updateShuffleIcon(on)
         }
     }
 
@@ -204,15 +202,20 @@ class PlayerFragment : Fragment() {
         btnRepeat.icon = ContextCompat.getDrawable(requireContext(), icon)
     }
 
-    private fun updateShuffleIcon(on: Boolean) {
-        val icon = if (on) R.drawable.ic_shuffle_on else R.drawable.ic_shuffle_off
-        btnShuffle.icon = ContextCompat.getDrawable(requireContext(), icon)
+    private fun updateForwardSkipDescription() {
+        val seconds = configuredSeekStepMs() / 1000
+        btnForward.contentDescription = "Skip forward ${seconds} seconds"
     }
 
     private fun updateTrackCounter() {
         val total = viewModel.tracks.value?.size ?: 0
         val idx   = viewModel.currentIndex.value ?: -1
         tvTrackCounter.text = if (total > 0 && idx >= 0) "${idx + 1} / $total" else ""
+    }
+
+    private fun configuredSeekStepMs(): Long {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        return prefs.getString("seek_step", "15000")?.toLongOrNull() ?: 15_000L
     }
 
     private fun formatMs(ms: Long): String {
