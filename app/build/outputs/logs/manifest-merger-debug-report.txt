@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-44:12
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-44:12
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-44:12
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-44:12
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-43:12
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-43:12
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-43:12
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:2:1-43:12
 MERGED from [androidx.room:room-ktx:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/1d20ac6afdbe06e90deb8df2a8c1486d/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/3831639f275f5d43c84ce6f53ae1470d/transformed/room-runtime-2.6.1/AndroidManifest.xml:17:1-31:12
 MERGED from [com.google.android.material:material:1.9.0] /Users/jbriones/.gradle/caches/8.9/transforms/a93d3b0ffde17be95493cdafc856d124/transformed/material-1.9.0/AndroidManifest.xml:17:1-26:12
@@ -96,17 +96,21 @@ uses-permission#android.permission.READ_MEDIA_AUDIO
 ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:7:5-75
 	android:name
 		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:7:22-72
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:8:5-77
+	android:name
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:8:22-74
 uses-permission#android.permission.FOREGROUND_SERVICE
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:10:5-77
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:9:5-77
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:10:22-74
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:9:22-74
 uses-permission#android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:11:5-92
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:10:5-92
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:11:22-89
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:10:22-89
 application
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:5-42:19
-INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:5-42:19
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:12:5-41:19
+INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:12:5-41:19
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/3831639f275f5d43c84ce6f53ae1470d/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/jbriones/.gradle/caches/8.9/transforms/3831639f275f5d43c84ce6f53ae1470d/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
 MERGED from [com.google.android.material:material:1.9.0] /Users/jbriones/.gradle/caches/8.9/transforms/a93d3b0ffde17be95493cdafc856d124/transformed/material-1.9.0/AndroidManifest.xml:24:5-20
@@ -136,53 +140,53 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/jbriones/.gradle/cac
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.10.1] /Users/jbriones/.gradle/caches/8.9/transforms/12f614705db02db6e80cb6b97f575af3/transformed/core-1.10.1/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:19:9-35
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:18:9-35
 	android:label
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:15:9-36
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:14:9-36
 	android:roundIcon
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:17:9-54
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:16:9-54
 	android:icon
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:16:9-43
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:15:9-43
 	android:allowBackup
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:14:9-35
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:13:9-35
 	android:theme
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:18:9-48
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:17:9-48
 activity#com.example.dpadplayer.MainActivity
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:21:9-28:20
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:20:9-27:20
 	android:exported
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:23:13-36
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:22:13-36
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:22:13-41
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:21:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:24:13-27:29
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:23:13-26:29
 action#android.intent.action.MAIN
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:25:17-69
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:24:17-69
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:25:25-66
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:24:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:26:17-77
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:25:17-77
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:26:27-74
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:25:27-74
 service#com.example.dpadplayer.playback.PlaybackService
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:30:9-33:61
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:29:9-32:61
 	android:exported
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:32:13-37
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:31:13-37
 	android:foregroundServiceType
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:33:13-58
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:32:13-58
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:31:13-53
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:30:13-53
 receiver#androidx.media.session.MediaButtonReceiver
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:35:9-40:20
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:34:9-39:20
 	android:exported
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:36:13-36
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:35:13-36
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:35:19-76
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:34:19-76
 intent-filter#action:name:android.intent.action.MEDIA_BUTTON
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:37:13-39:29
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:36:13-38:29
 action#android.intent.action.MEDIA_BUTTON
-ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:38:17-77
+ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:37:17-77
 	android:name
-		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:38:25-74
+		ADDED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml:37:25-74
 uses-sdk
 INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/jbriones/Documents/GitHub/D-PAD Tools/app/src/main/AndroidManifest.xml
