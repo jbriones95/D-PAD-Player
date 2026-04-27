@@ -187,12 +187,32 @@ class PlaybackService : Service() {
 
     // ─── Playback control ─────────────────────────────────────────────────────
 
-    private fun requestAudioFocusAndPlay() {
-        val gained = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+    fun prepareAndPlay(index: Int) {
+        if (index < 0 || index >= tracks.size) { isTransitioning = false; return }
+        isTransitioning = true
+        currentIndex = index
+        player.clearMediaItems()
+        player.setMediaItem(MediaItem.fromUri(tracks[index].uri))
+        player.prepare()
+        
+        // Request audio focus before playing
+        val gainedFocus = requestAudioFocus()
+        if (gainedFocus) {
+            player.play()
+        }
+        
+        updateMetadata(index)
+        updatePlaybackState()
+        onTrackChanged?.invoke(index)
+        isTransitioning = false
+    }
+
+    private fun requestAudioFocus(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val req = android.media.AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
                     .build())
                 .setWillPauseWhenDucked(true)
                 .setOnAudioFocusChangeListener { focus ->
@@ -208,8 +228,10 @@ class PlaybackService : Service() {
             audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN) ==
                     AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         }
+    }
 
-        if (gained) {
+    private fun requestAudioFocusAndPlay() {
+        if (requestAudioFocus()) {
             if (tracks.isEmpty()) return
             if (!player.isCurrentMediaItemSeekable && player.playbackState == Player.STATE_IDLE) {
                 prepareAndPlay(currentIndex)
@@ -243,20 +265,6 @@ class PlaybackService : Service() {
         if (shuffleOn) buildShuffleOrder()
         prepareAndPlay(startIndex)
         notifyQueueChanged()
-    }
-
-    fun prepareAndPlay(index: Int) {
-        if (index < 0 || index >= tracks.size) { isTransitioning = false; return }
-        isTransitioning = true
-        currentIndex = index
-        player.clearMediaItems()
-        player.setMediaItem(MediaItem.fromUri(tracks[index].uri))
-        player.prepare()
-        player.play()
-        updateMetadata(index)
-        updatePlaybackState()
-        onTrackChanged?.invoke(index)
-        isTransitioning = false
     }
 
     private var isTransitioning = false

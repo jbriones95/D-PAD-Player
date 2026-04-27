@@ -379,10 +379,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkPermissionsAndLoad() {
         val permissions = buildList {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 add(Manifest.permission.READ_MEDIA_AUDIO)
-            else
+                add(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
                 add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
         }.toTypedArray()
 
         val allGranted = permissions.all {
