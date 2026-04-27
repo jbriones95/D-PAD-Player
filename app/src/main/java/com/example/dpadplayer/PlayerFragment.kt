@@ -218,7 +218,7 @@ class PlayerFragment : Fragment() {
     }
 
     private fun updateTrackCounter() {
-        val total = viewModel.tracks.value?.size ?: 0
+        val total = viewModel.queue.value?.size ?: 0
         val idx   = viewModel.currentIndex.value ?: -1
         tvTrackCounter.text = if (total > 0 && idx >= 0) "${idx + 1} / $total" else ""
     }

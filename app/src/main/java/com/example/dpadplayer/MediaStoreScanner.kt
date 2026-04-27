@@ -168,11 +168,11 @@ object MediaStoreScanner {
                             discNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
                         }
 
-                        // Extract embedded artwork (disabled persistence since MediaStore is faster,
-                        // or we could let Glide handle the raw file path directly!).
-                        // With Glide, we can just pass the file path or URI and Glide's AudioFileCover
-                        // or MediaStore loaders will handle extracting the thumbnail efficiently!
-                        // So we no longer need to manually persist embedded art to cache!
+                        // Extract embedded artwork
+                        val artwork = tag.firstArtwork
+                        if (artwork != null && artwork.binaryData != null) {
+                            embeddedAlbumArtUri = persistEmbeddedArtwork(context, row.id, artwork.binaryData)
+                        }
                     }
 
                     // Duration from header
@@ -206,9 +206,21 @@ object MediaStoreScanner {
             genre           = genre,
             duration        = duration,
             dateAdded       = row.msDateAdded,
-            albumArtUri     = mediaStoreAlbumArtUri,
+            albumArtUri     = embeddedAlbumArtUri ?: mediaStoreAlbumArtUri,
             mediaStoreAlbumArtUri = mediaStoreAlbumArtUri,
         )
+    }
+
+    private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray): Uri? {
+        return try {
+            val dir = File(context.cacheDir, "album_art")
+            if (!dir.exists()) dir.mkdirs()
+            val file = File(dir, "track_$trackId.jpg")
+            file.writeBytes(bytes)
+            Uri.fromFile(file)
+        } catch (_: Exception) {
+            null
+        }
     }
 
     // ── Step 3: sort ──────────────────────────────────────────────────────────
