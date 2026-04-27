@@ -11,6 +11,7 @@ import android.graphics.drawable.StateListDrawable
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
+import com.google.android.material.button.MaterialButton
 
 /**
  * Applies a D-pad-friendly focus background to a list item view.
@@ -77,6 +78,8 @@ fun applyItemFocusBackground(view: View) {
 }
 
 fun applyMiniPlayerFocusBackground(view: View) {
+    if (view is MaterialButton) return
+
     val primary = resolveColor(view.context, com.google.android.material.R.attr.colorPrimary)
     val onSurface = resolveColor(view.context, com.google.android.material.R.attr.colorOnSurface)
 
@@ -127,6 +130,49 @@ fun applyMiniPlayerFocusBackground(view: View) {
     )
 }
 
+fun applyPlayerControlFocusBackground(view: View) {
+    if (view is MaterialButton) return
+    applyMiniPlayerFocusBackground(view)
+}
+
+fun materialButtonFocusChangeHandler(button: MaterialButton): (View, Boolean) -> Unit {
+    val context = button.context
+    val primary = resolveColor(context, com.google.android.material.R.attr.colorPrimary)
+    val onSurface = resolveColor(context, com.google.android.material.R.attr.colorOnSurface)
+    val defaultBackgroundTint = button.backgroundTintList
+    val defaultStrokeColor = button.strokeColor
+    val defaultStrokeWidth = button.strokeWidth
+    val defaultScaleX = button.scaleX
+    val defaultScaleY = button.scaleY
+    val focusFill = ColorStateList.valueOf(
+        Color.argb(0x36, Color.red(primary), Color.green(primary), Color.blue(primary))
+    )
+    val focusStroke = ColorStateList.valueOf(onSurface)
+    val focusStrokeWidth = maxOf(defaultStrokeWidth, dp(context, 3f).toInt())
+    val defaultTintAlpha = Color.alpha(defaultBackgroundTint?.defaultColor ?: Color.TRANSPARENT)
+
+    return { _, hasFocus ->
+        if (hasFocus) {
+            if (defaultTintAlpha <= 0x20) {
+                button.backgroundTintList = focusFill
+            }
+            button.strokeColor = focusStroke
+            button.strokeWidth = focusStrokeWidth
+            button.scaleX = 1.08f
+            button.scaleY = 1.08f
+            button.translationZ = dp(context, 2f)
+        } else {
+            button.backgroundTintList = defaultBackgroundTint
+            button.strokeColor = defaultStrokeColor
+            button.strokeWidth = defaultStrokeWidth
+            button.scaleX = defaultScaleX
+            button.scaleY = defaultScaleY
+            button.translationZ = 0f
+        }
+        button.invalidate()
+    }
+}
+
 private fun dp(context: Context, value: Float): Float =
     value * context.resources.displayMetrics.density
 
@@ -148,8 +194,14 @@ fun resolveColor(context: Context, attrRes: Int): Int {
  *  - onFocusChangeListener: sets isSelected = hasFocus (drives focus highlight)
  *  - onKeyListener: fires onClick when DPAD_CENTER or ENTER is pressed
  */
-fun View.setupDpadItem(onClick: () -> Unit) {
-    setOnFocusChangeListener { v, hasFocus -> v.isSelected = hasFocus }
+fun View.setupDpadItem(
+    onFocusChanged: ((View, Boolean) -> Unit)? = null,
+    onClick: () -> Unit
+) {
+    setOnFocusChangeListener { v, hasFocus ->
+        v.isSelected = hasFocus
+        onFocusChanged?.invoke(v, hasFocus)
+    }
     setOnKeyListener { _, keyCode, event ->
         if (event.action == KeyEvent.ACTION_DOWN &&
             (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER)) {

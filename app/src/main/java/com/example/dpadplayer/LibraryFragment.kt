@@ -119,11 +119,15 @@ class LibraryFragment : Fragment() {
 
         // Play / Next buttons
         applyMiniPlayerFocusBackground(miniBtnPlay)
-        miniBtnPlay.setupDpadItem { (activity as? MainActivity)?.togglePlayPause() }
+        miniBtnPlay.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(miniBtnPlay)) {
+            (activity as? MainActivity)?.togglePlayPause()
+        }
         miniBtnPlay.setOnClickListener { (activity as? MainActivity)?.togglePlayPause() }
 
         applyMiniPlayerFocusBackground(miniBtnNext)
-        miniBtnNext.setupDpadItem { (activity as? MainActivity)?.sendCmd("NEXT") }
+        miniBtnNext.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(miniBtnNext)) {
+            (activity as? MainActivity)?.sendCmd("NEXT")
+        }
         miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
         listOf(miniOpenPlayer, miniBtnPlay, miniBtnNext).forEach { miniControl ->
             miniControl.setOnKeyListener { v, keyCode, event ->

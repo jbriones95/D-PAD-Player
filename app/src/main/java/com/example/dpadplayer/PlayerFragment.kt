@@ -63,16 +63,20 @@ class PlayerFragment : Fragment() {
         btnShuffle     = view.findViewById(R.id.btn_shuffle)
 
         btnBack.setOnClickListener { navigateBack() }
-        applyItemFocusBackground(btnBack)
-        btnBack.setupDpadItem { navigateBack() }
+        applyPlayerControlFocusBackground(btnBack)
+        btnBack.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnBack)) {
+            navigateBack()
+        }
         setupButtons()
         setupSeekBar()
         observeViewModel()
 
         // Apply focus styling to all transport buttons
         listOf(btnRepeat, btnPrev, btnPlay, btnNext, btnShuffle).forEach { btn ->
-            applyItemFocusBackground(btn)
-            btn.setupDpadItem { btn.performClick() }
+            applyPlayerControlFocusBackground(btn)
+            btn.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btn)) {
+                btn.performClick()
+            }
         }
     }
 
