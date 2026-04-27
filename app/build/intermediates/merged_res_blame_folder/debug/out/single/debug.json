@@ -28,6 +28,10 @@
         "source": "com.example.dpadplayer.app-main-52:/layout/item_track.xml"
     },
     {
+        "merged": "com.example.dpadplayer.app-merged_res-50:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.dpadplayer.app-main-52:/drawable/ic_launcher_background.xml"
+    },
+    {
         "merged": "com.example.dpadplayer.app-merged_res-50:/drawable_ic_album.xml.flat",
         "source": "com.example.dpadplayer.app-main-52:/drawable/ic_album.xml"
     },
@@ -210,6 +214,10 @@
     {
         "merged": "com.example.dpadplayer.app-merged_res-50:/drawable_ic_play.xml.flat",
         "source": "com.example.dpadplayer.app-main-52:/drawable/ic_play.xml"
+    },
+    {
+        "merged": "com.example.dpadplayer.app-merged_res-50:/drawable_ic_music_note_foreground.xml.flat",
+        "source": "com.example.dpadplayer.app-main-52:/drawable/ic_music_note_foreground.xml"
     },
     {
         "merged": "com.example.dpadplayer.app-merged_res-50:/layout_item_genre.xml.flat",

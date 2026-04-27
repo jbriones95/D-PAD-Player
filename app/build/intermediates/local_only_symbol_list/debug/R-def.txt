@@ -113,8 +113,10 @@ drawable ic_chevron_right
 drawable ic_fast_forward
 drawable ic_fast_rewind
 drawable ic_genre
+drawable ic_launcher_background
 drawable ic_more_vert
 drawable ic_music_note
+drawable ic_music_note_foreground
 drawable ic_pause
 drawable ic_person
 drawable ic_play

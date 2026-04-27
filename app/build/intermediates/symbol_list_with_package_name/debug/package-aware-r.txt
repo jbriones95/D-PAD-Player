@@ -3280,6 +3280,7 @@ drawable ic_fast_forward
 drawable ic_fast_rewind
 drawable ic_genre
 drawable ic_keyboard_black_24dp
+drawable ic_launcher_background
 drawable ic_m3_chip_check
 drawable ic_m3_chip_checked_circle
 drawable ic_m3_chip_close
@@ -3289,6 +3290,7 @@ drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_music_note
+drawable ic_music_note_foreground
 drawable ic_pause
 drawable ic_person
 drawable ic_play
