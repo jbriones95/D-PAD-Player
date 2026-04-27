@@ -285,6 +285,36 @@ class PlaybackService : Service() {
         onShuffleChanged?.invoke(shuffleOn)
     }
 
+    fun playNextTrack(track: Track) {
+        if (tracks.isEmpty()) {
+            tracks.add(track)
+            prepareAndPlay(0)
+            return
+        }
+        val insertIndex = currentIndex + 1
+        tracks.add(insertIndex, track)
+        if (shuffleOn) {
+            shuffleOrder.add(shufflePos + 1, insertIndex)
+            for (i in 0 until shuffleOrder.size) {
+                if (i != (shufflePos + 1) && shuffleOrder[i] >= insertIndex) {
+                    shuffleOrder[i]++
+                }
+            }
+        }
+    }
+
+    fun enqueueTrack(track: Track) {
+        if (tracks.isEmpty()) {
+            tracks.add(track)
+            prepareAndPlay(0)
+            return
+        }
+        tracks.add(track)
+        if (shuffleOn) {
+            shuffleOrder.add(tracks.size - 1)
+        }
+    }
+
     fun cycleRepeat() {
         repeatMode = (repeatMode + 1) % 3
         onRepeatChanged?.invoke(repeatMode)

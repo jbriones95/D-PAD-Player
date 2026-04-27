@@ -58,6 +58,9 @@ class ArtistDetailFragment : Fragment() {
                 val track = artist.songs.getOrNull(index) ?: return@TrackAdapter
                 val globalIndex = viewModel.tracks.value?.indexOfFirst { it.id == track.id } ?: -1
                 if (globalIndex >= 0) (activity as? MainActivity)?.playTrack(globalIndex)
+            },
+            onMenuClick = { anchor, track, _ ->
+                (activity as? MainActivity)?.showTrackMenu(anchor, track)
             }
         )
         recyclerSongs.adapter = songAdapter

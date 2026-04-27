@@ -49,54 +49,7 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
     }
 
     private fun showTrackMenu(anchor: View, track: com.example.dpadplayer.playback.Track) {
-        val popup = PopupMenu(requireContext(), anchor)
-        popup.menu.add(0, 1, 0, "Add to playlist")
-        popup.setOnMenuItemClickListener { item ->
-            if (item.itemId == 1) showAddToPlaylistDialog(track)
-            true
-        }
-        popup.show()
-    }
-
-    private fun showAddToPlaylistDialog(track: com.example.dpadplayer.playback.Track) {
-        val playlists = viewModel.playlists.value ?: emptyList()
-        if (playlists.isEmpty()) {
-            // No playlists — prompt to create one
-            showCreateAndAddDialog(track)
-            return
-        }
-        val options = (playlists.map { it.name } + listOf("+ New playlist")).toTypedArray()
-        AlertDialog.Builder(requireContext())
-            .setTitle("Add to playlist")
-            .setItems(options) { _, which ->
-                if (which < playlists.size) {
-                    viewModel.addTracksToPlaylist(playlists[which].id, listOf(track))
-                    Toast.makeText(requireContext(),
-                        "Added to \"${playlists[which].name}\"", Toast.LENGTH_SHORT).show()
-                } else {
-                    showCreateAndAddDialog(track)
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showCreateAndAddDialog(track: com.example.dpadplayer.playback.Track) {
-        val editText = EditText(requireContext())
-        editText.hint = "Playlist name"
-        editText.requestFocus()
-        AlertDialog.Builder(requireContext())
-            .setTitle("New playlist")
-            .setView(editText)
-            .setPositiveButton("Create") { _, _ ->
-                val name = editText.text.toString().trim()
-                if (name.isNotEmpty()) {
-                    viewModel.createPlaylist(name, listOf(track))
-                    Toast.makeText(requireContext(), "Created \"$name\"", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        (activity as? MainActivity)?.showTrackMenu(anchor, track)
     }
 
     override fun recyclerView(): RecyclerView = recycler

@@ -51,8 +51,10 @@ class PlaylistDetailFragment : Fragment() {
         val adapter = TrackAdapter(
             items = emptyList(),
             onTrackClick = { index ->
-                // play resolved tracks starting at index
                 (activity as? MainActivity)?.playPlaylist(playlistId, index)
+            },
+            onMenuClick = { anchor, track, _ ->
+                (activity as? MainActivity)?.showTrackMenu(anchor, track)
             }
         )
         adapter.menuClickListener = { anchor, track, _ ->

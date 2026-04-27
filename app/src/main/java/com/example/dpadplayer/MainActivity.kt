@@ -238,6 +238,71 @@ class MainActivity : AppCompatActivity() {
         service?.toggleShuffle()
     }
 
+    fun playNext(track: Track) {
+        service?.playNextTrack(track)
+        Toast.makeText(this, "Playing next: ${track.title}", Toast.LENGTH_SHORT).show()
+    }
+
+    fun addToQueue(track: Track) {
+        service?.enqueueTrack(track)
+        Toast.makeText(this, "Added to queue: ${track.title}", Toast.LENGTH_SHORT).show()
+    }
+
+    fun showTrackMenu(anchor: android.view.View, track: Track) {
+        val popup = android.widget.PopupMenu(this, anchor)
+        popup.menu.add(0, 1, 0, "Add to playlist")
+        popup.menu.add(0, 2, 0, "Play next")
+        popup.menu.add(0, 3, 0, "Add to queue")
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> showAddToPlaylistDialog(track)
+                2 -> playNext(track)
+                3 -> addToQueue(track)
+            }
+            true
+        }
+        popup.show()
+    }
+
+    private fun showAddToPlaylistDialog(track: Track) {
+        val playlists = viewModel.playlists.value ?: emptyList()
+        if (playlists.isEmpty()) {
+            showCreateAndAddDialog(track)
+            return
+        }
+        val options = (playlists.map { it.name } + listOf("+ New playlist")).toTypedArray()
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Add to playlist")
+            .setItems(options) { _, which ->
+                if (which < playlists.size) {
+                    viewModel.addTracksToPlaylist(playlists[which].id, listOf(track))
+                    Toast.makeText(this, "Added to \"${playlists[which].name}\"", Toast.LENGTH_SHORT).show()
+                } else {
+                    showCreateAndAddDialog(track)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showCreateAndAddDialog(track: Track) {
+        val editText = android.widget.EditText(this)
+        editText.hint = "Playlist name"
+        editText.requestFocus()
+        android.app.AlertDialog.Builder(this)
+            .setTitle("New playlist")
+            .setView(editText)
+            .setPositiveButton("Create") { _, _ ->
+                val name = editText.text.toString().trim()
+                if (name.isNotEmpty()) {
+                    viewModel.createPlaylist(name, listOf(track))
+                    Toast.makeText(this, "Created \"$name\"", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     fun cycleRepeat() {
         service?.cycleRepeat()
     }

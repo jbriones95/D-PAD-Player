@@ -95,8 +95,10 @@ class TrackAdapter(
         }
 
         private fun showDefaultMenu(anchor: View, track: Track) {
-            // Default menu: Add to playlist (handled by parent if they set menuClickListener)
-            // Fallback — show nothing; fragments should set menuClickListener
+            val ctx = anchor.context
+            if (ctx is MainActivity) {
+                ctx.showTrackMenu(anchor, track)
+            }
         }
     }
 
