@@ -120,6 +120,7 @@ drawable ic_music_note_foreground
 drawable ic_pause
 drawable ic_person
 drawable ic_play
+drawable ic_playlist_play
 drawable ic_queue_music
 drawable ic_repeat_all
 drawable ic_repeat_off
@@ -140,6 +141,7 @@ id btn_next
 id btn_play
 id btn_playlist_menu
 id btn_prev
+id btn_queue
 id btn_repeat
 id btn_settings_back
 id btn_track_menu
@@ -169,6 +171,7 @@ id recycler_detail
 id recycler_genre
 id recycler_menu
 id recycler_playlist
+id recycler_queue
 id recycler_songs
 id seek_bar
 id settings_prefs_container
@@ -211,6 +214,7 @@ layout fragment_home
 layout fragment_library
 layout fragment_player
 layout fragment_playlist_detail
+layout fragment_queue
 layout fragment_settings
 layout fragment_tab_list
 layout fragment_tab_playlists

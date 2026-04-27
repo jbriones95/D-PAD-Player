@@ -177,6 +177,23 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
+    fun openQueue() {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, QueueFragment(), "queue")
+            .addToBackStack(null)
+            .commit()
+    }
+
+    fun getQueue(): List<Track> {
+        return service?.tracks ?: emptyList()
+    }
+
+    fun playQueueItem(index: Int) {
+        service?.prepareAndPlay(index)
+    }
+
     fun playPlaylist(playlistId: Long, startIndex: Int) {
         CoroutineScope(Dispatchers.Main).launch {
             val tracks = viewModel.resolvePlaylistTracks(playlistId)

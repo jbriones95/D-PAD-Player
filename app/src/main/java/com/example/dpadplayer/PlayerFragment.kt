@@ -24,6 +24,7 @@ class PlayerFragment : Fragment() {
     private val viewModel: MusicViewModel by activityViewModels()
 
     private lateinit var btnBack: MaterialButton
+    private lateinit var btnQueue: MaterialButton
     private lateinit var tvTrackCounter: TextView
     private lateinit var albumArt: ImageView
     private lateinit var tvTitle: TextView
@@ -48,6 +49,7 @@ class PlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         btnBack        = view.findViewById(R.id.btn_back)
+        btnQueue       = view.findViewById(R.id.btn_queue)
         tvTrackCounter = view.findViewById(R.id.tv_track_counter)
         albumArt       = view.findViewById(R.id.album_art)
         tvTitle        = view.findViewById(R.id.tv_title)
@@ -66,6 +68,12 @@ class PlayerFragment : Fragment() {
         applyPlayerControlFocusBackground(btnBack)
         btnBack.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnBack)) {
             navigateBack()
+        }
+
+        btnQueue.setOnClickListener { (activity as? MainActivity)?.openQueue() }
+        applyPlayerControlFocusBackground(btnQueue)
+        btnQueue.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnQueue)) {
+            (activity as? MainActivity)?.openQueue()
         }
         setupButtons()
         setupSeekBar()
