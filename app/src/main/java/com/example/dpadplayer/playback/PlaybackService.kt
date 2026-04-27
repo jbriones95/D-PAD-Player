@@ -247,6 +247,7 @@ class PlaybackService : Service() {
 
     fun prepareAndPlay(index: Int) {
         if (index < 0 || index >= tracks.size) { isTransitioning = false; return }
+        isTransitioning = true
         currentIndex = index
         player.clearMediaItems()
         player.setMediaItem(MediaItem.fromUri(tracks[index].uri))
