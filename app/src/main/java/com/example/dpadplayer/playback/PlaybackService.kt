@@ -207,25 +207,30 @@ class PlaybackService : Service() {
         isTransitioning = false
     }
 
+    private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focus ->
+        when (focus) {
+            AudioManager.AUDIOFOCUS_LOSS,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> pausePlayback()
+            AudioManager.AUDIOFOCUS_GAIN -> if (!player.isPlaying) player.play()
+        }
+    }
+
     private fun requestAudioFocus(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val req = android.media.AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(android.media.AudioAttributes.Builder()
-                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build())
-                .setWillPauseWhenDucked(true)
-                .setOnAudioFocusChangeListener { focus ->
-                    when (focus) {
-                        AudioManager.AUDIOFOCUS_LOSS,
-                        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> pausePlayback()
-                        AudioManager.AUDIOFOCUS_GAIN -> if (!player.isPlaying) player.play()
-                    }
-                }.build().also { audioFocusRequest = it }
-            audioManager.requestAudioFocus(req) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            if (audioFocusRequest == null) {
+                audioFocusRequest = android.media.AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                    .setAudioAttributes(android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build())
+                    .setWillPauseWhenDucked(true)
+                    .setOnAudioFocusChangeListener(audioFocusChangeListener)
+                    .build()
+            }
+            audioManager.requestAudioFocus(audioFocusRequest!!) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         } else {
             @Suppress("DEPRECATION")
-            audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN) ==
+            audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN) ==
                     AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         }
     }
@@ -251,7 +256,7 @@ class PlaybackService : Service() {
             audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
         } else {
             @Suppress("DEPRECATION")
-            audioManager.abandonAudioFocus(null)
+            audioManager.abandonAudioFocus(audioFocusChangeListener)
         }
     }
 
