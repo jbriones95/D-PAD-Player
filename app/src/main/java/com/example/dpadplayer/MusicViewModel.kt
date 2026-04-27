@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 
 
 class MusicViewModel(app: Application) : AndroidViewModel(app) {
+    var activeLibraryTab = -1
 
     // ── Playback state ────────────────────────────────────────────────────────
 

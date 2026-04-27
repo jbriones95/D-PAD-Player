@@ -1,6 +1,7 @@
 package com.example.dpadplayer
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -94,6 +95,16 @@ class HomeFragment : Fragment() {
         applyItemFocusBackground(miniBtnNext)
         miniBtnNext.setupDpadItem { (activity as? MainActivity)?.sendCmd("NEXT") }
         miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
+        listOf(miniOpenPlayer, miniBtnPlay, miniBtnNext).forEach { miniControl ->
+            miniControl.setOnKeyListener { _, keyCode, event ->
+                if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    focusMenuItem(recycler)
+                    true
+                } else {
+                    false
+                }
+            }
+        }
 
         observeViewModel()
     }
@@ -101,6 +112,10 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         val recycler = view?.findViewById<RecyclerView>(R.id.recycler_menu) ?: return
+        focusMenuItem(recycler)
+    }
+
+    private fun focusMenuItem(recycler: RecyclerView) {
         recycler.post {
             val child = recycler.findViewHolderForAdapterPosition(lastFocusedPos)?.itemView
                 ?: recycler.findViewHolderForAdapterPosition(0)?.itemView

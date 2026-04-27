@@ -102,11 +102,8 @@ class MainActivity : AppCompatActivity() {
     // ── Fragment navigation ────────────────────────────────────────────────────
 
     fun openLibraryTab(tabIndex: Int) {
-        val existing = supportFragmentManager.findFragmentByTag(TAG_LIBRARY) as? LibraryFragment
-        if (existing != null && existing.isVisible) {
-            existing.selectTab(tabIndex)
-            return
-        }
+        viewModel.activeLibraryTab = tabIndex
+        if (supportFragmentManager.findFragmentByTag(TAG_LIBRARY) != null) return
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
                                  android.R.anim.slide_in_left, android.R.anim.slide_out_right)

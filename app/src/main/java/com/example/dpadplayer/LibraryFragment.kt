@@ -73,9 +73,9 @@ class LibraryFragment : Fragment() {
 
         prefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
 
-        // Navigate to initial tab
-        val initialTab = arguments?.getInt(ARG_TAB, 0) ?: 0
-        if (initialTab > 0) viewPager.setCurrentItem(initialTab, false)
+        // Restore tab position from memory or arguments
+        val initialTab = if (viewModel.activeLibraryTab >= 0) viewModel.activeLibraryTab else (arguments?.getInt(ARG_TAB, 0) ?: 0)
+        viewPager.setCurrentItem(initialTab, false)
 
         // ViewPager must not steal focus directly, but it acts as a group
         viewPager.isFocusable = true
@@ -83,11 +83,19 @@ class LibraryFragment : Fragment() {
         viewPager.registerOnPageChangeCallback(object: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                val fragments = childFragmentManager.fragments
-                for (f in fragments) {
-                    if (f is TabWithRecycler && f.isVisible) {
-                        f.requestInitialFocus()
-                        break
+                Log.d("DPAD_FOCUS", "ViewPager onPageSelected: position=$position (old activeTabPosition=${viewModel.activeLibraryTab})")
+                viewModel.activeLibraryTab = position
+                val tag = "f$position"
+                val f = childFragmentManager.findFragmentByTag(tag)
+                if (f is TabWithRecycler) {
+                    f.requestInitialFocus()
+                } else {
+                    // Fallback to searching all fragments
+                    for (frag in childFragmentManager.fragments) {
+                        if (frag is TabWithRecycler && frag.isResumed) {
+                            frag.requestInitialFocus()
+                            break
+                        }
                     }
                 }
             }
@@ -95,11 +103,17 @@ class LibraryFragment : Fragment() {
 
         // Fire initial focus for the starting tab (onPageSelected won't fire for position 0)
         viewPager.post {
-            val fragments = childFragmentManager.fragments
-            for (f in fragments) {
-                if (f is TabWithRecycler && f.isVisible) {
-                    f.requestInitialFocus()
-                    break
+            val position = viewPager.currentItem
+            val tag = "f$position"
+            val f = childFragmentManager.findFragmentByTag(tag)
+            if (f is TabWithRecycler) {
+                f.requestInitialFocus()
+            } else {
+                for (frag in childFragmentManager.fragments) {
+                    if (frag is TabWithRecycler && frag.isResumed) {
+                        frag.requestInitialFocus()
+                        break
+                    }
                 }
             }
         }
@@ -132,13 +146,12 @@ class LibraryFragment : Fragment() {
         super.onResume()
         Log.d("DPAD_FOCUS", "LibraryFragment.onResume — re-requesting focus into active tab")
         viewPager.post {
-            val fragments = childFragmentManager.fragments
-            for (f in fragments) {
-                if (f is TabWithRecycler && f.isVisible) {
-                    Log.d("DPAD_FOCUS", "LibraryFragment.onResume — calling requestInitialFocus on ${f.javaClass.simpleName}")
-                    f.requestInitialFocus()
-                    break
-                }
+            val currentItem = viewPager.currentItem
+            val tag = "f$currentItem"
+            val f = childFragmentManager.findFragmentByTag(tag)
+            Log.d("DPAD_FOCUS", "LibraryFragment.onResume — active tab is position=$currentItem (tag=$tag), fragment=$f")
+            if (f is TabWithRecycler) {
+                f.requestInitialFocus()
             }
         }
     }
