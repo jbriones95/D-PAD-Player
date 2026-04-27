@@ -54,9 +54,11 @@ class QueueFragment : Fragment() {
                 hasScrolled = true
                 recycler.post {
                     val targetIndex = viewModel.currentIndex.value ?: 0
-                    recycler.scrollToPosition(targetIndex)
-                    val first = recycler.layoutManager?.findViewByPosition(targetIndex) ?: recycler.getChildAt(0)
-                    (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                    if (targetIndex in q.indices) {
+                        recycler.scrollToPosition(targetIndex)
+                        val first = recycler.layoutManager?.findViewByPosition(targetIndex) ?: recycler.getChildAt(0)
+                        (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                    }
                 }
             }
         }

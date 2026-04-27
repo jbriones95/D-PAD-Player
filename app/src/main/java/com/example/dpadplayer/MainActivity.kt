@@ -95,9 +95,12 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         if (bound) {
-            service?.onTrackChanged        = null
+            service?.onTrackChanged         = null
             service?.onPlaybackStateChanged = null
             service?.onPositionChanged      = null
+            service?.onShuffleChanged       = null
+            service?.onRepeatChanged        = null
+            service?.onQueueChanged         = null
             unbindService(connection)
             bound = false
         }

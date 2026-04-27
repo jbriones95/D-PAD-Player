@@ -350,7 +350,7 @@ class PlaybackService : Service() {
 
     val isPlaying get() = player.isPlaying
     val currentPosition get() = player.currentPosition
-    val duration get() = if (tracks.isNotEmpty()) tracks[currentIndex].duration else 0L
+    val duration get() = if (currentIndex in tracks.indices) tracks[currentIndex].duration else 0L
 
     // ─── MediaSession state ───────────────────────────────────────────────────
 
@@ -398,7 +398,7 @@ class PlaybackService : Service() {
 
     private fun buildNotification(): android.app.Notification {
         createNotificationChannel()
-        val t = if (tracks.isNotEmpty()) tracks[currentIndex] else null
+        val t = if (currentIndex in tracks.indices) tracks[currentIndex] else null
 
         val openIntent = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java),

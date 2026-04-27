@@ -45,8 +45,8 @@ class TrackAdapter(
     fun setSelectedIndex(index: Int) {
         val old = selectedIndex
         selectedIndex = index
-        if (old >= 0) notifyItemChanged(old)
-        if (index >= 0) notifyItemChanged(index)
+        if (old in items.indices) notifyItemChanged(old)
+        if (index in items.indices) notifyItemChanged(index)
     }
 
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
