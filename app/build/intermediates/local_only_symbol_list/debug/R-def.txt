@@ -42,6 +42,7 @@ color grey_secondary
 color grey_secondaryVariant
 color grey_surface
 color grey_surfaceVariant
+color launcher_background
 color orange_onPrimary
 color orange_onSurface
 color orange_onSurfaceVariant
@@ -103,6 +104,7 @@ dimen player_panel_info_height
 dimen player_progress_height
 dimen player_seek_row_height
 dimen playing_indicator_width
+drawable app_icon_source
 drawable ic_account_circle
 drawable ic_add
 drawable ic_album
@@ -217,6 +219,9 @@ layout item_genre
 layout item_home_menu
 layout item_playlist
 layout item_track
+mipmap ic_launcher
+mipmap ic_launcher_foreground
+mipmap ic_launcher_round
 string app_name
 string menu_albums
 string menu_artists
