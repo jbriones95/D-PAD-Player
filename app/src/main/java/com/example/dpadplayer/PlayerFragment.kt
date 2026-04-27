@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -189,11 +190,12 @@ class PlayerFragment : Fragment() {
         updatePlayPauseIcon(viewModel.isPlaying.value ?: false)
         updateTrackCounter()
 
-        val loaded = try {
-            requireContext().contentResolver.openInputStream(track.albumArtUri)?.use { true } ?: false
-        } catch (_: Exception) { false }
-        if (loaded) albumArt.setImageURI(track.albumArtUri)
-        else { albumArt.setImageURI(null); albumArt.setImageResource(R.drawable.ic_music_note) }
+        Glide.with(this)
+            .load(track.albumArtUri)
+            .placeholder(R.drawable.ic_music_note)
+            .error(R.drawable.ic_music_note)
+            .fallback(R.drawable.ic_music_note)
+            .into(albumArt)
     }
 
     private fun updatePlayPauseIcon(isPlaying: Boolean) {

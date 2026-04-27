@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
@@ -50,10 +51,11 @@ class AlbumAdapter(
             if (album.year > 0) append(" · ${album.year}")
             append(" · ${album.songCount} $songWord")
         }
-        val loaded = try {
-            holder.art.context.contentResolver.openInputStream(album.albumArtUri)?.use { true } ?: false
-        } catch (_: Exception) { false }
-        if (loaded) holder.art.setImageURI(album.albumArtUri)
-        else { holder.art.setImageURI(null); holder.art.setImageResource(R.drawable.ic_music_note) }
+        Glide.with(holder.itemView)
+            .load(album.albumArtUri)
+            .placeholder(R.drawable.ic_music_note)
+            .error(R.drawable.ic_music_note)
+            .fallback(R.drawable.ic_music_note)
+            .into(holder.art)
     }
 }

@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import com.example.dpadplayer.playback.Track
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
 import java.io.File
 
 /**
@@ -34,6 +36,7 @@ object MediaStoreScanner {
     private data class RawRow(
         val id: Long,
         val uri: android.net.Uri,
+        val msData: String,
         val msTitle: String,
         val msArtist: String,
         val msAlbum: String,
@@ -46,6 +49,7 @@ object MediaStoreScanner {
     private fun collectRawRows(context: Context): List<RawRow> {
         val projection = arrayOf(
             MediaStore.Audio.AudioColumns._ID,
+            MediaStore.Audio.AudioColumns.DATA,
             MediaStore.Audio.AudioColumns.TITLE,
             MediaStore.Audio.AudioColumns.ARTIST,
             MediaStore.Audio.AudioColumns.ALBUM,
@@ -76,6 +80,7 @@ object MediaStoreScanner {
                     "${MediaStore.Audio.AudioColumns.TITLE} ASC"
                 )?.use { c ->
                     val colId       = c.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns._ID)
+                    val colData     = c.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA)
                     val colTitle    = c.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)
                     val colArtist   = c.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ARTIST)
                     val colAlbum    = c.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM)
@@ -89,6 +94,7 @@ object MediaStoreScanner {
                         rows.add(RawRow(
                             id          = id,
                             uri         = ContentUris.withAppendedId(baseUri, id),
+                            msData      = c.getString(colData)    ?: "",
                             msTitle     = c.getString(colTitle)   ?: "",
                             msArtist    = c.getString(colArtist)  ?: "",
                             msAlbum     = c.getString(colAlbum)   ?: "",
@@ -104,10 +110,9 @@ object MediaStoreScanner {
         return rows
     }
 
-    // ── Step 2: enrich with MediaMetadataRetriever (ID3 tags) ─────────────────
+    // ── Step 2: enrich with jaudiotagger (ID3/Vorbis tags) ─────────────────
 
     private fun enrichWithRetriever(context: Context, row: RawRow): Track {
-        val mmr = MediaMetadataRetriever()
         var title       = row.msTitle.ifBlank { "Unknown" }
         var sortTitle   = title
         var artist      = row.msArtist.ifBlank { "Unknown Artist" }
@@ -124,46 +129,63 @@ object MediaStoreScanner {
         var embeddedAlbumArtUri: Uri? = null
         val mediaStoreAlbumArtUri = Track.albumArtUri(row.msAlbumId)
 
-        try {
-            mmr.setDataSource(context, row.uri)
+        if (row.msData.isNotEmpty()) {
+            try {
+                val f = File(row.msData)
+                if (f.exists()) {
+                    val audioFile = AudioFileIO.read(f)
+                    val tag = audioFile.tag
 
-            fun tag(key: Int) = mmr.extractMetadata(key)?.trim()?.takeIf { it.isNotEmpty() }
+                    if (tag != null) {
+                        fun getStr(key: FieldKey) = tag.getFirst(key)?.trim()?.takeIf { it.isNotEmpty() }
 
-            tag(MediaMetadataRetriever.METADATA_KEY_TITLE)?.let { title = it; sortTitle = it }
-            tag(MediaMetadataRetriever.METADATA_KEY_ARTIST)?.let { artist = it; sortArtist = it }
-            tag(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)?.let {
-                albumArtist = it; sortAlbumArtist = it
-            }
-            tag(MediaMetadataRetriever.METADATA_KEY_ALBUM)?.let { album = it; sortAlbum = it }
-            tag(MediaMetadataRetriever.METADATA_KEY_GENRE)?.let { genre = it }
-            tag(MediaMetadataRetriever.METADATA_KEY_YEAR)?.let { year = it.toIntOrNull() ?: 0 }
-            tag(MediaMetadataRetriever.METADATA_KEY_DURATION)?.let {
-                duration = it.toLongOrNull() ?: duration
-            }
+                        getStr(FieldKey.TITLE)?.let { title = it; sortTitle = it }
+                        getStr(FieldKey.TITLE_SORT)?.let { sortTitle = it }
 
-            // Track number — may be "X/Y" (track/total), take just X
-            tag(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)?.let {
-                trackNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
-            }
-            // Disc number — may be "X/Y"
-            tag(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)?.let {
-                discNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
-            }
+                        getStr(FieldKey.ARTIST)?.let { artist = it; sortArtist = it; albumArtist = it; sortAlbumArtist = it }
+                        getStr(FieldKey.ARTIST_SORT)?.let { sortArtist = it }
 
-            mmr.embeddedPicture?.takeIf { it.isNotEmpty() }?.let { bytes ->
-                embeddedAlbumArtUri = persistEmbeddedArtwork(context, row.id, bytes)
-            }
+                        getStr(FieldKey.ALBUM_ARTIST)?.let { albumArtist = it; sortAlbumArtist = it }
+                        getStr(FieldKey.ALBUM_ARTIST_SORT)?.let { sortAlbumArtist = it }
 
-            // If albumArtist is still just the track artist, and no album artist tag was found,
-            // leave albumArtist = artist so same-artist albums group correctly.
-            if (albumArtist == artist) {
-                // Check if MediaStore knows a distinct album artist
-                // (some formats expose it only through MediaStore columns)
+                        getStr(FieldKey.ALBUM)?.let { album = it; sortAlbum = it }
+                        getStr(FieldKey.ALBUM_SORT)?.let { sortAlbum = it }
+
+                        getStr(FieldKey.GENRE)?.let { genre = it }
+                        
+                        getStr(FieldKey.YEAR)?.let {
+                            // Can be full date "2024-01-01" or year "2024"
+                            year = it.take(4).toIntOrNull() ?: 0
+                        }
+
+                        // Track number
+                        getStr(FieldKey.TRACK)?.let {
+                            trackNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
+                        }
+
+                        // Disc number
+                        getStr(FieldKey.DISC_NO)?.let {
+                            discNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
+                        }
+
+                        // Extract embedded artwork (disabled persistence since MediaStore is faster,
+                        // or we could let Glide handle the raw file path directly!).
+                        // With Glide, we can just pass the file path or URI and Glide's AudioFileCover
+                        // or MediaStore loaders will handle extracting the thumbnail efficiently!
+                        // So we no longer need to manually persist embedded art to cache!
+                    }
+
+                    // Duration from header
+                    val header = audioFile.audioHeader
+                    if (header != null && header.trackLength > 0) {
+                        // trackLength is in seconds, convert to ms
+                        duration = header.trackLength * 1000L
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignore jaudiotagger errors (corrupt tags, unsupported formats)
+                // We fallback to the MediaStore row defaults
             }
-        } catch (_: Exception) {
-            // File unreadable — use MediaStore fallbacks already set above
-        } finally {
-            try { mmr.release() } catch (_: Exception) {}
         }
 
         return Track(
@@ -184,21 +206,9 @@ object MediaStoreScanner {
             genre           = genre,
             duration        = duration,
             dateAdded       = row.msDateAdded,
-            albumArtUri     = embeddedAlbumArtUri ?: mediaStoreAlbumArtUri,
+            albumArtUri     = mediaStoreAlbumArtUri,
             mediaStoreAlbumArtUri = mediaStoreAlbumArtUri,
         )
-    }
-
-    private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray): Uri? {
-        return try {
-            val dir = File(context.cacheDir, "album_art")
-            if (!dir.exists()) dir.mkdirs()
-            val file = File(dir, "track_$trackId.jpg")
-            file.writeBytes(bytes)
-            Uri.fromFile(file)
-        } catch (_: Exception) {
-            null
-        }
     }
 
     // ── Step 3: sort ──────────────────────────────────────────────────────────

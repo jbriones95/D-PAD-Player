@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -70,11 +71,12 @@ class AlbumDetailFragment : Fragment() {
             val songWord  = if (album.songCount == 1) "song" else "songs"
             tvMeta.text   = "$yearStr${album.songCount} $songWord"
 
-            val loaded = try {
-                requireContext().contentResolver.openInputStream(album.albumArtUri)?.use { true } ?: false
-            } catch (_: Exception) { false }
-            if (loaded) ivArt.setImageURI(album.albumArtUri)
-            else { ivArt.setImageURI(null); ivArt.setImageResource(R.drawable.ic_music_note) }
+            Glide.with(this)
+                .load(album.albumArtUri)
+                .placeholder(R.drawable.ic_music_note)
+                .error(R.drawable.ic_music_note)
+                .fallback(R.drawable.ic_music_note)
+                .into(ivArt)
 
             adapter.updateTracks(album.songs)
             if (!focusRequested && album.songs.isNotEmpty()) {

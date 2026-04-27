@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dpadplayer.playback.Track
@@ -121,15 +122,12 @@ class TrackAdapter(
         holder.artist.text = "${track.artist} · ${formatMs(track.duration)}"
 
         // Load album art thumbnail; fall back to music note placeholder
-        val loaded = try {
-            holder.art.context.contentResolver.openInputStream(track.albumArtUri)?.use { true } ?: false
-        } catch (_: Exception) { false }
-        if (loaded) {
-            holder.art.setImageURI(track.albumArtUri)
-        } else {
-            holder.art.setImageURI(null)
-            holder.art.setImageResource(R.drawable.ic_music_note)
-        }
+        Glide.with(holder.itemView)
+            .load(track.albumArtUri)
+            .placeholder(R.drawable.ic_music_note)
+            .error(R.drawable.ic_music_note)
+            .fallback(R.drawable.ic_music_note)
+            .into(holder.art)
 
         val isActive = position == selectedIndex
         // Activate only the clickable_item overlay (not the whole row or menuBtn)

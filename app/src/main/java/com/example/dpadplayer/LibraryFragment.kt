@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -251,11 +252,12 @@ class LibraryFragment : Fragment() {
         miniTitle.text  = track.title
         miniArtist.text = track.artist
         miniProgress.max = track.duration.toInt()
-        val loaded = try {
-            requireContext().contentResolver.openInputStream(track.albumArtUri)?.use { true } ?: false
-        } catch (_: Exception) { false }
-        if (loaded) miniArt.setImageURI(track.albumArtUri)
-        else { miniArt.setImageURI(null); miniArt.setImageResource(R.drawable.ic_music_note) }
+        Glide.with(this)
+            .load(track.albumArtUri)
+            .placeholder(R.drawable.ic_music_note)
+            .error(R.drawable.ic_music_note)
+            .fallback(R.drawable.ic_music_note)
+            .into(miniArt)
     }
 
     private fun updateMiniPlayIcon(isPlaying: Boolean) {
