@@ -131,7 +131,14 @@ class TrackAdapter(
         }
 
         val isActive = position == selectedIndex
-        holder.itemView.isActivated = isActive
+        // Activate only the clickable_item overlay (not the whole row or menuBtn)
+        // so the "now playing" highlight covers exactly what the focus highlight covers.
+        val clickableItem = holder.itemView.findViewById<View?>(R.id.clickable_item)
+        if (clickableItem != null) {
+            clickableItem.isActivated = isActive
+        } else {
+            holder.itemView.isActivated = isActive
+        }
         holder.indicator.visibility = if (isActive) View.VISIBLE else View.INVISIBLE
     }
 

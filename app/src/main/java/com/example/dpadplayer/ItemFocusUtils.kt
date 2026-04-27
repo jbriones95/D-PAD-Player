@@ -30,8 +30,12 @@ fun applyItemFocusBackground(view: View) {
     val activeColor  = Color.argb(0x1F, Color.red(primary), Color.green(primary), Color.blue(primary))
 
     val stateDrawable = StateListDrawable().apply {
-        addState(intArrayOf(android.R.attr.state_activated),  ColorDrawable(activeColor))
+        // focused + playing: show focus color (stronger, so user knows what's selected)
+        addState(intArrayOf(android.R.attr.state_selected, android.R.attr.state_activated), ColorDrawable(focusColor))
+        // focused only
         addState(intArrayOf(android.R.attr.state_selected),   ColorDrawable(focusColor))
+        // playing only (not focused)
+        addState(intArrayOf(android.R.attr.state_activated),  ColorDrawable(activeColor))
         addState(intArrayOf(),                                ColorDrawable(Color.TRANSPARENT))
     }
 

@@ -74,7 +74,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:focusable="false"
-        android:focusableInTouchMode="false" />
+        android:focusableInTouchMode="false"
+        android:nextFocusDown="@id/mini_open_player" />
 
     <!-- Mini now-playing bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -151,6 +152,7 @@
             android:focusableInTouchMode="false"
             android:nextFocusLeft="@id/mini_open_player"
             android:nextFocusRight="@id/mini_btn_next"
+            android:nextFocusUp="@id/view_pager"
             app:layout_constraintBottom_toTopOf="@+id/mini_progress"
             app:layout_constraintEnd_toStartOf="@+id/mini_btn_next"
             app:layout_constraintTop_toTopOf="parent" />
@@ -170,6 +172,7 @@
             android:focusable="true"
             android:focusableInTouchMode="false"
             android:nextFocusLeft="@id/mini_btn_play"
+            android:nextFocusUp="@id/view_pager"
             app:layout_constraintBottom_toTopOf="@+id/mini_progress"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -197,6 +200,7 @@
             android:focusableInTouchMode="false"
             android:clickable="true"
             android:nextFocusRight="@id/mini_btn_play"
+            android:nextFocusUp="@id/view_pager"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/mini_progress"
             app:layout_constraintStart_toStartOf="parent"

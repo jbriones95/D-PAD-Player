@@ -66,9 +66,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         prefContainer.addView(prefView)
 
         // Back button
-        wrapper.findViewById<MaterialButton>(R.id.btn_settings_back).setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        val btnBack = wrapper.findViewById<MaterialButton>(R.id.btn_settings_back)
+        btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+        applyItemFocusBackground(btnBack)
+        btnBack.setupDpadItem { parentFragmentManager.popBackStack() }
 
         return wrapper
     }

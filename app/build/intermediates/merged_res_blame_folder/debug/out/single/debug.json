@@ -4,12 +4,12 @@
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/layout/fragment_tab_list.xml"
     },
     {
-        "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/drawable_ic_genre.xml.flat",
-        "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/drawable/ic_genre.xml"
-    },
-    {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/layout_fragment_genre_detail.xml.flat",
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/layout/fragment_genre_detail.xml"
+    },
+    {
+        "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/drawable_ic_genre.xml.flat",
+        "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/drawable/ic_genre.xml"
     },
     {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/drawable_ic_skip_next.xml.flat",
@@ -22,10 +22,6 @@
     {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/drawable_ic_repeat_off.xml.flat",
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/drawable/ic_repeat_off.xml"
-    },
-    {
-        "merged": "com.example.dpadplayer.app-merged_res-50:/layout_item_track.xml.flat",
-        "source": "com.example.dpadplayer.app-main-52:/layout/item_track.xml"
     },
     {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/anim_slide_out_left.xml.flat",
@@ -84,6 +80,10 @@
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/drawable/ic_pause.xml"
     },
     {
+        "merged": "com.example.dpadplayer.app-merged_res-50:/layout_fragment_tab_list.xml.flat",
+        "source": "com.example.dpadplayer.app-main-52:/layout/fragment_tab_list.xml"
+    },
+    {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/drawable_ic_queue_music.xml.flat",
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/drawable/ic_queue_music.xml"
     },
@@ -92,12 +92,12 @@
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/drawable/ic_repeat_one.xml"
     },
     {
-        "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/layout_fragment_player.xml.flat",
-        "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/layout/fragment_player.xml"
-    },
-    {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/drawable_ic_shuffle_off.xml.flat",
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/drawable/ic_shuffle_off.xml"
+    },
+    {
+        "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/layout_fragment_player.xml.flat",
+        "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/layout/fragment_player.xml"
     },
     {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/drawable_ic_settings_seek.xml.flat",
@@ -150,10 +150,6 @@
     {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/layout_fragment_tab_playlists.xml.flat",
         "source": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-main-52:/layout/fragment_tab_playlists.xml"
-    },
-    {
-        "merged": "com.example.dpadplayer.app-merged_res-50:/layout_fragment_home.xml.flat",
-        "source": "com.example.dpadplayer.app-main-52:/layout/fragment_home.xml"
     },
     {
         "merged": "/Users/jbriones/.gradle/daemon/8.9/com.example.dpadplayer.app-merged_res-50:/layout_item_home_menu.xml.flat",

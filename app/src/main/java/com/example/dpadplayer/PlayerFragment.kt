@@ -68,6 +68,12 @@ class PlayerFragment : Fragment() {
         setupButtons()
         setupSeekBar()
         observeViewModel()
+
+        // Apply focus styling to all transport buttons
+        listOf(btnRepeat, btnPrev, btnPlay, btnNext, btnShuffle).forEach { btn ->
+            applyItemFocusBackground(btn)
+            btn.setupDpadItem { btn.performClick() }
+        }
     }
 
     override fun onResume() {

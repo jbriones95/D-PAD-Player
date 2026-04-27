@@ -1,20 +1,15 @@
 package com.example.dpadplayer
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-/**
- * LinearLayoutManager with reliable D-pad focus behaviour for Android TV / D-pad remotes.
- *
- * What it does:
- *  1. onRequestChildFocus — scrolls the focused item into view smoothly.
- *  2. onInterceptFocusSearch — when navigating UP/DOWN, finds the next item's
- *     clickable_item overlay (or the item root) and returns it, so the framework
- *     moves focus there directly instead of doing its own unpredictable search.
- */
 class FocusLinearLayoutManager(context: Context) : LinearLayoutManager(context) {
+
+    /** Called whenever a child at [position] receives focus. Use to track last-focused position. */
+    var onFocusPosition: ((position: Int) -> Unit)? = null
 
     override fun onRequestChildFocus(
         parent: RecyclerView,
@@ -23,8 +18,11 @@ class FocusLinearLayoutManager(context: Context) : LinearLayoutManager(context) 
         focused: View?
     ): Boolean {
         val position = getPosition(child)
+        val rvName = parent.context.resources.getResourceEntryName(parent.id)
+        Log.d("DPAD_FOCUS", "onRequestChildFocus pos=$position rv=$rvName focused=${runCatching { focused?.let { it.context.resources.getResourceEntryName(it.id) } }.getOrNull()}")
         if (position != RecyclerView.NO_POSITION) {
             scrollToPosition(position)
+            onFocusPosition?.invoke(position)
         }
         return true
     }
@@ -32,17 +30,21 @@ class FocusLinearLayoutManager(context: Context) : LinearLayoutManager(context) 
     override fun onInterceptFocusSearch(focused: View, direction: Int): View? {
         if (direction != View.FOCUS_DOWN && direction != View.FOCUS_UP) return null
 
-        // Find the RecyclerView that uses THIS layout manager as parent of focused
-        val rv = findOwnerRecyclerView(focused) ?: return null
+        val rv = findOwnerRecyclerView(focused) ?: run {
+            Log.d("DPAD_FOCUS", "onInterceptFocusSearch: no owner RV found for ${focused.id}")
+            return null
+        }
 
-        // Walk up from focused view to find the direct RV child that contains it
         var itemView: View = focused
         while (itemView.parent !== rv) {
             itemView = (itemView.parent as? View) ?: return null
         }
 
         val currentPos = rv.getChildAdapterPosition(itemView)
-        if (currentPos == RecyclerView.NO_POSITION) return null
+        if (currentPos == RecyclerView.NO_POSITION) {
+            Log.d("DPAD_FOCUS", "onInterceptFocusSearch: NO_POSITION for itemView")
+            return null
+        }
 
         val nextPos = when (direction) {
             View.FOCUS_DOWN -> currentPos + 1
@@ -51,13 +53,21 @@ class FocusLinearLayoutManager(context: Context) : LinearLayoutManager(context) 
         }
 
         val itemCount = rv.adapter?.itemCount ?: return null
-        if (nextPos < 0 || nextPos >= itemCount) return null
+        if (nextPos < 0 || nextPos >= itemCount) {
+            Log.d("DPAD_FOCUS", "onInterceptFocusSearch: nextPos=$nextPos out of bounds (count=$itemCount) → boundary")
+            // Allow default focus search to take over when we hit list bounds
+            return null
+        }
 
-        val nextView = findViewByPosition(nextPos) ?: return null
-        return nextView.findViewById<View?>(R.id.clickable_item) ?: nextView
+        val nextView = findViewByPosition(nextPos) ?: run {
+            Log.d("DPAD_FOCUS", "onInterceptFocusSearch: nextPos=$nextPos not yet laid out")
+            return null
+        }
+        val target = nextView.findViewById<View?>(R.id.clickable_item) ?: nextView
+        Log.d("DPAD_FOCUS", "onInterceptFocusSearch: $currentPos→$nextPos dir=${dirName(direction)} target=${target.id}")
+        return target
     }
 
-    /** Walks up the view hierarchy to find the RecyclerView that owns this layout manager. */
     private fun findOwnerRecyclerView(view: View): RecyclerView? {
         var v: View? = view
         while (v != null) {
@@ -65,5 +75,11 @@ class FocusLinearLayoutManager(context: Context) : LinearLayoutManager(context) 
             v = v.parent as? View
         }
         return null
+    }
+
+    private fun dirName(d: Int) = when (d) {
+        View.FOCUS_UP -> "UP"; View.FOCUS_DOWN -> "DOWN"
+        View.FOCUS_LEFT -> "LEFT"; View.FOCUS_RIGHT -> "RIGHT"
+        else -> d.toString()
     }
 }

@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.tabs.TabLayoutMediator
@@ -76,8 +77,9 @@ class LibraryFragment : Fragment() {
         val initialTab = arguments?.getInt(ARG_TAB, 0) ?: 0
         if (initialTab > 0) viewPager.setCurrentItem(initialTab, false)
 
-        // ViewPager must not steal focus; delegate to active tab's recycler
-        viewPager.isFocusable = false
+        // ViewPager must not steal focus directly, but it acts as a group
+        viewPager.isFocusable = true
+        viewPager.descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
         viewPager.registerOnPageChangeCallback(object: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -124,6 +126,21 @@ class LibraryFragment : Fragment() {
         miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
 
         observeViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("DPAD_FOCUS", "LibraryFragment.onResume — re-requesting focus into active tab")
+        viewPager.post {
+            val fragments = childFragmentManager.fragments
+            for (f in fragments) {
+                if (f is TabWithRecycler && f.isVisible) {
+                    Log.d("DPAD_FOCUS", "LibraryFragment.onResume — calling requestInitialFocus on ${f.javaClass.simpleName}")
+                    f.requestInitialFocus()
+                    break
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

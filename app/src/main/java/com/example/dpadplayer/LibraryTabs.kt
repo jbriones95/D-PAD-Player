@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.Toast
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -101,9 +102,8 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
             var target: View? = null
             try { target = lm?.findViewByPosition(preferred) } catch (_: Exception) { }
             if (target == null && recycler.childCount > 0) target = recycler.getChildAt(0)
-            // Prefer the clickable overlay inside the item so D-pad moves between items cleanly.
             val clickable = target?.findViewById<View?>(R.id.clickable_item) ?: target
-            clickable?.requestFocus()
+            Log.d("DPAD_FOCUS", "SongsTab.requestInitialFocus preferred=$preferred target=${clickable?.id} success=${clickable?.requestFocus()}")
         }
     }
 }
@@ -113,6 +113,7 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
 class AlbumsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
     private var recyclerRef: RecyclerView? = null
+    private var lastFocusedPos = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
@@ -124,7 +125,9 @@ class AlbumsTabFragment : Fragment(), TabWithRecycler {
             (activity as? MainActivity)?.openAlbumDetail(album)
         }
         recycler.adapter = adapter
-        recycler.layoutManager = FocusLinearLayoutManager(requireContext())
+        val lm = FocusLinearLayoutManager(requireContext())
+        lm.onFocusPosition = { lastFocusedPos = it }
+        recycler.layoutManager = lm
         viewModel.albums.observe(viewLifecycleOwner) { adapter.update(it) }
     }
 
@@ -133,10 +136,10 @@ class AlbumsTabFragment : Fragment(), TabWithRecycler {
     override fun requestInitialFocus() {
         recyclerRef?.post {
             val lm = recyclerRef?.layoutManager
-            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
+            val target = try { lm?.findViewByPosition(lastFocusedPos) } catch (_: Exception) { null }
             val child = (target ?: recyclerRef?.getChildAt(0))
             val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
-            clickable?.requestFocus()
+            Log.d("DPAD_FOCUS", "AlbumsTab.requestInitialFocus target=${clickable?.id} success=${clickable?.requestFocus()}")
         }
     }
 }
@@ -146,6 +149,7 @@ class AlbumsTabFragment : Fragment(), TabWithRecycler {
 class ArtistsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
     private var recyclerRef: RecyclerView? = null
+    private var lastFocusedPos = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
@@ -157,7 +161,9 @@ class ArtistsTabFragment : Fragment(), TabWithRecycler {
             (activity as? MainActivity)?.openArtistDetail(artist)
         }
         recycler.adapter = adapter
-        recycler.layoutManager = FocusLinearLayoutManager(requireContext())
+        val lm = FocusLinearLayoutManager(requireContext())
+        lm.onFocusPosition = { lastFocusedPos = it }
+        recycler.layoutManager = lm
         viewModel.artists.observe(viewLifecycleOwner) { adapter.update(it) }
     }
 
@@ -166,10 +172,10 @@ class ArtistsTabFragment : Fragment(), TabWithRecycler {
     override fun requestInitialFocus() {
         recyclerRef?.post {
             val lm = recyclerRef?.layoutManager
-            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
+            val target = try { lm?.findViewByPosition(lastFocusedPos) } catch (_: Exception) { null }
             val child = (target ?: recyclerRef?.getChildAt(0))
             val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
-            clickable?.requestFocus()
+            Log.d("DPAD_FOCUS", "ArtistsTab.requestInitialFocus target=${clickable?.id} success=${clickable?.requestFocus()}")
         }
     }
 }
@@ -179,6 +185,7 @@ class ArtistsTabFragment : Fragment(), TabWithRecycler {
 class GenresTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
     private var recyclerRef: RecyclerView? = null
+    private var lastFocusedPos = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
@@ -190,19 +197,40 @@ class GenresTabFragment : Fragment(), TabWithRecycler {
             (activity as? MainActivity)?.openGenreDetail(genre)
         }
         recycler.adapter = adapter
-        recycler.layoutManager = FocusLinearLayoutManager(requireContext())
+        val lm = FocusLinearLayoutManager(requireContext())
+        lm.onFocusPosition = { lastFocusedPos = it }
+        recycler.layoutManager = lm
         viewModel.genres.observe(viewLifecycleOwner) { adapter.update(it) }
     }
 
     override fun recyclerView(): RecyclerView? = recyclerRef
 
     override fun requestInitialFocus() {
-        recyclerRef?.post {
-            val lm = recyclerRef?.layoutManager
-            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
-            val child = (target ?: recyclerRef?.getChildAt(0))
+        val rv = recyclerRef ?: return
+        // If adapter has items, focus immediately; otherwise wait for first data load
+        if ((rv.adapter?.itemCount ?: 0) > 0) {
+            focusFirstItem(rv)
+        } else {
+            // Data not loaded yet — fire once when it arrives
+            val observer = object : androidx.lifecycle.Observer<List<Genre>> {
+                override fun onChanged(value: List<Genre>) {
+                    if (value.isNotEmpty()) {
+                        focusFirstItem(rv)
+                        viewModel.genres.removeObserver(this)
+                    }
+                }
+            }
+            viewModel.genres.observe(viewLifecycleOwner, observer)
+        }
+    }
+
+    private fun focusFirstItem(rv: RecyclerView) {
+        rv.post {
+            val lm = rv.layoutManager
+            val target = try { lm?.findViewByPosition(lastFocusedPos) } catch (_: Exception) { null }
+            val child = target ?: rv.getChildAt(0)
             val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
-            clickable?.requestFocus()
+            Log.d("DPAD_FOCUS", "GenresTab.focusFirstItem target=${clickable?.id} success=${clickable?.requestFocus()}")
         }
     }
 }
@@ -212,6 +240,7 @@ class GenresTabFragment : Fragment(), TabWithRecycler {
 class PlaylistsTabFragment : Fragment(), TabWithRecycler {
     private val viewModel: MusicViewModel by activityViewModels()
     private var recyclerRef: RecyclerView? = null
+    private var lastFocusedPos = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_tab_list, container, false)
@@ -226,7 +255,9 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
         )
         adapter.onCreateClick = { showCreatePlaylistDialog() }
         recycler.adapter = adapter
-        recycler.layoutManager = FocusLinearLayoutManager(requireContext())
+        val lm = FocusLinearLayoutManager(requireContext())
+        lm.onFocusPosition = { lastFocusedPos = it }
+        recycler.layoutManager = lm
         viewModel.playlists.observe(viewLifecycleOwner) { adapter.update(it) }
     }
 
@@ -250,10 +281,10 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
     override fun requestInitialFocus() {
         recyclerRef?.post {
             val lm = recyclerRef?.layoutManager
-            val target = try { lm?.findViewByPosition(0) } catch (_: Exception) { null }
+            val target = try { lm?.findViewByPosition(lastFocusedPos) } catch (_: Exception) { null }
             val child = (target ?: recyclerRef?.getChildAt(0))
             val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
-            clickable?.requestFocus()
+            Log.d("DPAD_FOCUS", "PlaylistsTab.requestInitialFocus target=${clickable?.id} success=${clickable?.requestFocus()}")
         }
     }
 }

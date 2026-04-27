@@ -32,6 +32,8 @@ class HomeFragment : Fragment() {
 
     data class MenuItem(val labelRes: Int, val iconRes: Int, val tag: String)
 
+    private var lastFocusedPos = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_home, container, false)
@@ -60,7 +62,9 @@ class HomeFragment : Fragment() {
         )
 
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_menu)
-        recycler.layoutManager = FocusLinearLayoutManager(requireContext())
+        val lm = FocusLinearLayoutManager(requireContext())
+        lm.onFocusPosition = { lastFocusedPos = it }
+        recycler.layoutManager = lm
         recycler.adapter = HomeMenuAdapter(menuItems) { item ->
             when (item.tag) {
                 "songs"     -> (activity as? MainActivity)?.openLibraryTab(0)
@@ -72,10 +76,11 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Request focus on the first item once the recycler is laid out
+        // Request focus on the last-focused item once the recycler is laid out
         recycler.post {
-            val firstChild = recycler.findViewHolderForAdapterPosition(0)?.itemView
-            val target = firstChild?.findViewById<View>(R.id.clickable_item) ?: firstChild
+            val child = recycler.findViewHolderForAdapterPosition(lastFocusedPos)?.itemView
+                ?: recycler.findViewHolderForAdapterPosition(0)?.itemView
+            val target = child?.findViewById<View>(R.id.clickable_item) ?: child
             target?.requestFocus()
         }
 
@@ -91,6 +96,17 @@ class HomeFragment : Fragment() {
         miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
 
         observeViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val recycler = view?.findViewById<RecyclerView>(R.id.recycler_menu) ?: return
+        recycler.post {
+            val child = recycler.findViewHolderForAdapterPosition(lastFocusedPos)?.itemView
+                ?: recycler.findViewHolderForAdapterPosition(0)?.itemView
+            val target = child?.findViewById<View>(R.id.clickable_item) ?: child
+            target?.requestFocus()
+        }
     }
 
     private fun observeViewModel() {
