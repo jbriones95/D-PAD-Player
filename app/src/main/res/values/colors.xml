@@ -2,4 +2,106 @@
 <resources>
     <!-- Launcher background used by adaptive icon. Pick something neutral so the foreground reads well. -->
     <color name="launcher_background">#FFFFFF</color>
+
+    <!-- Default (light-mode) accent palettes. Keep in sync with values-night for consistency. -->
+    <!-- Deep Purple (default) -->
+    <color name="deep_purple_primary">#5E35B1</color>
+    <color name="deep_purple_onPrimary">#FFFFFF</color>
+    <color name="deep_purple_surface">#FFFFFF</color>
+    <color name="deep_purple_onSurface">#1C0B2A</color>
+    <color name="deep_purple_surfaceVariant">#EDE7F6</color>
+    <color name="deep_purple_onSurfaceVariant">#3B2A3F</color>
+    <color name="deep_purple_secondary">#6D4C9A</color>
+    <color name="deep_purple_secondaryVariant">#4B4358</color>
+
+    <!-- Purple -->
+    <color name="purple_primary">#7B1FA2</color>
+    <color name="purple_onPrimary">#FFFFFF</color>
+    <color name="purple_surface">#FFFFFF</color>
+    <color name="purple_onSurface">#31102E</color>
+    <color name="purple_surfaceVariant">#F3E5F5</color>
+    <color name="purple_onSurfaceVariant">#4A2A3E</color>
+    <color name="purple_secondary">#8E24AA</color>
+    <color name="purple_secondaryVariant">#534153</color>
+
+    <!-- Blue -->
+    <color name="blue_primary">#1976D2</color>
+    <color name="blue_onPrimary">#FFFFFF</color>
+    <color name="blue_surface">#FFFFFF</color>
+    <color name="blue_onSurface">#001E2F</color>
+    <color name="blue_surfaceVariant">#E3F2FD</color>
+    <color name="blue_onSurfaceVariant">#344A58</color>
+    <color name="blue_secondary">#1E88E5</color>
+    <color name="blue_secondaryVariant">#3C4858</color>
+
+    <!-- Teal -->
+    <color name="teal_primary">#009688</color>
+    <color name="teal_onPrimary">#FFFFFF</color>
+    <color name="teal_surface">#FFFFFF</color>
+    <color name="teal_onSurface">#00231F</color>
+    <color name="teal_surfaceVariant">#E0F2F1</color>
+    <color name="teal_onSurfaceVariant">#2E4B48</color>
+    <color name="teal_secondary">#26A69A</color>
+    <color name="teal_secondaryVariant">#334B47</color>
+
+    <!-- Green -->
+    <color name="green_primary">#388E3C</color>
+    <color name="green_onPrimary">#FFFFFF</color>
+    <color name="green_surface">#FFFFFF</color>
+    <color name="green_onSurface">#072607</color>
+    <color name="green_surfaceVariant">#E8F5E9</color>
+    <color name="green_onSurfaceVariant">#294833</color>
+    <color name="green_secondary">#66BB6A</color>
+    <color name="green_secondaryVariant">#3B4B38</color>
+
+    <!-- Red -->
+    <color name="red_primary">#D32F2F</color>
+    <color name="red_onPrimary">#FFFFFF</color>
+    <color name="red_surface">#FFFFFF</color>
+    <color name="red_onSurface">#380D0B</color>
+    <color name="red_surfaceVariant">#FFEBEE</color>
+    <color name="red_onSurfaceVariant">#5D2D2A</color>
+    <color name="red_secondary">#E57373</color>
+    <color name="red_secondaryVariant">#5D3F3B</color>
+
+    <!-- Orange -->
+    <color name="orange_primary">#F57C00</color>
+    <color name="orange_onPrimary">#FFFFFF</color>
+    <color name="orange_surface">#FFFFFF</color>
+    <color name="orange_onSurface">#3A2000</color>
+    <color name="orange_surfaceVariant">#FFF3E0</color>
+    <color name="orange_onSurfaceVariant">#7A5A3D</color>
+    <color name="orange_secondary">#FFB74D</color>
+    <color name="orange_secondaryVariant">#5A422E</color>
+
+    <!-- Yellow -->
+    <color name="yellow_primary">#FBC02D</color>
+    <color name="yellow_onPrimary">#000000</color>
+    <color name="yellow_surface">#FFFFFF</color>
+    <color name="yellow_onSurface">#473800</color>
+    <color name="yellow_surfaceVariant">#FFF8E1</color>
+    <color name="yellow_onSurfaceVariant">#7A6638</color>
+    <color name="yellow_secondary">#FFD54F</color>
+    <color name="yellow_secondaryVariant">#55442A</color>
+
+    <!-- Grey -->
+    <color name="grey_primary">#9E9E9E</color>
+    <color name="grey_onPrimary">#000000</color>
+    <color name="grey_surface">#FFFFFF</color>
+    <color name="grey_onSurface">#212121</color>
+    <color name="grey_surfaceVariant">#F5F5F5</color>
+    <color name="grey_onSurfaceVariant">#6B6B6B</color>
+    <color name="grey_secondary">#BDBDBD</color>
+    <color name="grey_secondaryVariant">#474746</color>
+
+    <!-- Retro -->
+    <color name="retro_primary">#00E676</color>
+    <color name="retro_onPrimary">#000000</color>
+    <color name="retro_surface">#FFFFFF</color>
+    <color name="retro_onSurface">#00E676</color>
+    <color name="retro_surfaceVariant">#F0FFF4</color>
+    <color name="retro_onSurfaceVariant">#00B248</color>
+    <color name="retro_secondary">#00B248</color>
+    <color name="retro_secondaryVariant">#004D20</color>
+
 </resources>

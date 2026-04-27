@@ -1,17 +1,19 @@
-# DPad Player (Android)
+D-PAD Tools
+===============
 
-Minimal D-pad friendly Android MP3 player built with Kotlin and ExoPlayer.
+A lightweight Android music player adapted for D-Pad (Android TV / Android TV-like) navigation and remote-friendly UX. This repository contains the Android app source, focus utilities, and playback service used during development.
 
-Features implemented:
-- D-pad friendly focusable controls in a grid
-- Play/Pause/Next/Prev/Seek
-- Foreground service with media notification
-- Simple recursive scan for .mp3 files under app external files (best-effort)
+Quick start
+1. Install JDK 17 and set JAVA_HOME to its root (the project uses some Kotlin/Gradle features best with Java 17).
+2. Build debug APK: `JAVA_HOME=/tmp/jdk17 ./gradlew :app:assembleDebug -x lint`
+3. Install on device: `adb -s <device-id> install -r app/build/outputs/apk/debug/app-debug.apk`
 
-To build: open this folder in Android Studio and build the app.
+Notes for visitors
+- This repo includes development assets and generated files. The build output and some generated images may be tracked. See `.gitignore` for items we recommend excluding locally.
+- For maintainers: the primary app sources are under `app/src/main/java` and resources under `app/src/main/res`.
 
-Notes/limitations:
-- The scanner is a simple recursive scan starting from the app external files parent; it is intentionally minimal to keep the sample small. For production, use MediaStore queries and handle scoped storage on Android 11+.
-- Runtime permission READ_EXTERNAL_STORAGE is requested for API levels that require it.
-- The app starts a foreground service to manage playback and show a media notification. MediaSession is used for media actions.
-- D-pad navigation: the main controls are arranged in a 2x3 grid with large buttons that are focusable by D-pad; the track list is above and focusable.
+Contributions
+- Please open issues or pull requests. For major changes, discuss the design first (focus behaviour and player control changes are subtle).
+
+License
+- This repository is licensed under GPL-3.0. See LICENSE for details.
