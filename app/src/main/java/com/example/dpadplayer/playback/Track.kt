@@ -12,6 +12,7 @@ data class Track(
     // ── Identity ─────────────────────────────────────────────────────────────
     val id: Long,
     val uri: Uri,
+    val filePath: String,
 
     // ── Core display ─────────────────────────────────────────────────────────
     val title: String,

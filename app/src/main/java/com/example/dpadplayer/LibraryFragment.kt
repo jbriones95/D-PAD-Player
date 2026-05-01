@@ -35,7 +35,7 @@ class LibraryFragment : Fragment() {
     private var restoringInitialTab = false
     private var requestedInitialTab = 0
 
-    private val tabTitles = listOf("Songs", "Albums", "Artists", "Genres", "Playlists")
+    private val tabTitles = listOf("Songs", "Albums", "Artists", "Genres", "Playlists", "Folders")
 
     companion object {
         private const val ARG_TAB = "tab"

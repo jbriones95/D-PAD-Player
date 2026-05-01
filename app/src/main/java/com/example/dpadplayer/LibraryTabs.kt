@@ -13,6 +13,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import java.io.File
+import android.net.Uri
+import com.example.dpadplayer.MusicLibrary
+import com.example.dpadplayer.playback.Track
+import com.example.dpadplayer.Album
 
 
 // ── Songs tab ────────────────────────────────────────────────────────────────
@@ -273,13 +278,64 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
 // ── ViewPager2 adapter ────────────────────────────────────────────────────────
 
 class LibraryPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-    override fun getItemCount() = 5
+    override fun getItemCount() = 6
     override fun createFragment(position: Int): Fragment = when (position) {
         0 -> SongsTabFragment()
         1 -> AlbumsTabFragment()
         2 -> ArtistsTabFragment()
         3 -> GenresTabFragment()
         4 -> PlaylistsTabFragment()
+        5 -> FoldersTabFragment()
         else -> SongsTabFragment()
+    }
+}
+
+// New: Folders tab — simple folder listing
+class FoldersTabFragment : Fragment(), TabWithRecycler {
+    private val viewModel: MusicViewModel by activityViewModels()
+    private var recyclerRef: RecyclerView? = null
+    private var lastFocusedPos = 0
+    private val folders = mutableListOf<String>()
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
+        inflater.inflate(R.layout.fragment_tab_list, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        recyclerRef = recycler
+        lastFocusedPos = viewModel.getLibraryTabFocusPosition(5)
+        val adapter = FolderAdapter(folders) { folder ->
+            (activity as? MainActivity)?.openAlbumDetail(Album(folder, folder, folder, "", 0, emptyList(), Uri.EMPTY))
+        }
+        recycler.adapter = adapter
+        val lm = FocusLinearLayoutManager(requireContext())
+        lm.onFocusPosition = {
+            lastFocusedPos = it
+            viewModel.setLibraryTabFocusPosition(5, it)
+        }
+        recycler.layoutManager = lm
+
+        // Build folder list from tracks when tracks change
+        viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
+            val dirs = tracks.mapNotNull { it.filePath.takeIf { p -> p.isNotBlank() } }
+                .map { File(it).parent ?: it }
+                .distinct()
+                .sorted()
+            folders.clear()
+            folders.addAll(dirs)
+            (recycler.adapter as? FolderAdapter)?.update(folders)
+        }
+    }
+
+    override fun recyclerView(): RecyclerView? = recyclerRef
+
+    override fun requestInitialFocus() {
+        recyclerRef?.post {
+            val lm = recyclerRef?.layoutManager
+            val target = try { lm?.findViewByPosition(lastFocusedPos) } catch (_: Exception) { null }
+            val child = (target ?: recyclerRef?.getChildAt(0))
+            val clickable = child?.findViewById<View?>(R.id.clickable_item) ?: child
+            clickable?.requestFocus()
+        }
     }
 }

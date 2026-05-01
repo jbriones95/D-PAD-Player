@@ -192,6 +192,7 @@ object MediaStoreScanner {
         return Track(
             id              = row.id,
             uri             = row.uri,
+            filePath        = row.msData,
             title           = title,
             sortTitle       = sortTitle,
             artist          = artist,
