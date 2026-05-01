@@ -83,7 +83,8 @@ object MusicLibrary {
                 compareBy({ it.discNumber.let { d -> if (d == 0) Int.MAX_VALUE else d } },
                           { it.trackNumber.let { n -> if (n == 0) Int.MAX_VALUE else n } },
                           { it.sortTitle.lowercase() }))
-            val art = sorted.firstOrNull { it.albumArtUri.toString().isNotBlank() }?.albumArtUri
+            // Prefer embedded artwork (which will differ from the MediaStore album-art URI)
+            val art = sorted.firstOrNull { it.albumArtUri != it.mediaStoreAlbumArtUri }?.albumArtUri
                 ?: representative.mediaStoreAlbumArtUri
             Album(
                 id          = key,
@@ -129,7 +130,8 @@ object MusicLibrary {
             val displayName = albumList.firstOrNull()?.artist
                 ?: songList.firstOrNull()?.artist
                 ?: key
-            val sortName = albumList.firstOrNull()?.artist
+            // Prefer album's artist sortName where available; fall back to track sortArtist
+            val sortName = albumList.firstOrNull()?.sortName
                 ?: songList.firstOrNull()?.sortArtist
                 ?: key
             Artist(
@@ -143,9 +145,13 @@ object MusicLibrary {
     }
 
     private fun splitArtists(raw: String): List<String> {
-        // Common separators: " / ", "; ", " feat. ", " & "
-        return raw.split(Regex(";|/|feat\\.|&")).map { it.trim() }.filter { it.isNotEmpty() }
-            .ifEmpty { listOf(raw) }
+        // Common separators: ";", "/", ",", " & ", and variants of "feat" or "ft" (case-insensitive).
+        // Also strip surrounding parentheses which often contain feat. credits.
+        val cleaned = raw.replace(Regex("\\(|\\)", RegexOption.IGNORE_CASE), "")
+        val parts = cleaned.split(Regex(";|/|,|\\s+&\\s+|\\s+(?i:feat\\.?|ft\\.?)[\\s.]*"))
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+        return if (parts.isEmpty()) listOf(raw.trim()) else parts
     }
 
     // ── Genres ────────────────────────────────────────────────────────────────
