@@ -19,8 +19,9 @@ android {
         applicationId "com.example.dpadplayer"
         minSdk 21
         targetSdk 34
-        versionCode 1
-        versionName "0.1"
+        // Bumped for release
+        versionCode 2
+        versionName "0.4.7"
     }
 
     compileOptions {
