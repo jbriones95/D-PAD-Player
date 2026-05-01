@@ -75,4 +75,10 @@ dependencies {
     
     // Jaudiotagger for accurate ID3 / FLAC metadata
     implementation 'net.jthink:jaudiotagger:3.0.1'
+
+    // Unit testing
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
+    // Robolectric to provide android.* classes in unit tests
+    testImplementation 'org.robolectric:robolectric:4.10.3'
 }
