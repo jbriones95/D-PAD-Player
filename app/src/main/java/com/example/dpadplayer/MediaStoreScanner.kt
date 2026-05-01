@@ -6,11 +6,16 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import android.provider.MediaStore
 import com.example.dpadplayer.playback.Track
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
+import com.example.dpadplayer.db.AppDatabase
 
 /**
  * Scans all MediaStore audio volumes (external + internal) and enriches each
@@ -26,9 +31,50 @@ import java.io.File
  */
 object MediaStoreScanner {
 
+    /** Optional coroutine scope for background tasks (set by caller). If null a default IO scope is used. */
+    @Volatile
+    var scope: CoroutineScope? = null
+
+    private val defaultScope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
+
+
     suspend fun loadTracks(context: Context, sortOrder: String = "title"): List<Track> {
         val raw = collectRawRows(context)
-        val tracks = raw.map { row -> enrichWithRetriever(context, row) }
+        // Load track cache to avoid re-enriching files that were previously processed.
+        val db = try { AppDatabase.getInstance(context) } catch (_: Exception) { null }
+        val cacheMap = db?.trackCacheDao()?.getAll()?.associateBy { it.trackId } ?: emptyMap()
+
+        val tracks = raw.map { row ->
+            val cached = cacheMap[row.id]
+            if (cached != null) {
+                // Build Track from cached metadata without opening the file
+                val artUri = if (cached.albumArtPath.isNotBlank()) android.net.Uri.fromFile(File(cached.albumArtPath)) else Track.albumArtUri(cached.albumId)
+                Track(
+                    id = row.id,
+                    uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, row.id),
+                    filePath = row.msData,
+                    title = cached.title,
+                    sortTitle = cached.sortTitle,
+                    artist = cached.artist,
+                    sortArtist = cached.sortArtist,
+                    albumArtist = cached.albumArtist,
+                    sortAlbumArtist = cached.sortAlbumArtist,
+                    album = cached.album,
+                    sortAlbum = cached.sortAlbum,
+                    albumId = cached.albumId,
+                    trackNumber = cached.trackNumber,
+                    discNumber = cached.discNumber,
+                    year = cached.year,
+                    genre = cached.genre,
+                    duration = cached.duration,
+                    dateAdded = cached.dateAdded,
+                    albumArtUri = artUri,
+                    mediaStoreAlbumArtUri = Track.albumArtUri(row.msAlbumId),
+                )
+            } else {
+                enrichWithRetriever(context, row)
+            }
+        }
         return applySortOrder(tracks, sortOrder)
     }
 
@@ -256,7 +302,7 @@ object MediaStoreScanner {
                 duration = header.trackLength * 1000L
             }
 
-            return com.example.dpadplayer.playback.Track(
+            val enriched = com.example.dpadplayer.playback.Track(
                 id = track.id,
                 uri = track.uri,
                 filePath = track.filePath,
@@ -278,6 +324,37 @@ object MediaStoreScanner {
                 albumArtUri = albumArtUri,
                 mediaStoreAlbumArtUri = track.mediaStoreAlbumArtUri,
             )
+            // Publish metadata event so UI/library can update incrementally
+            try { ArtRepository.publishMetadata(MetadataEvent(enriched.id, enriched)) } catch (_: Exception) { }
+            // Persist enriched track metadata to the track cache so we don't re-enrich on next start
+            try {
+                val db = AppDatabase.getInstance(context)
+                val path = enriched.albumArtUri.path ?: ""
+                val t = com.example.dpadplayer.db.TrackCacheEntity(
+                    trackId = enriched.id,
+                    title = enriched.title,
+                    sortTitle = enriched.sortTitle,
+                    artist = enriched.artist,
+                    sortArtist = enriched.sortArtist,
+                    albumArtist = enriched.albumArtist,
+                    sortAlbumArtist = enriched.sortAlbumArtist,
+                    album = enriched.album,
+                    sortAlbum = enriched.sortAlbum,
+                    albumId = enriched.albumId,
+                    trackNumber = enriched.trackNumber,
+                    discNumber = enriched.discNumber,
+                    year = enriched.year,
+                    genre = enriched.genre,
+                    duration = enriched.duration,
+                    dateAdded = enriched.dateAdded,
+                    albumArtPath = path,
+                )
+                val writeScope = scope ?: defaultScope
+                writeScope.launch(Dispatchers.IO) {
+                    try { db.trackCacheDao().upsert(t) } catch (_: Exception) { }
+                }
+            } catch (_: Exception) { }
+            return enriched
         } catch (_: Exception) {
             return track
         }
@@ -301,7 +378,32 @@ object MediaStoreScanner {
             }
             val trackUri = Uri.fromFile(trackFile)
             // Publish event with albumId if available
-            ArtRepository.publish(ArtworkEvent(albumId, trackId, albumFileUri ?: trackUri))
+            ArtRepository.publishArtwork(ArtworkEvent(albumId, trackId, albumFileUri ?: trackUri))
+            // Persist album cache entry in Room so data survives restarts
+            try {
+                val db = AppDatabase.getInstance(context)
+                val albumName = /* best effort: try reading tag or fallback */ ""
+                // We schedule a background write; don't block caller
+                // write cache entry on a coroutine on IO
+                try {
+                    val writeScope = scope ?: defaultScope
+                    writeScope.launch(Dispatchers.IO) {
+                        try {
+                            if (albumId > 0 && albumFileUri != null) {
+                                val path = File(albumFileUri.path ?: "").absolutePath
+                                db.albumCacheDao().upsert(
+                                    com.example.dpadplayer.db.AlbumCacheEntity(
+                                        albumId = albumId,
+                                        name = albumName,
+                                        artist = "",
+                                        artPath = path,
+                                    )
+                                )
+                            }
+                        } catch (_: Exception) { /* ignore DB failures */ }
+                    }
+                } catch (_: Exception) { /* ignore */ }
+            } catch (_: Exception) { /* ignore */ }
             trackUri
         } catch (_: Exception) {
             null

@@ -2,15 +2,27 @@ package com.example.dpadplayer.db
 
 import android.content.Context
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
+import android.content.pm.ApplicationInfo
 
 // ── Entities ──────────────────────────────────────────────────────────────────
 
-@Entity(tableName = "playlists")
-data class PlaylistEntity(
+    @Entity(tableName = "playlists")
+    data class PlaylistEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val createdAt: Long = System.currentTimeMillis(),
+)
+
+@Entity(tableName = "album_cache")
+data class AlbumCacheEntity(
+    @PrimaryKey val albumId: Long,
+    val name: String,
+    val artist: String,
+    val artPath: String,
+    val updatedAt: Long = System.currentTimeMillis(),
 )
 
 /**
@@ -76,22 +88,92 @@ interface PlaylistDao {
     suspend fun removeSongFromPlaylist(playlistId: Long, trackId: Long)
 }
 
+@Dao
+interface AlbumCacheDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(cache: AlbumCacheEntity)
+
+    @Query("SELECT * FROM album_cache WHERE albumId = :albumId LIMIT 1")
+    suspend fun get(albumId: Long): AlbumCacheEntity?
+
+    @Query("SELECT * FROM album_cache")
+    suspend fun getAll(): List<AlbumCacheEntity>
+}
+
+@Entity(tableName = "track_cache")
+data class TrackCacheEntity(
+    @PrimaryKey val trackId: Long,
+    val title: String,
+    val sortTitle: String,
+    val artist: String,
+    val sortArtist: String,
+    val albumArtist: String,
+    val sortAlbumArtist: String,
+    val album: String,
+    val sortAlbum: String,
+    val albumId: Long,
+    val trackNumber: Int,
+    val discNumber: Int,
+    val year: Int,
+    val genre: String,
+    val duration: Long,
+    val dateAdded: Long,
+    val albumArtPath: String,
+)
+
+@Dao
+interface TrackCacheDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(cache: TrackCacheEntity)
+
+    @Query("SELECT * FROM track_cache WHERE trackId = :trackId LIMIT 1")
+    suspend fun get(trackId: Long): TrackCacheEntity?
+
+    @Query("SELECT * FROM track_cache")
+    suspend fun getAll(): List<TrackCacheEntity>
+}
+
 // ── Database ──────────────────────────────────────────────────────────────────
 
-@Database(entities = [PlaylistEntity::class, PlaylistSongEntity::class], version = 1)
+@Database(entities = [PlaylistEntity::class, PlaylistSongEntity::class, AlbumCacheEntity::class, TrackCacheEntity::class], version = 2, exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
+    abstract fun albumCacheDao(): AlbumCacheDao
+    abstract fun trackCacheDao(): TrackCacheDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
+        // Explicit migration from v1 -> v2: create album_cache and track_cache tables
+        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create album_cache table
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `album_cache` (`albumId` INTEGER NOT NULL, `name` TEXT NOT NULL, `artist` TEXT NOT NULL, `artPath` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`albumId`))"
+                )
+
+                // Create track_cache table
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `track_cache` (`trackId` INTEGER NOT NULL, `title` TEXT NOT NULL, `sortTitle` TEXT NOT NULL, `artist` TEXT NOT NULL, `sortArtist` TEXT NOT NULL, `albumArtist` TEXT NOT NULL, `sortAlbumArtist` TEXT NOT NULL, `album` TEXT NOT NULL, `sortAlbum` TEXT NOT NULL, `albumId` INTEGER NOT NULL, `trackNumber` INTEGER NOT NULL, `discNumber` INTEGER NOT NULL, `year` INTEGER NOT NULL, `genre` TEXT NOT NULL, `duration` INTEGER NOT NULL, `dateAdded` INTEGER NOT NULL, `albumArtPath` TEXT NOT NULL, PRIMARY KEY(`trackId`))"
+                )
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "dpad_player.db"
-                ).build().also { INSTANCE = it }
+                INSTANCE ?: run {
+                    val builder = Room.databaseBuilder(
+                        context.applicationContext,
+                        AppDatabase::class.java,
+                        "dpad_player.db"
+                    ).addMigrations(MIGRATION_1_2)
+
+                    // During development allow destructive fallback to avoid blocking on-device tests
+                    val debuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+                    if (debuggable) builder.fallbackToDestructiveMigration()
+
+                    builder.build().also { INSTANCE = it }
+                }
             }
     }
 }

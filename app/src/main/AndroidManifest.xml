@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
+        android:name=".DPadApplication"
         android:allowBackup="true"
         android:label="DPad Player"
         android:icon="@mipmap/ic_launcher"

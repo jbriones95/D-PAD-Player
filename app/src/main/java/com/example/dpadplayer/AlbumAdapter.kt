@@ -51,8 +51,11 @@ class AlbumAdapter(
             if (album.year > 0) append(" · ${album.year}")
             append(" · ${album.songCount} $songWord")
         }
+        // Prefer cached album art written by persistEmbeddedArtwork (album_<albumId>.jpg)
+        val cached = ArtRepository.getCachedAlbumArt(holder.itemView.context, album.songs.firstOrNull()?.albumId ?: 0L)
+        val loadUri = cached ?: album.albumArtUri
         Glide.with(holder.itemView)
-            .load(album.albumArtUri)
+            .load(loadUri)
             .placeholder(R.drawable.ic_music_note)
             .error(R.drawable.ic_music_note)
             .fallback(R.drawable.ic_music_note)

@@ -4,6 +4,13 @@ plugins {
     id 'kotlin-kapt'
 }
 
+// Pass schema location to Room compiler so schema JSONs are exported for migration tests
+kapt {
+    arguments {
+        arg("room.schemaLocation", "${projectDir}/schemas")
+    }
+}
+
 android {
     compileSdk 34
     namespace "com.example.dpadplayer"
@@ -23,6 +30,11 @@ android {
 
     kotlinOptions {
         jvmTarget = '17'
+    }
+
+    // ensure Room can export schemas for migration testing
+    buildFeatures {
+        // no other features needed here; placeholder to keep Gradle happy if extended
     }
 
     buildTypes {
@@ -81,4 +93,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
     // Robolectric to provide android.* classes in unit tests
     testImplementation 'org.robolectric:robolectric:4.10.3'
+
+    // Room testing for migration tests
+    androidTestImplementation 'androidx.room:room-testing:2.6.1'
 }

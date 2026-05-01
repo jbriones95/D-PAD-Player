@@ -80,6 +80,28 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             val result = MediaStoreScanner.loadTracks(getApplication(), sortOrder)
             val lib    = MusicLibrary.build(result)
+            // Merge album cache entries to preserve persisted metadata across restarts
+            try {
+                val db = com.example.dpadplayer.db.AppDatabase.getInstance(getApplication())
+                val caches = db.albumCacheDao().getAll()
+                if (caches.isNotEmpty()) {
+                    // overlay cached art onto albums
+                    val albums = lib.albums.map { album ->
+                        val anyId = album.songs.firstOrNull()?.albumId ?: 0L
+                        val c = caches.firstOrNull { it.albumId == anyId }
+                        if (c != null && c.artPath.isNotBlank()) {
+                            album.copy(albumArtUri = android.net.Uri.fromFile(java.io.File(c.artPath)))
+                        } else album
+                    }
+                    val merged = lib.copy(albums = albums)
+                    _tracks.postValue(result)
+                    _library.postValue(merged)
+                    _albums.postValue(merged.albums)
+                    _artists.postValue(merged.artists)
+                    _genres.postValue(merged.genres)
+                    return@launch
+                }
+            } catch (_: Exception) { /* ignore DB merge failures */ }
             _tracks.postValue(result)
             _library.postValue(lib)
             _albums.postValue(lib.albums)
@@ -88,22 +110,30 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        // Clear any scanner scope if it was set to this viewModelScope
+        if (MediaStoreScanner.scope === viewModelScope) MediaStoreScanner.scope = null
+    }
+
+    init {
+        // Do not set MediaStoreScanner.scope here; application-level scope will be
+        // provided by the Application subclass so cache writes survive ViewModel
+        // lifecycles.
+    }
+
     init {
         // Observe artwork events and update the library UI when new album art appears
         viewModelScope.launch(Dispatchers.Main) {
-            ArtRepository.events.collect { ev ->
-                // Only update if we have a library loaded
+            ArtRepository.artEvents.collect { ev ->
                 val currentLib = _library.value ?: return@collect
                 val albumId = ev.albumId
                 if (albumId <= 0L) return@collect
-                // Find album by albumId via matching album key (album_<id> may not map cleanly)
-                // We instead update any album that contains a song with the matching albumId
                 val albums = currentLib.albums
                 var changed = false
                 val newAlbums = albums.map { album ->
                     val hasTrack = album.songs.any { it.albumId == albumId }
                     if (!hasTrack) return@map album
-                    // Replace albumArtUri with cached album art if present
                     val cached = ArtRepository.getCachedAlbumArt(getApplication(), albumId)
                     if (cached != null && cached != album.albumArtUri) {
                         changed = true
@@ -111,10 +141,27 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
                     } else album
                 }
                 if (changed) {
-                    // update library and albums LiveData
                     val newLib = currentLib.copy(albums = newAlbums)
                     _library.postValue(newLib)
                     _albums.postValue(newAlbums)
+                }
+            }
+        }
+
+        // Separate collector for metadata events so both flows are observed concurrently
+        viewModelScope.launch(Dispatchers.Main) {
+            ArtRepository.metaEvents.collect { ev ->
+                val currentTracks = _tracks.value ?: return@collect
+                // Replace track in tracks list if present
+                val updated = currentTracks.map { if (it.id == ev.trackId) ev.enriched else it }
+                if (updated != currentTracks) {
+                    // Rebuild library from updated tracks (small and targeted)
+                    val lib = MusicLibrary.build(updated)
+                    _tracks.postValue(updated)
+                    _library.postValue(lib)
+                    _albums.postValue(lib.albums)
+                    _artists.postValue(lib.artists)
+                    _genres.postValue(lib.genres)
                 }
             }
         }
