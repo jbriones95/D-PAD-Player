@@ -1,3 +1,9 @@
 node_modules/
 dist/
 coverage/
+/.gradle/
+/.idea/
+app/build/
+*.apk
+*.iml
+.DS_Store

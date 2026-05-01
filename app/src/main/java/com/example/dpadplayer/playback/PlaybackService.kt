@@ -194,13 +194,24 @@ class PlaybackService : Service() {
         player.clearMediaItems()
         player.setMediaItem(MediaItem.fromUri(tracks[index].uri))
         player.prepare()
-        
+
         // Request audio focus before playing
         val gainedFocus = requestAudioFocus()
         if (gainedFocus) {
             player.play()
         }
-        
+
+        // Lazily load embedded artwork for this track on a background thread
+        val ctx = applicationContext
+        val track = tracks[index]
+        Thread {
+            val artUri = MediaStoreScanner.loadEmbeddedArtwork(ctx, track)
+            if (artUri != null && track.albumArtUri != artUri) {
+                tracks[index] = track.copy(albumArtUri = artUri)
+                onTrackChanged?.invoke(index)
+            }
+        }.start()
+
         updateMetadata(index)
         updatePlaybackState()
         onTrackChanged?.invoke(index)

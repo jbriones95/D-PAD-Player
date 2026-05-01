@@ -127,7 +127,6 @@ object MediaStoreScanner {
         var year        = 0
         var genre       = ""
         var duration    = row.msDuration
-        var embeddedAlbumArtUri: Uri? = null
         val mediaStoreAlbumArtUri = Track.albumArtUri(row.msAlbumId)
 
         if (row.msData.isNotEmpty()) {
@@ -169,11 +168,8 @@ object MediaStoreScanner {
                             discNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
                         }
 
-                        // Extract embedded artwork
-                        val artwork = tag.firstArtwork
-                        if (artwork != null && artwork.binaryData != null) {
-                            embeddedAlbumArtUri = persistEmbeddedArtwork(context, row.id, artwork.binaryData)
-                        }
+                        // NOTE: Embedded artwork is extracted lazily (see loadEmbeddedArtwork)
+                        // to avoid OOM/crash when scanning large libraries.
                     }
 
                     // Duration from header
@@ -208,9 +204,28 @@ object MediaStoreScanner {
             genre           = genre,
             duration        = duration,
             dateAdded       = row.msDateAdded,
-            albumArtUri     = embeddedAlbumArtUri ?: mediaStoreAlbumArtUri,
+            albumArtUri     = mediaStoreAlbumArtUri,
             mediaStoreAlbumArtUri = mediaStoreAlbumArtUri,
         )
+    }
+
+    /**
+     * Lazily extract and cache embedded album art for a single track.
+     * Call this on a background thread when the track is first played or its
+     * detail view is opened — NOT during the bulk library scan.
+     */
+    fun loadEmbeddedArtwork(context: Context, track: com.example.dpadplayer.playback.Track): Uri? {
+        if (track.filePath.isBlank()) return null
+        val cached = File(context.cacheDir, "album_art/track_${track.id}.jpg")
+        if (cached.exists()) return Uri.fromFile(cached)
+        return try {
+            val f = File(track.filePath)
+            if (!f.exists()) return null
+            val audioFile = AudioFileIO.read(f)
+            val artwork = audioFile.tag?.firstArtwork ?: return null
+            val bytes = artwork.binaryData ?: return null
+            persistEmbeddedArtwork(context, track.id, bytes)
+        } catch (_: Exception) { null }
     }
 
     private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray): Uri? {
