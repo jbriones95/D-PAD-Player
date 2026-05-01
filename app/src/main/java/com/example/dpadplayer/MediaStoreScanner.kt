@@ -129,61 +129,11 @@ object MediaStoreScanner {
         var duration    = row.msDuration
         val mediaStoreAlbumArtUri = Track.albumArtUri(row.msAlbumId)
 
-        if (row.msData.isNotEmpty()) {
-            try {
-                val f = File(row.msData)
-                if (f.exists()) {
-                    val audioFile = AudioFileIO.read(f)
-                    val tag = audioFile.tag
-
-                    if (tag != null) {
-                        fun getStr(key: FieldKey) = tag.getFirst(key)?.trim()?.takeIf { it.isNotEmpty() }
-
-                        getStr(FieldKey.TITLE)?.let { title = it; sortTitle = it }
-                        getStr(FieldKey.TITLE_SORT)?.let { sortTitle = it }
-
-                        getStr(FieldKey.ARTIST)?.let { artist = it; sortArtist = it; albumArtist = it; sortAlbumArtist = it }
-                        getStr(FieldKey.ARTIST_SORT)?.let { sortArtist = it }
-
-                        getStr(FieldKey.ALBUM_ARTIST)?.let { albumArtist = it; sortAlbumArtist = it }
-                        getStr(FieldKey.ALBUM_ARTIST_SORT)?.let { sortAlbumArtist = it }
-
-                        getStr(FieldKey.ALBUM)?.let { album = it; sortAlbum = it }
-                        getStr(FieldKey.ALBUM_SORT)?.let { sortAlbum = it }
-
-                        getStr(FieldKey.GENRE)?.let { genre = it }
-                        
-                        getStr(FieldKey.YEAR)?.let {
-                            // Can be full date "2024-01-01" or year "2024"
-                            year = it.take(4).toIntOrNull() ?: 0
-                        }
-
-                        // Track number
-                        getStr(FieldKey.TRACK)?.let {
-                            trackNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
-                        }
-
-                        // Disc number
-                        getStr(FieldKey.DISC_NO)?.let {
-                            discNum = it.substringBefore('/').trim().toIntOrNull() ?: 0
-                        }
-
-                        // NOTE: Embedded artwork is extracted lazily (see loadEmbeddedArtwork)
-                        // to avoid OOM/crash when scanning large libraries.
-                    }
-
-                    // Duration from header
-                    val header = audioFile.audioHeader
-                    if (header != null && header.trackLength > 0) {
-                        // trackLength is in seconds, convert to ms
-                        duration = header.trackLength * 1000L
-                    }
-                }
-            } catch (e: Exception) {
-                // Ignore jaudiotagger errors (corrupt tags, unsupported formats)
-                // We fallback to the MediaStore row defaults
-            }
-        }
+        // Heavy per-file parsing (jaudiotagger/AudioFileIO) is intentionally
+        // avoided during the bulk MediaStore scan because opening every file
+        // causes large memory and file-descriptor pressure on devices with
+        // large libraries. Tags and embedded artwork should be loaded lazily
+        // via loadEmbeddedArtwork() or a dedicated per-track enrichment call.
 
         return Track(
             id              = row.id,
