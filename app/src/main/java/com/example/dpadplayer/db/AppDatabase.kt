@@ -168,12 +168,10 @@ abstract class AppDatabase : RoomDatabase() {
                         "dpad_player.db"
                     ).addMigrations(MIGRATION_1_2)
 
-                    // During development allow destructive fallback to avoid blocking on-device tests
-                    val debuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-                    if (debuggable) builder.fallbackToDestructiveMigration()
-
+                    // Do NOT allow fallbackToDestructiveMigration here to avoid silent data loss in
+                    // production. Migrations must be explicit (MIGRATION_1_2 is registered above).
                     builder.build().also { INSTANCE = it }
                 }
             }
-    }
+        }
 }
