@@ -35,6 +35,13 @@
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_seek" />
 
+    <!-- Rescan library -->
+    <Preference
+        app:key="rescan_library"
+        app:title="Rescan library"
+        app:summary="Search for new or updated music files"
+        app:icon="@drawable/ic_settings_sort" />
+
     <!-- Sort order -->
     <ListPreference
         app:key="sort_order"

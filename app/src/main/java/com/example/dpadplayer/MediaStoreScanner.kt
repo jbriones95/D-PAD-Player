@@ -56,12 +56,13 @@ object MediaStoreScanner {
             MediaStore.Audio.AudioColumns.ALBUM_ID,
             MediaStore.Audio.AudioColumns.DURATION,
             MediaStore.Audio.AudioColumns.DATE_ADDED,
+            MediaStore.Audio.AudioColumns.IS_MUSIC,
         )
 
         val selection =
-            "(${MediaStore.Audio.AudioColumns.DURATION} >= 30000" +
-            " OR ${MediaStore.Audio.AudioColumns.DURATION} IS NULL)" +
-            " AND ${MediaStore.Audio.AudioColumns.TITLE} != ''"
+            "${MediaStore.Audio.AudioColumns.IS_MUSIC} != 0" +
+            " AND (${MediaStore.Audio.AudioColumns.DURATION} >= 30000" +
+            " OR ${MediaStore.Audio.AudioColumns.DURATION} IS NULL)"
 
         val baseUris = listOf(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI to false,

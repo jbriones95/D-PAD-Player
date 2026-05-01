@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.activityViewModels
+import androidx.preference.Preference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.button.MaterialButton
@@ -38,6 +39,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Accent color — recreate activity to re-apply setTheme()
         findPreference<ListPreference>("accent")?.setOnPreferenceChangeListener { _, _ ->
             activity?.recreate()
+            true
+        }
+
+        // Rescan library
+        findPreference<Preference>("rescan_library")?.setOnPreferenceClickListener {
+            (activity as? MainActivity)?.rescanLibrary()
             true
         }
 

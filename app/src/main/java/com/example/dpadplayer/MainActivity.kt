@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
-            if (results.values.any { it }) onPermissionGranted()
+            if (hasStoragePermission()) onPermissionGranted()
             else Toast.makeText(this, "Storage permission needed to find music", Toast.LENGTH_LONG).show()
         }
 
@@ -387,17 +387,42 @@ class MainActivity : AppCompatActivity() {
             }
         }.toTypedArray()
 
-        val allGranted = permissions.all {
-            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        val storageGranted = hasStoragePermission()
+        if (storageGranted) {
+            onPermissionGranted()
+            // Still request notifications if missing, without blocking the scan
+            val notifPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                Manifest.permission.POST_NOTIFICATIONS else null
+            if (notifPermission != null &&
+                ContextCompat.checkSelfPermission(this, notifPermission) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(arrayOf(notifPermission))
+            }
+        } else {
+            requestPermissionLauncher.launch(permissions)
         }
-        if (allGranted) onPermissionGranted()
-        else requestPermissionLauncher.launch(permissions)
+    }
+
+    private fun hasStoragePermission(): Boolean {
+        val perm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            Manifest.permission.READ_MEDIA_AUDIO
+        else
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        return ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun onPermissionGranted() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val sortOrder = prefs.getString("sort_order", "title") ?: "title"
         viewModel.loadTracks(sortOrder)
+    }
+
+    fun rescanLibrary() {
+        if (hasStoragePermission()) {
+            onPermissionGranted()
+            Toast.makeText(this, "Rescanning library…", Toast.LENGTH_SHORT).show()
+        } else {
+            checkPermissionsAndLoad()
+        }
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────
