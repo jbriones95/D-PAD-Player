@@ -178,6 +178,94 @@ object MediaStoreScanner {
         } catch (_: Exception) { null }
     }
 
+    /**
+     * Enrich a single Track by reading detailed tags and embedded artwork.
+     * Returns a new Track instance with enriched fields, or the original if
+     * enrichment fails.
+     */
+    fun enrichTrack(context: Context, track: com.example.dpadplayer.playback.Track): com.example.dpadplayer.playback.Track {
+        if (track.filePath.isBlank()) return track
+        try {
+            val f = File(track.filePath)
+            if (!f.exists()) return track
+            val audioFile = AudioFileIO.read(f)
+            val tag = audioFile.tag
+
+            var title = track.title
+            var sortTitle = track.sortTitle
+            var artist = track.artist
+            var sortArtist = track.sortArtist
+            var albumArtist = track.albumArtist
+            var sortAlbumArtist = track.sortAlbumArtist
+            var album = track.album
+            var sortAlbum = track.sortAlbum
+            var trackNum = track.trackNumber
+            var discNum = track.discNumber
+            var year = track.year
+            var genre = track.genre
+            var duration = track.duration
+            var albumArtUri = track.albumArtUri
+
+            if (tag != null) {
+                fun getStr(key: FieldKey) = tag.getFirst(key)?.trim()?.takeIf { it.isNotEmpty() }
+
+                getStr(FieldKey.TITLE)?.let { title = it; sortTitle = it }
+                getStr(FieldKey.TITLE_SORT)?.let { sortTitle = it }
+
+                getStr(FieldKey.ARTIST)?.let { artist = it; sortArtist = it; albumArtist = it; sortAlbumArtist = it }
+                getStr(FieldKey.ARTIST_SORT)?.let { sortArtist = it }
+
+                getStr(FieldKey.ALBUM_ARTIST)?.let { albumArtist = it; sortAlbumArtist = it }
+                getStr(FieldKey.ALBUM_ARTIST_SORT)?.let { sortAlbumArtist = it }
+
+                getStr(FieldKey.ALBUM)?.let { album = it; sortAlbum = it }
+                getStr(FieldKey.ALBUM_SORT)?.let { sortAlbum = it }
+
+                getStr(FieldKey.GENRE)?.let { genre = it }
+                getStr(FieldKey.YEAR)?.let { year = it.take(4).toIntOrNull() ?: year }
+
+                getStr(FieldKey.TRACK)?.let { trackNum = it.substringBefore('/').trim().toIntOrNull() ?: trackNum }
+                getStr(FieldKey.DISC_NO)?.let { discNum = it.substringBefore('/').trim().toIntOrNull() ?: discNum }
+
+                val artwork = tag.firstArtwork
+                if (artwork != null && artwork.binaryData != null) {
+                    val art = persistEmbeddedArtwork(context, track.id, artwork.binaryData)
+                    if (art != null) albumArtUri = art
+                }
+            }
+
+            val header = audioFile.audioHeader
+            if (header != null && header.trackLength > 0) {
+                duration = header.trackLength * 1000L
+            }
+
+            return com.example.dpadplayer.playback.Track(
+                id = track.id,
+                uri = track.uri,
+                filePath = track.filePath,
+                title = title,
+                sortTitle = sortTitle,
+                artist = artist,
+                sortArtist = sortArtist,
+                albumArtist = albumArtist,
+                sortAlbumArtist = sortAlbumArtist,
+                album = album,
+                sortAlbum = sortAlbum,
+                albumId = track.albumId,
+                trackNumber = trackNum,
+                discNumber = discNum,
+                year = year,
+                genre = genre,
+                duration = duration,
+                dateAdded = track.dateAdded,
+                albumArtUri = albumArtUri,
+                mediaStoreAlbumArtUri = track.mediaStoreAlbumArtUri,
+            )
+        } catch (_: Exception) {
+            return track
+        }
+    }
+
     private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray): Uri? {
         return try {
             val dir = File(context.cacheDir, "album_art")

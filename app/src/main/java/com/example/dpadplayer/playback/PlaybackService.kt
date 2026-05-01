@@ -28,6 +28,13 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import android.os.Handler
 import android.os.Looper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PlaybackService : Service() {
 
@@ -104,6 +111,8 @@ class PlaybackService : Service() {
         super.onCreate()
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         player = ExoPlayer.Builder(this).build()
+        // Coroutine scope for background work tied to Service lifecycle
+        serviceScope = CoroutineScope(Dispatchers.Main + Job())
 
         mediaSession = MediaSessionCompat(this, "dpad_player").apply {
             setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS or
@@ -177,6 +186,8 @@ class PlaybackService : Service() {
 
     override fun onDestroy() {
         stopPositionPolling()
+        // Cancel background work
+        serviceScope.cancel()
         abandonAudioFocus()
         mediaSession.isActive = false
         mediaSession.release()
@@ -201,22 +212,27 @@ class PlaybackService : Service() {
             player.play()
         }
 
-        // Lazily load embedded artwork for this track on a background thread
+        // Cancel any pending per-track enrichment for previous items
+        currentEnrichmentJob?.cancel()
+        // Launch a coroutine to lazily load embedded artwork and basic tags
         val ctx = applicationContext
-        val track = tracks[index]
-        Thread {
-            val artUri = MediaStoreScanner.loadEmbeddedArtwork(ctx, track)
-            if (artUri != null && track.albumArtUri != artUri) {
-                // Update the track list and notify listeners on the main thread.
-                mainHandler.post {
-                    // Re-read bounds to be defensive (track list could have changed)
-                    if (index in tracks.indices) {
-                        tracks[index] = tracks[index].copy(albumArtUri = artUri)
-                        onTrackChanged?.invoke(index)
-                    }
+        val t = tracks[index]
+        currentEnrichmentJob = serviceScope.launch {
+            // Run IO-bound work on IO dispatcher
+            val enriched = withContext(Dispatchers.IO) {
+                MediaStoreScanner.enrichTrack(ctx, t)
+            }
+            // If enrichment provided new album art or updated metadata, apply it
+            if (index in tracks.indices) {
+                val old = tracks[index]
+                if (enriched != old) {
+                    tracks[index] = enriched
+                    // Notify listeners on main thread (we are already on Main)
+                    onTrackChanged?.invoke(index)
+                    if (player.isPlaying && index == currentIndex) updateMetadata(index)
                 }
             }
-        }.start()
+        }
 
         updateMetadata(index)
         updatePlaybackState()
@@ -287,9 +303,15 @@ class PlaybackService : Service() {
         if (shuffleOn) buildShuffleOrder()
         prepareAndPlay(startIndex)
         notifyQueueChanged()
+        // Restart batch enrichment when a new queue is played
+        restartBatchEnrichment()
     }
 
     private var isTransitioning = false
+    // Coroutine scope and jobs for background enrichment
+    private lateinit var serviceScope: CoroutineScope
+    private var currentEnrichmentJob: Job? = null
+    private var batchEnrichmentJob: Job? = null
 
     fun next() {
         if (isTransitioning) return
@@ -361,6 +383,7 @@ class PlaybackService : Service() {
             shuffleOrder.add(tracks.size - 1)
         }
         notifyQueueChanged()
+        restartBatchEnrichment()
     }
 
     fun cycleRepeat() {
@@ -372,6 +395,30 @@ class PlaybackService : Service() {
         shuffleOrder.clear()
         shuffleOrder.addAll((tracks.indices).toMutableList().also { it.shuffle() })
         shufflePos = shuffleOrder.indexOf(currentIndex).coerceAtLeast(0)
+    }
+
+    // Start or restart the background batch enrichment worker. The worker runs
+    // slowly across the queue, enriching one track roughly every second to
+    // avoid resource spikes on large libraries.
+    private fun restartBatchEnrichment() {
+        batchEnrichmentJob?.cancel()
+        batchEnrichmentJob = serviceScope.launch {
+            for (i in tracks.indices) {
+                // Skip immediate enrich if the track already has embedded art
+                val t = tracks.getOrNull(i) ?: continue
+                // Enrich only if filePath exists and the embedded art isn't present
+                if (t.filePath.isNotBlank() && t.albumArtUri == t.mediaStoreAlbumArtUri) {
+                    val enriched = withContext(Dispatchers.IO) { MediaStoreScanner.enrichTrack(applicationContext, t) }
+                    if (i in tracks.indices && enriched != tracks[i]) {
+                        tracks[i] = enriched
+                        // Notify UI on main thread
+                        mainHandler.post { onQueueChanged?.invoke(tracks.toList()) }
+                    }
+                }
+                // Pace the worker (1 second between tracks)
+                try { delay(1000L) } catch (_: Exception) { break }
+            }
+        }
     }
 
     fun seekTo(positionMs: Long) {
