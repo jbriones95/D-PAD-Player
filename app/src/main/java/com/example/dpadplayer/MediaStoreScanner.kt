@@ -5,6 +5,7 @@ import android.content.Context
 // MediaMetadataRetriever was previously used; we now use jaudiotagger for robust tag parsing
 import android.net.Uri
 import android.os.Build
+import kotlinx.coroutines.delay
 import android.provider.MediaStore
 import com.example.dpadplayer.playback.Track
 import org.jaudiotagger.audio.AudioFileIO
@@ -25,7 +26,7 @@ import java.io.File
  */
 object MediaStoreScanner {
 
-    fun loadTracks(context: Context, sortOrder: String = "title"): List<Track> {
+    suspend fun loadTracks(context: Context, sortOrder: String = "title"): List<Track> {
         val raw = collectRawRows(context)
         val tracks = raw.map { row -> enrichWithRetriever(context, row) }
         return applySortOrder(tracks, sortOrder)
@@ -46,7 +47,7 @@ object MediaStoreScanner {
         val isInternal: Boolean,
     )
 
-    private fun collectRawRows(context: Context): List<RawRow> {
+    private suspend fun collectRawRows(context: Context): List<RawRow> {
         val projection = arrayOf(
             MediaStore.Audio.AudioColumns._ID,
             MediaStore.Audio.AudioColumns.DATA,
@@ -64,10 +65,24 @@ object MediaStoreScanner {
             " AND (${MediaStore.Audio.AudioColumns.DURATION} >= 30000" +
             " OR ${MediaStore.Audio.AudioColumns.DURATION} IS NULL)"
 
-        val baseUris = listOf(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI to false,
-            MediaStore.Audio.Media.INTERNAL_CONTENT_URI to true,
-        )
+        val baseUris = mutableListOf<Pair<android.net.Uri, Boolean>>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Query each external MediaStore volume explicitly (includes removable SD cards)
+            try {
+                val volumes = MediaStore.getExternalVolumeNames(context)
+                for (vol in volumes) {
+                    baseUris.add(MediaStore.Audio.Media.getContentUri(vol) to false)
+                }
+            } catch (_: Exception) {
+                // Fall back if getExternalVolumeNames is unavailable or fails
+                baseUris.add(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI to false)
+            }
+            // Always include internal volume as well
+            baseUris.add(MediaStore.Audio.Media.INTERNAL_CONTENT_URI to true)
+        } else {
+            baseUris.add(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI to false)
+            baseUris.add(MediaStore.Audio.Media.INTERNAL_CONTENT_URI to true)
+        }
 
         val rows = mutableListOf<RawRow>()
         val seenIds = mutableSetOf<Long>()
@@ -107,6 +122,8 @@ object MediaStoreScanner {
                     }
                 }
             } catch (_: Exception) { /* volume unavailable */ }
+            // Stagger queries across volumes to avoid overwhelming the system
+            try { delay(200) } catch (_: InterruptedException) { /* ignore */ }
         }
         return rows
     }
@@ -229,7 +246,7 @@ object MediaStoreScanner {
 
                 val artwork = tag.firstArtwork
                 if (artwork != null && artwork.binaryData != null) {
-                    val art = persistEmbeddedArtwork(context, track.id, artwork.binaryData)
+                    val art = persistEmbeddedArtwork(context, track.id, artwork.binaryData, track.albumId)
                     if (art != null) albumArtUri = art
                 }
             }
@@ -266,13 +283,26 @@ object MediaStoreScanner {
         }
     }
 
-    private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray): Uri? {
+    private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray, albumId: Long = 0L): Uri? {
         return try {
             val dir = File(context.cacheDir, "album_art")
             if (!dir.exists()) dir.mkdirs()
-            val file = File(dir, "track_$trackId.jpg")
-            file.writeBytes(bytes)
-            Uri.fromFile(file)
+            val trackFile = File(dir, "track_$trackId.jpg")
+            trackFile.writeBytes(bytes)
+            // Also write album_<albumId>.jpg for quick album-level lookup (if albumId provided)
+            var albumFileUri: Uri? = null
+            if (albumId > 0) {
+                try {
+                    val albumFile = File(dir, "album_$albumId.jpg")
+                    // overwrite with the latest track artwork (small cost but keeps album in sync)
+                    albumFile.writeBytes(bytes)
+                    albumFileUri = Uri.fromFile(albumFile)
+                } catch (_: Exception) { /* ignore album write failures */ }
+            }
+            val trackUri = Uri.fromFile(trackFile)
+            // Publish event with albumId if available
+            ArtRepository.publish(ArtworkEvent(albumId, trackId, albumFileUri ?: trackUri))
+            trackUri
         } catch (_: Exception) {
             null
         }

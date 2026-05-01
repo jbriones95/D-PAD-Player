@@ -88,6 +88,38 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    init {
+        // Observe artwork events and update the library UI when new album art appears
+        viewModelScope.launch(Dispatchers.Main) {
+            ArtRepository.events.collect { ev ->
+                // Only update if we have a library loaded
+                val currentLib = _library.value ?: return@collect
+                val albumId = ev.albumId
+                if (albumId <= 0L) return@collect
+                // Find album by albumId via matching album key (album_<id> may not map cleanly)
+                // We instead update any album that contains a song with the matching albumId
+                val albums = currentLib.albums
+                var changed = false
+                val newAlbums = albums.map { album ->
+                    val hasTrack = album.songs.any { it.albumId == albumId }
+                    if (!hasTrack) return@map album
+                    // Replace albumArtUri with cached album art if present
+                    val cached = ArtRepository.getCachedAlbumArt(getApplication(), albumId)
+                    if (cached != null && cached != album.albumArtUri) {
+                        changed = true
+                        album.copy(albumArtUri = cached)
+                    } else album
+                }
+                if (changed) {
+                    // update library and albums LiveData
+                    val newLib = currentLib.copy(albums = newAlbums)
+                    _library.postValue(newLib)
+                    _albums.postValue(newAlbums)
+                }
+            }
+        }
+    }
+
     // ── Playlist operations ───────────────────────────────────────────────────
 
     fun createPlaylist(name: String, tracks: List<Track> = emptyList()) {
