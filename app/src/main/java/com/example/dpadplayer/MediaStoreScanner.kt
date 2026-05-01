@@ -2,7 +2,7 @@ package com.example.dpadplayer
 
 import android.content.ContentUris
 import android.content.Context
-import android.media.MediaMetadataRetriever
+// MediaMetadataRetriever was previously used; we now use jaudiotagger for robust tag parsing
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore

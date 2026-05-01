@@ -207,8 +207,14 @@ class PlaybackService : Service() {
         Thread {
             val artUri = MediaStoreScanner.loadEmbeddedArtwork(ctx, track)
             if (artUri != null && track.albumArtUri != artUri) {
-                tracks[index] = track.copy(albumArtUri = artUri)
-                onTrackChanged?.invoke(index)
+                // Update the track list and notify listeners on the main thread.
+                mainHandler.post {
+                    // Re-read bounds to be defensive (track list could have changed)
+                    if (index in tracks.indices) {
+                        tracks[index] = tracks[index].copy(albumArtUri = artUri)
+                        onTrackChanged?.invoke(index)
+                    }
+                }
             }
         }.start()
 
