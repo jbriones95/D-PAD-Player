@@ -102,7 +102,8 @@ interface AlbumCacheDao {
 
 @Entity(tableName = "track_cache")
 data class TrackCacheEntity(
-    @PrimaryKey val trackId: Long,
+    @PrimaryKey val sourceUri: String,
+    val trackId: Long,
     val title: String,
     val sortTitle: String,
     val artist: String,
@@ -126,8 +127,8 @@ interface TrackCacheDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(cache: TrackCacheEntity)
 
-    @Query("SELECT * FROM track_cache WHERE trackId = :trackId LIMIT 1")
-    suspend fun get(trackId: Long): TrackCacheEntity?
+    @Query("SELECT * FROM track_cache WHERE sourceUri = :sourceUri LIMIT 1")
+    suspend fun get(sourceUri: String): TrackCacheEntity?
 
     @Query("SELECT * FROM track_cache")
     suspend fun getAll(): List<TrackCacheEntity>
@@ -135,7 +136,7 @@ interface TrackCacheDao {
 
 // ── Database ──────────────────────────────────────────────────────────────────
 
-@Database(entities = [PlaylistEntity::class, PlaylistSongEntity::class, AlbumCacheEntity::class, TrackCacheEntity::class], version = 2, exportSchema = true)
+@Database(entities = [PlaylistEntity::class, PlaylistSongEntity::class, AlbumCacheEntity::class, TrackCacheEntity::class], version = 3, exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
     abstract fun albumCacheDao(): AlbumCacheDao
@@ -159,6 +160,24 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // v2 -> v3: switch track_cache primary key from trackId to sourceUri.
+        // This avoids collisions between tracks from different MediaStore volumes
+        // that can share the same numeric _ID.
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `track_cache_new` (`sourceUri` TEXT NOT NULL, `trackId` INTEGER NOT NULL, `title` TEXT NOT NULL, `sortTitle` TEXT NOT NULL, `artist` TEXT NOT NULL, `sortArtist` TEXT NOT NULL, `albumArtist` TEXT NOT NULL, `sortAlbumArtist` TEXT NOT NULL, `album` TEXT NOT NULL, `sortAlbum` TEXT NOT NULL, `albumId` INTEGER NOT NULL, `trackNumber` INTEGER NOT NULL, `discNumber` INTEGER NOT NULL, `year` INTEGER NOT NULL, `genre` TEXT NOT NULL, `duration` INTEGER NOT NULL, `dateAdded` INTEGER NOT NULL, `albumArtPath` TEXT NOT NULL, PRIMARY KEY(`sourceUri`))"
+                )
+                // Best-effort migration: old rows didn't store sourceUri, so synthesize
+                // from EXTERNAL_CONTENT_URI. Fresh scans will rewrite with exact URIs.
+                database.execSQL(
+                    "INSERT OR REPLACE INTO track_cache_new(sourceUri, trackId, title, sortTitle, artist, sortArtist, albumArtist, sortAlbumArtist, album, sortAlbum, albumId, trackNumber, discNumber, year, genre, duration, dateAdded, albumArtPath) SELECT ('content://media/external/audio/media/' || trackId), trackId, title, sortTitle, artist, sortArtist, albumArtist, sortAlbumArtist, album, sortAlbum, albumId, trackNumber, discNumber, year, genre, duration, dateAdded, albumArtPath FROM track_cache"
+                )
+                database.execSQL("DROP TABLE track_cache")
+                database.execSQL("ALTER TABLE track_cache_new RENAME TO track_cache")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: run {
@@ -166,7 +185,7 @@ abstract class AppDatabase : RoomDatabase() {
                         context.applicationContext,
                         AppDatabase::class.java,
                         "dpad_player.db"
-                    ).addMigrations(MIGRATION_1_2)
+                    ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
 
                     // Do NOT allow fallbackToDestructiveMigration here to avoid silent data loss in
                     // production. Migrations must be explicit (MIGRATION_1_2 is registered above).

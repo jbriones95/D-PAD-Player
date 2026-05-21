@@ -29,8 +29,16 @@ class GenreAdapter(
         init {
             val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
-            clickable.setOnClickListener { onGenreClick(items[bindingAdapterPosition]) }
-            clickable.setupDpadItem { onGenreClick(items[bindingAdapterPosition]) }
+            clickable.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                onGenreClick(items[pos])
+            }
+            clickable.setupDpadItem {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setupDpadItem
+                onGenreClick(items[pos])
+            }
         }
     }
 

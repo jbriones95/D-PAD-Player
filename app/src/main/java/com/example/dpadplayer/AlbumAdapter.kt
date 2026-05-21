@@ -32,8 +32,16 @@ class AlbumAdapter(
         init {
             val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
-            clickable.setOnClickListener { onAlbumClick(items[bindingAdapterPosition]) }
-            clickable.setupDpadItem { onAlbumClick(items[bindingAdapterPosition]) }
+            clickable.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                onAlbumClick(items[pos])
+            }
+            clickable.setupDpadItem {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setupDpadItem
+                onAlbumClick(items[pos])
+            }
         }
     }
 

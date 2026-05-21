@@ -1,0 +1,7 @@
+## Copy this file to signing.local.properties (ignored by git)
+## and provide your own local release signing values.
+
+DPAD_RELEASE_STORE_FILE=/absolute/path/to/your/release-keystore.jks
+DPAD_RELEASE_STORE_PASSWORD=replace_with_strong_password
+DPAD_RELEASE_KEY_ALIAS=replace_with_key_alias
+DPAD_RELEASE_KEY_PASSWORD=replace_with_strong_password

@@ -64,7 +64,9 @@ class TrackAdapter(
             applyItemFocusBackground(clickable)
             clickable.setOnClickListener {
                 try {
-                    onTrackClick(bindingAdapterPosition)
+                    val pos = bindingAdapterPosition
+                    if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                    onTrackClick(pos)
                 } catch (e: Exception) {
                     // Log the exception so we can capture a stack trace in logcat when reproducing the crash.
                     Log.e("TrackAdapter", "onTrackClick failed for position=$bindingAdapterPosition", e)
@@ -72,7 +74,9 @@ class TrackAdapter(
             }
             clickable.setOnLongClickListener {
                 try {
-                    onTrackLongClick?.invoke(bindingAdapterPosition) ?: false
+                    val pos = bindingAdapterPosition
+                    if (pos == RecyclerView.NO_POSITION) return@setOnLongClickListener false
+                    onTrackLongClick?.invoke(pos) ?: false
                 } catch (e: Exception) {
                     Log.e("TrackAdapter", "onTrackLongClick failed for position=$bindingAdapterPosition", e)
                     false
@@ -80,7 +84,9 @@ class TrackAdapter(
             }
             clickable.setupDpadItem {
                 try {
-                    onTrackClick(bindingAdapterPosition)
+                    val pos = bindingAdapterPosition
+                    if (pos == RecyclerView.NO_POSITION) return@setupDpadItem
+                    onTrackClick(pos)
                 } catch (e: Exception) {
                     Log.e("TrackAdapter", "setupDpadItem onTrackClick failed for position=$bindingAdapterPosition", e)
                 }

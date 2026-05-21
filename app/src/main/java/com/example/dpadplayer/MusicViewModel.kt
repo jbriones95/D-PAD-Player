@@ -11,7 +11,9 @@ import com.example.dpadplayer.db.PlaylistEntity
 import com.example.dpadplayer.db.PlaylistSongEntity
 import com.example.dpadplayer.playback.Track
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
@@ -76,16 +78,18 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
 
     // ── Loading ───────────────────────────────────────────────────────────────
 
+    private var loadTracksJob: Job? = null
+
     fun loadTracks(sortOrder: String = "title") {
-        viewModelScope.launch(Dispatchers.IO) {
+        loadTracksJob?.cancel()
+        loadTracksJob = viewModelScope.launch(Dispatchers.IO) {
             val result = MediaStoreScanner.loadTracks(getApplication(), sortOrder)
             val lib    = MusicLibrary.build(result)
             // Merge album cache entries to preserve persisted metadata across restarts
-            try {
+            val merged = try {
                 val db = com.example.dpadplayer.db.AppDatabase.getInstance(getApplication())
                 val caches = db.albumCacheDao().getAll()
                 if (caches.isNotEmpty()) {
-                    // overlay cached art onto albums
                     val albums = lib.albums.map { album ->
                         val anyId = album.songs.firstOrNull()?.albumId ?: 0L
                         val c = caches.firstOrNull { it.albumId == anyId }
@@ -93,25 +97,31 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
                             album.copy(albumArtUri = android.net.Uri.fromFile(java.io.File(c.artPath)))
                         } else album
                     }
-                    val merged = lib.copy(albums = albums)
-                    _tracks.postValue(result)
-                    _library.postValue(merged)
-                    _albums.postValue(merged.albums)
-                    _artists.postValue(merged.artists)
-                    _genres.postValue(merged.genres)
-                    return@launch
-                }
-            } catch (_: Exception) { /* ignore DB merge failures */ }
+                    lib.copy(albums = albums)
+                } else lib
+            } catch (_: Exception) { lib }
             _tracks.postValue(result)
-            _library.postValue(lib)
-            _albums.postValue(lib.albums)
-            _artists.postValue(lib.artists)
-            _genres.postValue(lib.genres)
+            _library.postValue(merged)
+            _albums.postValue(merged.albums)
+            _artists.postValue(merged.artists)
+            _genres.postValue(merged.genres)
+
+            // Background enrichment: lazily extract real ID3 tags + artwork for all tracks.
+            // Already-enriched tracks (read from cache) are skipped automatically.
+            delay(2000) // let initial display settle on main thread
+            for (track in result) {
+                if (track.albumArtUri != track.mediaStoreAlbumArtUri) {
+                    continue
+                }
+                MediaStoreScanner.enrichTrack(getApplication(), track)
+                delay(150)
+            }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
+        loadTracksJob?.cancel()
         // Clear any scanner scope if it was set to this viewModelScope
         if (MediaStoreScanner.scope === viewModelScope) MediaStoreScanner.scope = null
     }

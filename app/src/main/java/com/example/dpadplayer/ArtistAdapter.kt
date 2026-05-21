@@ -29,8 +29,16 @@ class ArtistAdapter(
         init {
             val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
-            clickable.setOnClickListener { onArtistClick(items[bindingAdapterPosition]) }
-            clickable.setupDpadItem { onArtistClick(items[bindingAdapterPosition]) }
+            clickable.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                onArtistClick(items[pos])
+            }
+            clickable.setupDpadItem {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setupDpadItem
+                onArtistClick(items[pos])
+            }
         }
     }
 

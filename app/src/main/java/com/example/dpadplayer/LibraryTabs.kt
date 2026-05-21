@@ -14,10 +14,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import java.io.File
-import android.net.Uri
 import com.example.dpadplayer.MusicLibrary
 import com.example.dpadplayer.playback.Track
-import com.example.dpadplayer.Album
 
 
 // ── Songs tab ────────────────────────────────────────────────────────────────
@@ -305,7 +303,7 @@ class FoldersTabFragment : Fragment(), TabWithRecycler {
         recyclerRef = recycler
         lastFocusedPos = viewModel.getLibraryTabFocusPosition(5)
         val adapter = FolderAdapter(folders) { folder ->
-            (activity as? MainActivity)?.openAlbumDetail(Album(folder, folder, folder, "", 0, emptyList(), Uri.EMPTY))
+            (activity as? MainActivity)?.openFolderDetail(folder)
         }
         recycler.adapter = adapter
         val lm = FocusLinearLayoutManager(requireContext())

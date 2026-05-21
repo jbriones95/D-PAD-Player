@@ -20,8 +20,16 @@ class FolderAdapter(
         val title: TextView = view.findViewById(R.id.tv_item_title)
         val clickable: View = view.findViewById(R.id.clickable_item)
         init {
-            clickable.setOnClickListener { onClick(items[bindingAdapterPosition]) }
-            clickable.setupDpadItem { onClick(items[bindingAdapterPosition]) }
+            clickable.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                onClick(items[pos])
+            }
+            clickable.setupDpadItem {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setupDpadItem
+                onClick(items[pos])
+            }
         }
     }
 

@@ -57,8 +57,16 @@ class PlaylistAdapter(
         init {
             val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
-            clickable.setOnClickListener { onPlaylistClick(items[bindingAdapterPosition - 1]) }
-            clickable.setupDpadItem { onPlaylistClick(items[bindingAdapterPosition - 1]) }
+            clickable.setOnClickListener {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION || pos <= 0 || pos > items.size) return@setOnClickListener
+                onPlaylistClick(items[pos - 1])
+            }
+            clickable.setupDpadItem {
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION || pos <= 0 || pos > items.size) return@setupDpadItem
+                onPlaylistClick(items[pos - 1])
+            }
         }
     }
 

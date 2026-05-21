@@ -24,6 +24,32 @@
     <string name="pref_audio_focus_pause_on_duck_title">Pause for transient audio interruptions</string>
     <string name="pref_audio_focus_pause_on_duck_summary">When off, playback volume ducks for short interruptions instead of pausing</string>
 
+    <!-- Main activity messages/actions -->
+    <string name="msg_storage_permission_required">Storage permission needed to find music</string>
+    <string name="msg_playing_next">Playing next: %1$s</string>
+    <string name="msg_added_to_queue">Added to queue: %1$s</string>
+    <string name="msg_added_to_playlist">Added to "%1$s"</string>
+    <string name="msg_playlist_created">Created "%1$s"</string>
+    <string name="msg_rescanning_library">Rescanning library…</string>
+
+    <string name="menu_add_to_playlist">Add to playlist</string>
+    <string name="menu_play_next">Play next</string>
+    <string name="menu_add_to_queue">Add to queue</string>
+    <string name="menu_new_playlist_with_plus">+ New playlist</string>
+
+    <string name="dialog_add_to_playlist_title">Add to playlist</string>
+    <string name="dialog_new_playlist_title">New playlist</string>
+    <string name="hint_playlist_name">Playlist name</string>
+
+    <string name="action_cancel">Cancel</string>
+    <string name="action_create">Create</string>
+    <string name="action_back">Back</string>
+
+    <string name="msg_folder_empty">No playable tracks found in this folder.</string>
+    <string name="dialog_storage_permission_title">Storage permission required</string>
+    <string name="dialog_storage_permission_message">D-PAD Player needs storage access to find your music. You can enable it in App Settings.</string>
+    <string name="action_open_settings">Open Settings</string>
+
     <!-- Theme preference -->
     <string-array name="pref_theme_labels">
         <item>Follow system</item>

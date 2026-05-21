@@ -15,6 +15,7 @@ import com.example.dpadplayer.playback.Track
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
+import java.io.FileOutputStream
 import com.example.dpadplayer.db.AppDatabase
 
 /**
@@ -42,16 +43,16 @@ object MediaStoreScanner {
         val raw = collectRawRows(context)
         // Load track cache to avoid re-enriching files that were previously processed.
         val db = try { AppDatabase.getInstance(context) } catch (_: Exception) { null }
-        val cacheMap = db?.trackCacheDao()?.getAll()?.associateBy { it.trackId } ?: emptyMap()
+        val cacheMap = db?.trackCacheDao()?.getAll()?.associateBy { it.sourceUri } ?: emptyMap()
 
         val tracks = raw.map { row ->
-            val cached = cacheMap[row.id]
+            val cached = cacheMap[row.uri.toString()]
             if (cached != null) {
                 // Build Track from cached metadata without opening the file
                 val artUri = if (cached.albumArtPath.isNotBlank()) android.net.Uri.fromFile(File(cached.albumArtPath)) else Track.albumArtUri(cached.albumId)
                 Track(
                     id = row.id,
-                    uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, row.id),
+                    uri = row.uri,
                     filePath = row.msData,
                     title = cached.title,
                     sortTitle = cached.sortTitle,
@@ -131,7 +132,7 @@ object MediaStoreScanner {
         }
 
         val rows = mutableListOf<RawRow>()
-        val seenIds = mutableSetOf<Long>()
+        val seenUris = mutableSetOf<String>()
 
         for ((baseUri, isInternal) in baseUris) {
             val queryUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -152,10 +153,11 @@ object MediaStoreScanner {
 
                     while (c.moveToNext()) {
                         val id = c.getLong(colId)
-                        if (!seenIds.add(id)) continue
+                        val rowUri = ContentUris.withAppendedId(baseUri, id)
+                        if (!seenUris.add(rowUri.toString())) continue
                         rows.add(RawRow(
                             id          = id,
-                            uri         = ContentUris.withAppendedId(baseUri, id),
+                            uri         = rowUri,
                             msData      = c.getString(colData)    ?: "",
                             msTitle     = c.getString(colTitle)   ?: "",
                             msArtist    = c.getString(colArtist)  ?: "",
@@ -232,9 +234,8 @@ object MediaStoreScanner {
         val cached = File(context.cacheDir, "album_art/track_${track.id}.jpg")
         if (cached.exists()) return Uri.fromFile(cached)
         return try {
-            val f = File(track.filePath)
-            if (!f.exists()) return null
-            val audioFile = AudioFileIO.read(f)
+            val readable = resolveReadableFile(context, track) ?: return null
+            val audioFile = AudioFileIO.read(readable)
             val artwork = audioFile.tag?.firstArtwork ?: return null
             val bytes = artwork.binaryData ?: return null
             persistEmbeddedArtwork(context, track.id, bytes)
@@ -249,9 +250,8 @@ object MediaStoreScanner {
     fun enrichTrack(context: Context, track: com.example.dpadplayer.playback.Track): com.example.dpadplayer.playback.Track {
         if (track.filePath.isBlank()) return track
         try {
-            val f = File(track.filePath)
-            if (!f.exists()) return track
-            val audioFile = AudioFileIO.read(f)
+            val readable = resolveReadableFile(context, track) ?: return track
+            val audioFile = AudioFileIO.read(readable)
             val tag = audioFile.tag
 
             var title = track.title
@@ -290,11 +290,16 @@ object MediaStoreScanner {
                 getStr(FieldKey.TRACK)?.let { trackNum = it.substringBefore('/').trim().toIntOrNull() ?: trackNum }
                 getStr(FieldKey.DISC_NO)?.let { discNum = it.substringBefore('/').trim().toIntOrNull() ?: discNum }
 
-                val artwork = tag.firstArtwork
-                if (artwork != null && artwork.binaryData != null) {
-                    val art = persistEmbeddedArtwork(context, track.id, artwork.binaryData, track.albumId)
-                    if (art != null) albumArtUri = art
-                }
+                // Artwork is extracted separately so a failure here doesn't lose all metadata
+                try {
+                    val artwork = tag.firstArtwork
+                    if (artwork != null && artwork.binaryData != null) {
+                        try {
+                            val art = persistEmbeddedArtwork(context, track.id, artwork.binaryData, track.albumId)
+                            if (art != null) albumArtUri = art
+                        } catch (_: Exception) { android.util.Log.w("enrichTrack", "artwork persist failed") }
+                    }
+                } catch (_: Exception) { android.util.Log.w("enrichTrack", "artwork extraction failed") }
             }
 
             val header = audioFile.audioHeader
@@ -331,6 +336,7 @@ object MediaStoreScanner {
                 val db = AppDatabase.getInstance(context)
                 val path = enriched.albumArtUri.path ?: ""
                 val t = com.example.dpadplayer.db.TrackCacheEntity(
+                    sourceUri = enriched.uri.toString(),
                     trackId = enriched.id,
                     title = enriched.title,
                     sortTitle = enriched.sortTitle,
@@ -355,9 +361,32 @@ object MediaStoreScanner {
                 }
             } catch (_: Exception) { }
             return enriched
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            android.util.Log.e("enrichTrack", "enrich failed for ${track.id}", e)
             return track
         }
+    }
+
+    /**
+     * Returns a readable [File] for the given track.
+     * On scoped storage (Android 10+), direct file path access may be denied.
+     * Falls back to copying via ContentResolver to app-private cache.
+     */
+    private fun resolveReadableFile(context: Context, track: com.example.dpadplayer.playback.Track): File? {
+        val f = File(track.filePath)
+        if (f.canRead()) return f
+        // Scoped storage: copy via ContentResolver to a temp file in cache dir
+        return try {
+            context.contentResolver.openInputStream(track.uri)?.use { input ->
+                val tmpDir = File(context.cacheDir, "temp_enrich")
+                tmpDir.mkdirs()
+                val tmp = File(tmpDir, "${track.id}.mp3")
+                if (!tmp.exists()) {
+                    FileOutputStream(tmp).use { output -> input.copyTo(output) }
+                }
+                tmp
+            }
+        } catch (_: Exception) { null }
     }
 
     private fun persistEmbeddedArtwork(context: Context, trackId: Long, bytes: ByteArray, albumId: Long = 0L): Uri? {

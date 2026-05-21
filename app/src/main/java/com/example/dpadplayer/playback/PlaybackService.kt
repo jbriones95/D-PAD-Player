@@ -98,6 +98,8 @@ class PlaybackService : Service() {
     private var pausedForTransientFocusLoss = false
     private var wasDucked = false
     private var lastNotificationProgressUpdateAt = 0L
+    private var cachedArtUri: String? = null
+    private var cachedArtBitmap: Bitmap? = null
 
     val tracks = mutableListOf<Track>()
     var currentIndex = 0
@@ -246,6 +248,8 @@ class PlaybackService : Service() {
         mainHandler.removeCallbacks(metadataNotificationRunnable)
         currentEnrichmentJob?.cancel()
         batchEnrichmentJob?.cancel()
+        cachedArtBitmap = null
+        cachedArtUri = null
         // Cancel background work
         serviceScope.cancel()
         abandonAudioFocus()
@@ -419,7 +423,12 @@ class PlaybackService : Service() {
         isTransitioning = true
         if (tracks.isEmpty()) { isTransitioning = false; return }
         when {
-            repeatMode == REPEAT_ONE -> { player.seekTo(0); player.play(); return }
+            repeatMode == REPEAT_ONE -> {
+                player.seekTo(0)
+                player.play()
+                isTransitioning = false
+                return
+            }
             shuffleOn -> {
                 shufflePos = (shufflePos + 1) % shuffleOrder.size
                 prepareAndPlay(shuffleOrder[shufflePos])
@@ -547,6 +556,8 @@ class PlaybackService : Service() {
         mainHandler.removeCallbacks(metadataNotificationRunnable)
         currentEnrichmentJob?.cancel()
         batchEnrichmentJob?.cancel()
+        cachedArtBitmap = null
+        cachedArtUri = null
         abandonAudioFocus()
         if (removeNotification) {
             ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
@@ -601,11 +612,24 @@ class PlaybackService : Service() {
     // Returns null gracefully if the URI is empty, null, or unreadable.
     private fun loadAlbumArtBitmap(uri: Uri?): Bitmap? {
         if (uri == null || uri == Uri.EMPTY) return null
+        val key = uri.toString()
+        if (cachedArtUri == key && cachedArtBitmap != null) {
+            return cachedArtBitmap
+        }
         return try {
             contentResolver.openInputStream(uri)?.use { stream ->
-                BitmapFactory.decodeStream(stream)
+                BitmapFactory.decodeStream(stream)?.also { decoded ->
+                    cachedArtUri = key
+                    cachedArtBitmap = decoded
+                }
             }
-        } catch (_: Exception) { null }
+        } catch (_: Exception) {
+            if (cachedArtUri == key) {
+                cachedArtUri = null
+                cachedArtBitmap = null
+            }
+            null
+        }
     }
 
     // ─── Notification ─────────────────────────────────────────────────────────

@@ -10,3 +10,4 @@ app/build/
 *.jks
 *.keystore
 *.p12
+signing.local.properties

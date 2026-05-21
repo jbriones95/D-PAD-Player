@@ -5,21 +5,22 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.Settings
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.example.dpadplayer.playback.PlaybackService
 import com.example.dpadplayer.playback.Track
 import com.example.dpadplayer.db.PlaylistEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -59,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
             if (hasStoragePermission()) onPermissionGranted()
-            else Toast.makeText(this, "Storage permission needed to find music", Toast.LENGTH_LONG).show()
+            else showStoragePermissionRequiredDialog()
         }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -177,6 +178,15 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
+    fun openFolderDetail(folderPath: String) {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .replace(R.id.fragment_container, FolderDetailFragment.newInstance(folderPath), TAG_FOLDER)
+            .addToBackStack(null)
+            .commit()
+    }
+
     fun openQueue() {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
@@ -199,7 +209,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun playPlaylist(playlistId: Long, startIndex: Int) {
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+        lifecycleScope.launch {
             val tracks = viewModel.resolvePlaylistTracks(playlistId)
             if (tracks.isNotEmpty()) {
                 playTracks(tracks, startIndex.coerceIn(0, tracks.size - 1))
@@ -259,19 +269,19 @@ class MainActivity : AppCompatActivity() {
 
     fun playNext(track: Track) {
         service?.playNextTrack(track)
-        Toast.makeText(this, "Playing next: ${track.title}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.msg_playing_next, track.title), Toast.LENGTH_SHORT).show()
     }
 
     fun addToQueue(track: Track) {
         service?.enqueueTrack(track)
-        Toast.makeText(this, "Added to queue: ${track.title}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.msg_added_to_queue, track.title), Toast.LENGTH_SHORT).show()
     }
 
     fun showTrackMenu(anchor: android.view.View, track: Track) {
         val popup = android.widget.PopupMenu(this, anchor)
-        popup.menu.add(0, 1, 0, "Add to playlist")
-        popup.menu.add(0, 2, 0, "Play next")
-        popup.menu.add(0, 3, 0, "Add to queue")
+        popup.menu.add(0, 1, 0, getString(R.string.menu_add_to_playlist))
+        popup.menu.add(0, 2, 0, getString(R.string.menu_play_next))
+        popup.menu.add(0, 3, 0, getString(R.string.menu_add_to_queue))
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 1 -> showAddToPlaylistDialog(track)
@@ -289,36 +299,36 @@ class MainActivity : AppCompatActivity() {
             showCreateAndAddDialog(track)
             return
         }
-        val options = (playlists.map { it.name } + listOf("+ New playlist")).toTypedArray()
+        val options = (playlists.map { it.name } + listOf(getString(R.string.menu_new_playlist_with_plus))).toTypedArray()
         android.app.AlertDialog.Builder(this)
-            .setTitle("Add to playlist")
+            .setTitle(R.string.dialog_add_to_playlist_title)
             .setItems(options) { _, which ->
                 if (which < playlists.size) {
                     viewModel.addTracksToPlaylist(playlists[which].id, listOf(track))
-                    Toast.makeText(this, "Added to \"${playlists[which].name}\"", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.msg_added_to_playlist, playlists[which].name), Toast.LENGTH_SHORT).show()
                 } else {
                     showCreateAndAddDialog(track)
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
 
     private fun showCreateAndAddDialog(track: Track) {
         val editText = android.widget.EditText(this)
-        editText.hint = "Playlist name"
+        editText.hint = getString(R.string.hint_playlist_name)
         editText.requestFocus()
         android.app.AlertDialog.Builder(this)
-            .setTitle("New playlist")
+            .setTitle(R.string.dialog_new_playlist_title)
             .setView(editText)
-            .setPositiveButton("Create") { _, _ ->
+            .setPositiveButton(R.string.action_create) { _, _ ->
                 val name = editText.text.toString().trim()
                 if (name.isNotEmpty()) {
                     viewModel.createPlaylist(name, listOf(track))
-                    Toast.makeText(this, "Created \"$name\"", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.msg_playlist_created, name), Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
 
@@ -402,6 +412,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showStoragePermissionRequiredDialog() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle(R.string.dialog_storage_permission_title)
+            .setMessage(R.string.dialog_storage_permission_message)
+            .setPositiveButton(R.string.action_open_settings) { _, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+                startActivity(intent)
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
     private fun hasStoragePermission(): Boolean {
         val perm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             Manifest.permission.READ_MEDIA_AUDIO
@@ -419,7 +443,7 @@ class MainActivity : AppCompatActivity() {
     fun rescanLibrary() {
         if (hasStoragePermission()) {
             onPermissionGranted()
-            Toast.makeText(this, "Rescanning library…", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.msg_rescanning_library), Toast.LENGTH_SHORT).show()
         } else {
             checkPermissionsAndLoad()
         }
@@ -448,5 +472,6 @@ class MainActivity : AppCompatActivity() {
         const val TAG_PLAYLIST = "playlist"
         const val TAG_ARTIST   = "artist"
         const val TAG_GENRE    = "genre"
+        const val TAG_FOLDER   = "folder"
     }
 }

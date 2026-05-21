@@ -38,7 +38,27 @@ class MigrationTest {
             InstrumentationRegistry.getInstrumentation().targetContext,
             AppDatabase::class.java,
             dbName
-        ).addMigrations(AppDatabase.MIGRATION_1_2)
+        ).addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
+            .build()
+
+        migratedDb.openHelper.writableDatabase.close()
+        migratedDb.close()
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate2To3() {
+        val dbName = "migration-test-v2-v3"
+        helper.createDatabase(dbName, 2).apply {
+            execSQL("INSERT INTO track_cache(trackId, title, sortTitle, artist, sortArtist, albumArtist, sortAlbumArtist, album, sortAlbum, albumId, trackNumber, discNumber, year, genre, duration, dateAdded, albumArtPath) VALUES(42, 'Title', 'Title', 'Artist', 'Artist', 'Artist', 'Artist', 'Album', 'Album', 1, 1, 1, 2024, 'Genre', 123000, 1700000000, '')")
+            close()
+        }
+
+        val migratedDb = Room.databaseBuilder(
+            InstrumentationRegistry.getInstrumentation().targetContext,
+            AppDatabase::class.java,
+            dbName
+        ).addMigrations(AppDatabase.MIGRATION_2_3)
             .build()
 
         migratedDb.openHelper.writableDatabase.close()

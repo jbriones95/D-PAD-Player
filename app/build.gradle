@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
 }
 
+import java.util.Properties
+
 // Pass schema location to Room compiler so schema JSONs are exported for migration tests
 kapt {
     arguments {
@@ -19,6 +21,7 @@ android {
         applicationId "com.example.dpadplayer"
         minSdk 21
         targetSdk 34
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // Bumped for release
         versionCode 4
         versionName "0.4.9"
@@ -42,12 +45,26 @@ android {
         abortOnError false
     }
 
+    def signingProps = new Properties()
+    def signingPropsFile = rootProject.file("signing.local.properties")
+    if (signingPropsFile.exists()) {
+        signingPropsFile.withInputStream { signingProps.load(it) }
+    }
+
+    def releaseStoreFile = project.findProperty("DPAD_RELEASE_STORE_FILE") ?: signingProps.getProperty("DPAD_RELEASE_STORE_FILE") ?: System.getenv("DPAD_RELEASE_STORE_FILE")
+    def releaseStorePassword = project.findProperty("DPAD_RELEASE_STORE_PASSWORD") ?: signingProps.getProperty("DPAD_RELEASE_STORE_PASSWORD") ?: System.getenv("DPAD_RELEASE_STORE_PASSWORD")
+    def releaseKeyAlias = project.findProperty("DPAD_RELEASE_KEY_ALIAS") ?: signingProps.getProperty("DPAD_RELEASE_KEY_ALIAS") ?: System.getenv("DPAD_RELEASE_KEY_ALIAS")
+    def releaseKeyPassword = project.findProperty("DPAD_RELEASE_KEY_PASSWORD") ?: signingProps.getProperty("DPAD_RELEASE_KEY_PASSWORD") ?: System.getenv("DPAD_RELEASE_KEY_PASSWORD")
+    def hasReleaseSigning = releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
+
     signingConfigs {
         release {
-            storeFile file('release.jks')
-            storePassword 'dpad1234'
-            keyAlias 'dpad'
-            keyPassword 'dpad1234'
+            if (hasReleaseSigning) {
+                storeFile file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
         }
     }
 
@@ -55,7 +72,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 
@@ -111,4 +130,6 @@ dependencies {
 
     // Room testing for migration tests
     androidTestImplementation 'androidx.room:room-testing:2.6.1'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
 }
