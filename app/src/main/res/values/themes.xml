@@ -12,6 +12,8 @@
         <!-- Status / nav bar -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <!-- Let the status bar icons be dark on light themes so they remain visible -->
+        <item name="android:windowLightStatusBar">true</item>
 
         <!-- No title bar -->
         <item name="windowActionBar">false</item>

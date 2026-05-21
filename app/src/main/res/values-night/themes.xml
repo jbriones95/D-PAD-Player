@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Night mode overrides -->
+    <style name="Theme.DPadPlayer.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Ensure status bar icons are light in dark mode -->
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

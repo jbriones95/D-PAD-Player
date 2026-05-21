@@ -6,28 +6,31 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.media.AudioAttributes
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Binder
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.os.SystemClock
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.preference.PreferenceManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
+import androidx.preference.PreferenceManager
 import com.example.dpadplayer.MainActivity
 import com.example.dpadplayer.MediaStoreScanner
+import com.example.dpadplayer.R
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
-import android.os.Handler
-import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -47,6 +50,7 @@ class PlaybackService : Service() {
         const val COMMAND_SEEK_BWD    = "com.example.dpadplayer.action.SEEK_BWD"
         const val COMMAND_SEEK_TO     = "com.example.dpadplayer.action.SEEK_TO"
         const val COMMAND_PLAY_INDEX  = "com.example.dpadplayer.action.PLAY_INDEX"
+        const val COMMAND_STOP        = "com.example.dpadplayer.action.STOP"
         const val EXTRA_INDEX         = "index"
         const val EXTRA_POSITION      = "position"
 
@@ -56,6 +60,20 @@ class PlaybackService : Service() {
 
         const val NOTIF_CHANNEL_ID = "dpad_player_channel"
         const val NOTIF_ID = 1
+        private const val PREF_KEEP_SERVICE_WHEN_PAUSED = "keep_service_when_paused"
+        private const val PREF_AUDIO_FOCUS_PAUSE_ON_DUCK = "audio_focus_pause_on_duck"
+
+        private const val REQ_OPEN_APP = 100
+        private const val REQ_PREV = 101
+        private const val REQ_PLAY = 102
+        private const val REQ_PAUSE = 103
+        private const val REQ_NEXT = 104
+        private const val REQ_STOP = 105
+
+        private const val METADATA_NOTIFICATION_DEBOUNCE_MS = 300L
+        private const val NOTIFICATION_PROGRESS_UPDATE_MS = 1000L
+        private const val DUCK_VOLUME = 0.2f
+        private const val NORMAL_VOLUME = 1.0f
 
         private val MEDIA_SESSION_ACTIONS =
             PlaybackStateCompat.ACTION_PLAY or
@@ -76,6 +94,10 @@ class PlaybackService : Service() {
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var audioManager: AudioManager
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var isStoppingService = false
+    private var pausedForTransientFocusLoss = false
+    private var wasDucked = false
+    private var lastNotificationProgressUpdateAt = 0L
 
     val tracks = mutableListOf<Track>()
     var currentIndex = 0
@@ -101,7 +123,17 @@ class PlaybackService : Service() {
     private val positionRunnable: Runnable = object : Runnable {
         override fun run() {
             onPositionChanged?.invoke(player.currentPosition)
+            val now = SystemClock.elapsedRealtime()
+            if (player.isPlaying && now - lastNotificationProgressUpdateAt >= NOTIFICATION_PROGRESS_UPDATE_MS) {
+                lastNotificationProgressUpdateAt = now
+                updateNotification()
+            }
             mainHandler.postDelayed(this, 500)
+        }
+    }
+    private val metadataNotificationRunnable = Runnable {
+        if (!isStoppingService) {
+            updateNotification()
         }
     }
 
@@ -122,7 +154,7 @@ class PlaybackService : Service() {
                 override fun onPause()             { pausePlayback() }
                 override fun onSkipToNext()        { next() }
                 override fun onSkipToPrevious()    { prev() }
-                override fun onStop()              { stopSelf() }
+                override fun onStop()              { requestServiceStop(removeNotification = true) }
                 override fun onSeekTo(pos: Long)   { player.seekTo(pos); updatePlaybackState() }
             })
             isActive = true
@@ -135,9 +167,24 @@ class PlaybackService : Service() {
                     tryStartForeground()
                     startPositionPolling()
                 } else {
-                    ServiceCompat.stopForeground(this@PlaybackService, ServiceCompat.STOP_FOREGROUND_DETACH)
-                    updateNotification()
+                    // When playback stops, decide whether the service should remain
+                    // around (to show the notification and allow resume) or shut
+                    // down entirely to avoid wasted background work and battery.
                     stopPositionPolling()
+                    if (shouldStopServiceWhenIdle()) {
+                        // Remove the notification and stop the service so it no longer
+                        // appears in the status bar and doesn't keep the process alive.
+                        requestServiceStop(removeNotification = true)
+                    } else {
+                        if (!keepServiceWhenPaused()) {
+                            requestServiceStop(removeNotification = true)
+                            return
+                        }
+                        // Keep a visible notification (paused state) to allow resume
+                        // from the shade; don't keep the service in foreground though.
+                        ServiceCompat.stopForeground(this@PlaybackService, ServiceCompat.STOP_FOREGROUND_DETACH)
+                        updateNotification()
+                    }
                 }
                 onPlaybackStateChanged?.invoke(isPlaying)
             }
@@ -150,6 +197,9 @@ class PlaybackService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Must call startForeground() immediately for any startForegroundService() request,
+        // regardless of playback state, to avoid RemoteServiceException.
+        tryStartForeground()
         MediaButtonReceiver.handleIntent(mediaSession, intent)
         when (intent?.action) {
             COMMAND_PLAY       -> requestAudioFocusAndPlay()
@@ -159,20 +209,27 @@ class PlaybackService : Service() {
             COMMAND_SEEK_FWD   -> seekBy(configuredSeekStepMs())
             COMMAND_SEEK_BWD   -> seekBy(-configuredSeekStepMs())
             COMMAND_SEEK_TO    -> { intent.getLongExtra(EXTRA_POSITION, 0).let { player.seekTo(it); updatePlaybackState() } }
+            COMMAND_STOP       -> {
+                pausePlayback()
+                requestServiceStop(removeNotification = true)
+                return START_NOT_STICKY
+            }
             COMMAND_PLAY_INDEX -> {
                 val idx = intent.getIntExtra(EXTRA_INDEX, 0)
                 prepareAndPlay(idx)
             }
-            else -> { /* service started cold — ensure notification */ }
         }
-        // Ensure we stay in foreground
-        tryStartForeground()
         return START_STICKY
     }
 
     private fun configuredSeekStepMs(): Long {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         return prefs.getString("seek_step", "15000")?.toLongOrNull() ?: 15_000L
+    }
+
+    private fun keepServiceWhenPaused(): Boolean {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        return prefs.getBoolean(PREF_KEEP_SERVICE_WHEN_PAUSED, true)
     }
 
     private fun seekBy(deltaMs: Long) {
@@ -186,6 +243,9 @@ class PlaybackService : Service() {
 
     override fun onDestroy() {
         stopPositionPolling()
+        mainHandler.removeCallbacks(metadataNotificationRunnable)
+        currentEnrichmentJob?.cancel()
+        batchEnrichmentJob?.cancel()
         // Cancel background work
         serviceScope.cancel()
         abandonAudioFocus()
@@ -242,24 +302,53 @@ class PlaybackService : Service() {
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focus ->
         when (focus) {
-            AudioManager.AUDIOFOCUS_LOSS,
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> pausePlayback()
-            AudioManager.AUDIOFOCUS_GAIN -> if (!player.isPlaying) player.play()
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                pausedForTransientFocusLoss = false
+                if (player.isPlaying) {
+                    pausePlayback(releaseAudioFocus = false)
+                }
+                abandonAudioFocus()
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                if (player.isPlaying) {
+                    pausedForTransientFocusLoss = true
+                    pausePlayback(releaseAudioFocus = false)
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                if (pauseWhenDucked()) {
+                    if (player.isPlaying) {
+                        pausedForTransientFocusLoss = true
+                        pausePlayback(releaseAudioFocus = false)
+                    }
+                } else if (player.isPlaying) {
+                    player.volume = DUCK_VOLUME
+                    wasDucked = true
+                }
+            }
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                if (wasDucked) {
+                    player.volume = NORMAL_VOLUME
+                    wasDucked = false
+                }
+                if (pausedForTransientFocusLoss && !player.isPlaying) {
+                    pausedForTransientFocusLoss = false
+                    player.play()
+                }
+            }
         }
     }
 
     private fun requestAudioFocus(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (audioFocusRequest == null) {
-                audioFocusRequest = android.media.AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                    .setAudioAttributes(android.media.AudioAttributes.Builder()
-                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build())
-                    .setWillPauseWhenDucked(true)
-                    .setOnAudioFocusChangeListener(audioFocusChangeListener)
-                    .build()
-            }
+            audioFocusRequest = android.media.AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build())
+                .setWillPauseWhenDucked(pauseWhenDucked())
+                .setOnAudioFocusChangeListener(audioFocusChangeListener)
+                .build()
             audioManager.requestAudioFocus(audioFocusRequest!!) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         } else {
             @Suppress("DEPRECATION")
@@ -279,12 +368,24 @@ class PlaybackService : Service() {
         }
     }
 
-    private fun pausePlayback() {
+    private fun pausePlayback(releaseAudioFocus: Boolean = true) {
         player.pause()
-        abandonAudioFocus()
+        if (releaseAudioFocus) {
+            pausedForTransientFocusLoss = false
+            abandonAudioFocus()
+        }
+    }
+
+    private fun pauseWhenDucked(): Boolean {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        return prefs.getBoolean(PREF_AUDIO_FOCUS_PAUSE_ON_DUCK, true)
     }
 
     private fun abandonAudioFocus() {
+        if (wasDucked) {
+            player.volume = NORMAL_VOLUME
+            wasDucked = false
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
         } else {
@@ -426,6 +527,35 @@ class PlaybackService : Service() {
         updatePlaybackState()
     }
 
+    // Decide whether the service should stop when playback is not active.
+    // We stop the service when there's no queue (tracks empty) or when the
+    // player is idle/ended and user hasn't left a paused session to resume.
+    private fun shouldStopServiceWhenIdle(): Boolean {
+        // If there are no tracks queued, nothing to show — stop the service.
+        if (tracks.isEmpty()) return true
+        // If player is in an ended or idle state and not playing, stop.
+        val state = player.playbackState
+        if (!player.isPlaying && (state == Player.STATE_IDLE || state == Player.STATE_ENDED)) return true
+        // Otherwise keep the service alive so the user can resume playback.
+        return false
+    }
+
+    private fun requestServiceStop(removeNotification: Boolean) {
+        if (isStoppingService) return
+        isStoppingService = true
+        stopPositionPolling()
+        mainHandler.removeCallbacks(metadataNotificationRunnable)
+        currentEnrichmentJob?.cancel()
+        batchEnrichmentJob?.cancel()
+        abandonAudioFocus()
+        if (removeNotification) {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        } else {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+        }
+        stopSelf()
+    }
+
     val isPlaying get() = player.isPlaying
     val currentPosition get() = player.currentPosition
     val duration get() = if (currentIndex in tracks.indices) tracks[currentIndex].duration else 0L
@@ -446,15 +576,36 @@ class PlaybackService : Service() {
     private fun updateMetadata(index: Int) {
         if (index < 0 || index >= tracks.size) return
         val t = tracks[index]
-        mediaSession.setMetadata(
-            MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE,  t.title)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, t.artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM,  t.album)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, t.duration)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, t.albumArtUri.toString())
-                .build()
-        )
+        val artBitmap = loadAlbumArtBitmap(t.albumArtUri)
+        val builder = MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_TITLE,  t.title)
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, t.artist)
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM,  t.album)
+            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, t.duration)
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, t.albumArtUri.toString())
+        if (artBitmap != null) {
+            // Embedding the bitmap drives the lock screen album art card directly
+            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artBitmap)
+        }
+        mediaSession.setMetadata(builder.build())
+        scheduleNotificationRefreshFromMetadata()
+    }
+
+    private fun scheduleNotificationRefreshFromMetadata() {
+        if (isStoppingService) return
+        mainHandler.removeCallbacks(metadataNotificationRunnable)
+        mainHandler.postDelayed(metadataNotificationRunnable, METADATA_NOTIFICATION_DEBOUNCE_MS)
+    }
+
+    // Decode album art from a URI into a Bitmap suitable for the notification and lock screen.
+    // Returns null gracefully if the URI is empty, null, or unreadable.
+    private fun loadAlbumArtBitmap(uri: Uri?): Bitmap? {
+        if (uri == null || uri == Uri.EMPTY) return null
+        return try {
+            contentResolver.openInputStream(uri)?.use { stream ->
+                BitmapFactory.decodeStream(stream)
+            }
+        } catch (_: Exception) { null }
     }
 
     // ─── Notification ─────────────────────────────────────────────────────────
@@ -478,51 +629,115 @@ class PlaybackService : Service() {
         createNotificationChannel()
         val t = if (currentIndex in tracks.indices) tracks[currentIndex] else null
 
+        // Tapping the notification opens the app
         val openIntent = PendingIntent.getActivity(
-            this, 0, Intent(this, MainActivity::class.java),
+            this, REQ_OPEN_APP, Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val prevPendingIntent = PendingIntent.getService(
+            this,
+            REQ_PREV,
+            Intent(this, PlaybackService::class.java).setAction(COMMAND_PREV),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val playPendingIntent = PendingIntent.getService(
+            this,
+            REQ_PLAY,
+            Intent(this, PlaybackService::class.java).setAction(COMMAND_PLAY),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val pausePendingIntent = PendingIntent.getService(
+            this,
+            REQ_PAUSE,
+            Intent(this, PlaybackService::class.java).setAction(COMMAND_PAUSE),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val nextPendingIntent = PendingIntent.getService(
+            this,
+            REQ_NEXT,
+            Intent(this, PlaybackService::class.java).setAction(COMMAND_NEXT),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        // Stop / dismiss action — sends COMMAND_STOP which pauses and calls stopSelf()
+        val stopPendingIntent = PendingIntent.getService(
+            this, REQ_STOP,
+            Intent(this, PlaybackService::class.java).setAction(COMMAND_STOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val prevAction = NotificationCompat.Action.Builder(
-            android.R.drawable.ic_media_previous, "Previous",
-            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+            R.drawable.ic_skip_previous, getString(R.string.notification_action_previous),
+            prevPendingIntent
         ).build()
 
         val playPauseAction = if (player.isPlaying) {
             NotificationCompat.Action.Builder(
-                android.R.drawable.ic_media_pause, "Pause",
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE)
+                R.drawable.ic_pause, getString(R.string.notification_action_pause),
+                pausePendingIntent
             ).build()
         } else {
             NotificationCompat.Action.Builder(
-                android.R.drawable.ic_media_play, "Play",
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY)
+                R.drawable.ic_play, getString(R.string.notification_action_play),
+                playPendingIntent
             ).build()
         }
 
         val nextAction = NotificationCompat.Action.Builder(
-            android.R.drawable.ic_media_next, "Next",
-            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+            R.drawable.ic_skip_next, getString(R.string.notification_action_next),
+            nextPendingIntent
         ).build()
 
-        return NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_media_play)
-            .setContentTitle(t?.title ?: "DPad Player")
+        val stopAction = NotificationCompat.Action.Builder(
+            R.drawable.ic_stop, getString(R.string.notification_action_stop),
+            stopPendingIntent
+        ).build()
+
+        // Load album art bitmap for the large icon (notification) and lock screen
+        val artBitmap = t?.albumArtUri?.let { loadAlbumArtBitmap(it) }
+
+        val builder = NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_music_note)
+            .setContentTitle(t?.title ?: getString(R.string.app_name))
             .setContentText(t?.let { "${it.artist} — ${it.album}" } ?: "")
             .setContentIntent(openIntent)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSilent(true)
             .setShowWhen(false)
             .setOngoing(player.isPlaying)
-            .addAction(prevAction)
-            .addAction(playPauseAction)
-            .addAction(nextAction)
+            .addAction(prevAction)        // index 0
+            .addAction(playPauseAction)   // index 1
+            .addAction(nextAction)        // index 2
+            .addAction(stopAction)        // index 3
             .setStyle(
                 MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
+                    // Show prev, play/pause, next in the collapsed single-line view
                     .setShowActionsInCompactView(0, 1, 2)
+                    // Show the cancel/stop button so swiping expanded shows it
+                    .setShowCancelButton(true)
+                    .setCancelButtonIntent(stopPendingIntent)
             )
-            .build()
+
+        // Album art as large icon in the notification shade
+        if (artBitmap != null) {
+            builder.setLargeIcon(artBitmap)
+        }
+
+        // Seekbar: on Android 13+ (API 33) NotificationCompat supports progress natively
+        // through MediaStyle + MediaSession; the system reads position from PlaybackState.
+        // For pre-33 we set a determinate progress bar as a fallback.
+        val duration = t?.duration ?: 0L
+        val position = player.currentPosition
+        if (duration > 0) {
+            builder.setProgress(duration.toInt().coerceAtLeast(1), position.toInt().coerceIn(0, duration.toInt()), false)
+        }
+
+        return builder.build()
     }
 
     private fun tryStartForeground() {

@@ -27,12 +27,26 @@
     <!-- Seek / skip duration -->
     <ListPreference
         app:key="seek_step"
-        app:title="Seek and skip duration"
+        app:title="@string/pref_seek_title"
         app:summary="%s"
         app:entries="@array/pref_seek_labels"
         app:entryValues="@array/pref_seek_values"
         app:defaultValue="15000"
         app:useSimpleSummaryProvider="true"
+        app:icon="@drawable/ic_settings_seek" />
+
+    <SwitchPreferenceCompat
+        app:key="keep_service_when_paused"
+        app:title="@string/pref_keep_service_title"
+        app:summary="@string/pref_keep_service_summary"
+        app:defaultValue="true"
+        app:icon="@drawable/ic_settings_seek" />
+
+    <SwitchPreferenceCompat
+        app:key="audio_focus_pause_on_duck"
+        app:title="@string/pref_audio_focus_pause_on_duck_title"
+        app:summary="@string/pref_audio_focus_pause_on_duck_summary"
+        app:defaultValue="true"
         app:icon="@drawable/ic_settings_seek" />
 
     <!-- Rescan library -->
