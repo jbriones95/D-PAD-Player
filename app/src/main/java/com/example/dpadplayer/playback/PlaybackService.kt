@@ -36,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -164,6 +165,7 @@ class PlaybackService : Service() {
 
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
+                android.util.Log.d("PlaybackSvc", "onIsPlayingChanged isPlaying=$isPlaying")
                 updatePlaybackState()
                 if (isPlaying) {
                     tryStartForeground()
@@ -182,10 +184,9 @@ class PlaybackService : Service() {
                             requestServiceStop(removeNotification = true)
                             return
                         }
-                        // Keep a visible notification (paused state) to allow resume
-                        // from the shade; don't keep the service in foreground though.
-                        ServiceCompat.stopForeground(this@PlaybackService, ServiceCompat.STOP_FOREGROUND_DETACH)
-                        updateNotification()
+                        // Keep the notification in the foreground to prevent the system
+                        // from killing the service while paused.
+                        tryStartForeground()
                     }
                 }
                 onPlaybackStateChanged?.invoke(isPlaying)
@@ -199,6 +200,7 @@ class PlaybackService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        android.util.Log.d("PlaybackSvc", "onStartCommand action=${intent?.action} flags=$flags")
         // Must call startForeground() immediately for any startForegroundService() request,
         // regardless of playback state, to avoid RemoteServiceException.
         tryStartForeground()
@@ -244,6 +246,7 @@ class PlaybackService : Service() {
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onDestroy() {
+        android.util.Log.d("PlaybackSvc", "onDestroy — player released")
         stopPositionPolling()
         mainHandler.removeCallbacks(metadataNotificationRunnable)
         currentEnrichmentJob?.cancel()
@@ -287,6 +290,7 @@ class PlaybackService : Service() {
                 MediaStoreScanner.enrichTrack(ctx, t)
             }
             // If enrichment provided new album art or updated metadata, apply it
+            ensureActive()
             if (index in tracks.indices) {
                 val old = tracks[index]
                 if (enriched != old) {
@@ -513,19 +517,17 @@ class PlaybackService : Service() {
     private fun restartBatchEnrichment() {
         batchEnrichmentJob?.cancel()
         batchEnrichmentJob = serviceScope.launch {
-            for (i in tracks.indices) {
-                // Skip immediate enrich if the track already has embedded art
-                val t = tracks.getOrNull(i) ?: continue
-                // Enrich only if filePath exists and the embedded art isn't present
+            val snapshot = tracks.toList()
+            for (i in snapshot.indices) {
+                val t = snapshot[i]
                 if (t.filePath.isNotBlank() && t.albumArtUri == t.mediaStoreAlbumArtUri) {
                     val enriched = withContext(Dispatchers.IO) { MediaStoreScanner.enrichTrack(applicationContext, t) }
+                    ensureActive()
                     if (i in tracks.indices && enriched != tracks[i]) {
                         tracks[i] = enriched
-                        // Notify UI on main thread
                         mainHandler.post { onQueueChanged?.invoke(tracks.toList()) }
                     }
                 }
-                // Pace the worker (1 second between tracks)
                 try { delay(1000L) } catch (_: Exception) { break }
             }
         }
@@ -540,6 +542,8 @@ class PlaybackService : Service() {
     // We stop the service when there's no queue (tracks empty) or when the
     // player is idle/ended and user hasn't left a paused session to resume.
     private fun shouldStopServiceWhenIdle(): Boolean {
+        // During track transitions the player briefly enters STATE_IDLE — don't stop.
+        if (isTransitioning) return false
         // If there are no tracks queued, nothing to show — stop the service.
         if (tracks.isEmpty()) return true
         // If player is in an ended or idle state and not playing, stop.
@@ -551,6 +555,7 @@ class PlaybackService : Service() {
 
     private fun requestServiceStop(removeNotification: Boolean) {
         if (isStoppingService) return
+        android.util.Log.d("PlaybackSvc", "requestServiceStop removeNotification=$removeNotification")
         isStoppingService = true
         stopPositionPolling()
         mainHandler.removeCallbacks(metadataNotificationRunnable)
@@ -766,10 +771,11 @@ class PlaybackService : Service() {
 
     private fun tryStartForeground() {
         try {
+            android.util.Log.d("PlaybackSvc", "tryStartForeground calling startForeground")
             startForeground(NOTIF_ID, buildNotification())
+            android.util.Log.d("PlaybackSvc", "tryStartForeground succeeded")
         } catch (e: Exception) {
-            // ForegroundServiceStartNotAllowedException on API 31+ if called from background
-            e.printStackTrace()
+            android.util.Log.e("PlaybackSvc", "tryStartForeground FAILED", e)
         }
     }
 

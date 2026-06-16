@@ -95,6 +95,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        android.util.Log.d("MainAct", "onStop bound=$bound")
         if (bound) {
             service?.onTrackChanged         = null
             service?.onPlaybackStateChanged = null

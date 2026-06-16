@@ -6,10 +6,10 @@ import com.example.dpadplayer.playback.Track
 // ── Album ─────────────────────────────────────────────────────────────────────
 
 data class Album(
-    val id: String,              // key: sortAlbum.lowercase() + "|" + albumArtist.lowercase()
+    val id: String,              // key: sortAlbum.lowercase()
     val name: String,
     val sortName: String,
-    val artist: String,          // album artist (TPE2/ALBUMARTIST or track artist)
+    val artist: String,          // most common albumArtist among tracks
     val year: Int,               // earliest year from songs (0 = unknown)
     val songs: List<Track>,      // sorted by disc, then track, then title
     val albumArtUri: Uri,        // art from first song that has art
@@ -47,7 +47,7 @@ data class Genre(
 /**
  * Builds Albums, Artists, and Genres from a flat list of Tracks.
  * Grouping logic inspired by Auxio's MusicGraph:
- *  - Albums keyed by (sortAlbum + albumArtist) — same name by different artists = separate albums
+ *  - Albums keyed by album name — all tracks with the same album name are grouped
  *  - Artists keyed by albumArtist (for album ownership) and trackArtist (for song membership)
  *  - Genres keyed by lowercased genre name (multi-genre: split on ';' or '/')
  */
@@ -70,7 +70,7 @@ object MusicLibrary {
     // ── Albums ────────────────────────────────────────────────────────────────
 
     private fun buildAlbums(tracks: List<Track>): List<Album> {
-        // Group by (album name + album artist) — case-insensitive
+        // Group by album name (case-insensitive) — multi-artist tracks share one album
         val groups = LinkedHashMap<String, MutableList<Track>>()
         for (t in tracks) {
             val key = albumKey(t)
@@ -78,19 +78,24 @@ object MusicLibrary {
         }
 
         return groups.entries.map { (key, songs) ->
-            val representative = songs.first()
             val sorted = songs.sortedWith(
                 compareBy({ it.discNumber.let { d -> if (d == 0) Int.MAX_VALUE else d } },
                           { it.trackNumber.let { n -> if (n == 0) Int.MAX_VALUE else n } },
                           { it.sortTitle.lowercase() }))
+            // Most common albumArtist across tracks (mode)
+            val artist = songs.groupBy { it.albumArtist.lowercase().ifBlank { it.artist.lowercase() } }
+                .maxByOrNull { it.value.size }
+                ?.value?.first()?.albumArtist
+                ?.ifBlank { songs.first().artist }
+                ?: songs.first().artist
             // Prefer embedded artwork (which will differ from the MediaStore album-art URI)
             val art = sorted.firstOrNull { it.albumArtUri != it.mediaStoreAlbumArtUri }?.albumArtUri
-                ?: representative.mediaStoreAlbumArtUri
+                ?: songs.first().mediaStoreAlbumArtUri
             Album(
                 id          = key,
-                name        = representative.album,
-                sortName    = representative.sortAlbum,
-                artist      = representative.albumArtist,
+                name        = sorted.first().album,
+                sortName    = sorted.first().sortAlbum,
+                artist      = artist,
                 year        = songs.mapNotNull { it.year.takeIf { y -> y > 0 } }.minOrNull() ?: 0,
                 songs       = sorted,
                 albumArtUri = art,
@@ -98,8 +103,7 @@ object MusicLibrary {
         }.sortedBy { it.sortName.lowercase() }
     }
 
-    private fun albumKey(t: Track) =
-        "${t.sortAlbum.lowercase()}|${t.albumArtist.lowercase()}"
+    private fun albumKey(t: Track) = t.sortAlbum.lowercase()
 
     // ── Artists ───────────────────────────────────────────────────────────────
 
