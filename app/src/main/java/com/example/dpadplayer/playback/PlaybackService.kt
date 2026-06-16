@@ -642,7 +642,7 @@ class PlaybackService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val ch = NotificationChannel(
-                NOTIF_CHANNEL_ID, "DPad Player",
+                NOTIF_CHANNEL_ID, "DPAD Music",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 setShowBadge(false)
