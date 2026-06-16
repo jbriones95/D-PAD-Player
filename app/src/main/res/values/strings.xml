@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">D-PAD Music Player</string>
+    <string name="app_name">DPAD Music</string>
 
     <!-- Home menu items -->
     <string name="menu_songs">Songs</string>
@@ -47,7 +47,7 @@
 
     <string name="msg_folder_empty">No playable tracks found in this folder.</string>
     <string name="dialog_storage_permission_title">Storage permission required</string>
-    <string name="dialog_storage_permission_message">D-PAD Music Player needs storage access to find your music. You can enable it in App Settings.</string>
+    <string name="dialog_storage_permission_message">DPAD Music needs storage access to find your music. You can enable it in App Settings.</string>
     <string name="action_open_settings">Open Settings</string>
 
     <!-- Theme preference -->
