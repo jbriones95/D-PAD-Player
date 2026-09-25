@@ -12,16 +12,17 @@ import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
 import android.view.KeyEvent
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.example.dpadplayer.playback.PlaybackService
 import com.example.dpadplayer.playback.Track
 import com.example.dpadplayer.db.PlaylistEntity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -112,12 +113,19 @@ class MainActivity : AppCompatActivity() {
 
     // ── Fragment navigation ────────────────────────────────────────────────────
 
+    /** Forward navigation enters from the right; popping returns from the left. */
+    private fun beginHorizontalTransaction(): FragmentTransaction =
+        supportFragmentManager.beginTransaction().setCustomAnimations(
+            R.anim.slide_in_right,
+            R.anim.slide_out_left,
+            R.anim.slide_in_left,
+            R.anim.slide_out_right
+        )
+
     fun openLibraryTab(tabIndex: Int) {
         viewModel.activeLibraryTab = tabIndex
         if (supportFragmentManager.findFragmentByTag(TAG_LIBRARY)?.isVisible == true) return
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, LibraryFragment.newInstance(tabIndex), TAG_LIBRARY)
             .addToBackStack(null)
             .commit()
@@ -125,9 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     fun openSettings() {
         if (supportFragmentManager.findFragmentByTag(TAG_SETTINGS)?.isVisible == true) return
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, SettingsFragment(), TAG_SETTINGS)
             .addToBackStack(null)
             .commit()
@@ -135,65 +141,49 @@ class MainActivity : AppCompatActivity() {
 
     fun openPlayer() {
         if (supportFragmentManager.findFragmentByTag(TAG_PLAYER)?.isVisible == true) return
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right, R.anim.slide_out_left,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, PlayerFragment(), TAG_PLAYER)
             .addToBackStack(null)
             .commit()
     }
 
     fun openAlbumDetail(album: Album) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right, R.anim.slide_out_left,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, AlbumDetailFragment.newInstance(album.id), TAG_ALBUM)
             .addToBackStack(null)
             .commit()
     }
 
     fun openArtistDetail(artist: Artist) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, ArtistDetailFragment.newInstance(artist.id), TAG_ARTIST)
             .addToBackStack(null)
             .commit()
     }
 
     fun openGenreDetail(genre: Genre) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, GenreDetailFragment.newInstance(genre.id), TAG_GENRE)
             .addToBackStack(null)
             .commit()
     }
 
     fun openPlaylistDetail(playlist: PlaylistEntity) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, PlaylistDetailFragment.newInstance(playlist.id), TAG_PLAYLIST)
             .addToBackStack(null)
             .commit()
     }
 
     fun openFolderDetail(folderPath: String) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, FolderDetailFragment.newInstance(folderPath), TAG_FOLDER)
             .addToBackStack(null)
             .commit()
     }
 
     fun openQueue() {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
-                                 android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+        beginHorizontalTransaction()
             .replace(R.id.fragment_container, QueueFragment(), "queue")
             .addToBackStack(null)
             .commit()
@@ -246,6 +236,22 @@ class MainActivity : AppCompatActivity() {
 
     // ── Public API for fragments ───────────────────────────────────────────────
 
+    /**
+     * Single feedback entry point so every message gets the same placement,
+     * duration and optional Undo affordance instead of a mix of Toasts.
+     */
+    fun showMessage(
+        text: CharSequence,
+        actionLabel: CharSequence? = null,
+        action: (() -> Unit)? = null
+    ) {
+        val bar = Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_LONG)
+        if (actionLabel != null && action != null) {
+            bar.setAction(actionLabel) { action() }
+        }
+        bar.show()
+    }
+
     fun togglePlayPause() {
         val svc = service ?: return
         if (svc.isPlaying) sendCmd("PAUSE") else sendCmd("PLAY")
@@ -267,17 +273,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toggleShuffle() {
-        service?.toggleShuffle()
+        val svc = service ?: return
+        svc.toggleShuffle()
+        showMessage(getString(if (svc.shuffleOn) R.string.msg_shuffle_on else R.string.msg_shuffle_off))
     }
 
     fun playNext(track: Track) {
         service?.playNextTrack(track)
-        Toast.makeText(this, getString(R.string.msg_playing_next, track.title), Toast.LENGTH_SHORT).show()
+        showMessage(getString(R.string.msg_playing_next, track.title))
     }
 
     fun addToQueue(track: Track) {
         service?.enqueueTrack(track)
-        Toast.makeText(this, getString(R.string.msg_added_to_queue, track.title), Toast.LENGTH_SHORT).show()
+        showMessage(getString(R.string.msg_added_to_queue, track.title))
     }
 
     fun setPlaybackSpeed(speed: Float) {
@@ -304,7 +312,7 @@ class MainActivity : AppCompatActivity() {
         val sessionId = service?.audioSessionId ?: return
 
         if (sessionId <= 0) {
-            Toast.makeText(this, "Equalizer unavailable right now", Toast.LENGTH_SHORT).show()
+            showMessage(getString(R.string.msg_equalizer_unavailable))
             return
         }
 
@@ -316,7 +324,7 @@ class MainActivity : AppCompatActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            Toast.makeText(this, "No system equalizer found", Toast.LENGTH_SHORT).show()
+            showMessage(getString(R.string.msg_no_system_equalizer))
         }
     }
 
@@ -348,7 +356,7 @@ class MainActivity : AppCompatActivity() {
             .setItems(options) { _, which ->
                 if (which < playlists.size) {
                     viewModel.addTracksToPlaylist(playlists[which].id, listOf(track))
-                    Toast.makeText(this, getString(R.string.msg_added_to_playlist, playlists[which].name), Toast.LENGTH_SHORT).show()
+                    showMessage(getString(R.string.msg_added_to_playlist, playlists[which].name))
                 } else {
                     showCreateAndAddDialog(track)
                 }
@@ -368,7 +376,7 @@ class MainActivity : AppCompatActivity() {
                 val name = editText.text.toString().trim()
                 if (name.isNotEmpty()) {
                     viewModel.createPlaylist(name, listOf(track))
-                    Toast.makeText(this, getString(R.string.msg_playlist_created, name), Toast.LENGTH_SHORT).show()
+                    showMessage(getString(R.string.msg_playlist_created, name))
                 }
             }
             .setNegativeButton(R.string.action_cancel, null)
@@ -376,7 +384,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun cycleRepeat() {
-        service?.cycleRepeat()
+        val svc = service ?: return
+        svc.cycleRepeat()
+        val msg = when (svc.repeatMode) {
+            1 -> R.string.msg_repeat_all
+            2 -> R.string.msg_repeat_one
+            else -> R.string.msg_repeat_off
+        }
+        showMessage(getString(msg))
     }
 
     fun sendCmd(cmd: String) {
@@ -492,7 +507,22 @@ class MainActivity : AppCompatActivity() {
     fun rescanLibrary() {
         if (hasStoragePermission()) {
             onPermissionGranted()
-            Toast.makeText(this, getString(R.string.msg_rescanning_library), Toast.LENGTH_SHORT).show()
+            showMessage(getString(R.string.msg_rescanning_library))
+            // Replace the "scanning" message with a result once the scan lands,
+            // so the user always gets a definite outcome.
+            viewModel.isScanning.observe(this, object : androidx.lifecycle.Observer<Boolean> {
+                private var done = false
+                override fun onChanged(scanning: Boolean) {
+                    if (!scanning && !done) {
+                        done = true
+                        showMessage(getString(
+                            R.string.scan_complete,
+                            viewModel.tracks.value?.size ?: 0
+                        ))
+                        viewModel.isScanning.removeObserver(this)
+                    }
+                }
+            })
         } else {
             checkPermissionsAndLoad()
         }

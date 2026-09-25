@@ -7,13 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.progressindicator.LinearProgressIndicator
 
 /**
  * iPod-style home screen: a simple list of music categories.
@@ -23,14 +20,7 @@ class HomeFragment : Fragment() {
 
     private val viewModel: MusicViewModel by activityViewModels()
 
-    private lateinit var miniPlayer: View
-    private lateinit var miniOpenPlayer: View
-    private lateinit var miniArt: ImageView
-    private lateinit var miniTitle: TextView
-    private lateinit var miniArtist: TextView
-    private lateinit var miniBtnPlay: MaterialButton
-    private lateinit var miniBtnNext: MaterialButton
-    private lateinit var miniProgress: LinearProgressIndicator
+    private lateinit var miniPlayer: MiniPlayerBinder
 
     data class MenuItem(val labelRes: Int, val iconRes: Int, val tag: String)
 
@@ -44,17 +34,6 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lastFocusedPos = viewModel.homeMenuFocusPos
-
-        miniPlayer   = view.findViewById(R.id.mini_player)
-        miniOpenPlayer = view.findViewById(R.id.mini_open_player)
-        miniArt      = view.findViewById(R.id.mini_art)
-        miniTitle    = view.findViewById(R.id.mini_title)
-        miniArtist   = view.findViewById(R.id.mini_artist)
-        miniBtnPlay  = view.findViewById(R.id.mini_btn_play)
-        miniBtnNext  = view.findViewById(R.id.mini_btn_next)
-        miniProgress = view.findViewById(R.id.mini_progress)
-
-        miniTitle.isSelected = true
 
         val menuItems = listOf(
             MenuItem(R.string.menu_songs,     R.drawable.ic_music_note,    "songs"),
@@ -83,41 +62,11 @@ class HomeFragment : Fragment() {
             }
         }
 
+        miniPlayer = MiniPlayerBinder(view.findViewById(R.id.mini_player), requireActivity() as MainActivity)
+            .attach(R.id.recycler_menu) { focusMenuItem(recycler) }
+
         // Request focus on the last-focused item once the recycler is laid out
         focusMenuItem(recycler)
-
-        miniPlayer.setOnClickListener(null)
-        applyMiniPlayerFocusBackground(miniOpenPlayer)
-        miniOpenPlayer.setOnClickListener { (activity as? MainActivity)?.openPlayer() }
-        miniOpenPlayer.setupDpadItem { (activity as? MainActivity)?.openPlayer() }
-
-        applyMiniPlayerFocusBackground(miniBtnPlay)
-        miniBtnPlay.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(miniBtnPlay)) {
-            (activity as? MainActivity)?.togglePlayPause()
-        }
-        miniBtnPlay.setOnClickListener { (activity as? MainActivity)?.togglePlayPause() }
-        applyMiniPlayerFocusBackground(miniBtnNext)
-        miniBtnNext.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(miniBtnNext)) {
-            (activity as? MainActivity)?.sendCmd("NEXT")
-        }
-        miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
-        listOf(miniOpenPlayer, miniBtnPlay, miniBtnNext).forEach { miniControl ->
-            miniControl.setOnKeyListener { v, keyCode, event ->
-                if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        focusMenuItem(recycler)
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_CENTER,
-                    KeyEvent.KEYCODE_ENTER -> {
-                        v.performClick()
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }
 
         observeViewModel()
     }
@@ -148,42 +97,20 @@ class HomeFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.currentIndex.observe(viewLifecycleOwner) { refreshMiniPlayer() }
-        viewModel.isPlaying.observe(viewLifecycleOwner)   { updateMiniPlayIcon(it) }
-        viewModel.position.observe(viewLifecycleOwner)    { updateProgressBar(it) }
+        viewModel.isPlaying.observe(viewLifecycleOwner)   { playing ->
+            miniPlayer.setPlaying(playing)
+            refreshMiniPlayer()
+        }
+        viewModel.position.observe(viewLifecycleOwner)    { pos -> miniPlayer.setPosition(pos) }
     }
 
     private fun refreshMiniPlayer() {
         val activity = activity as? MainActivity ?: return
-        val track = activity.currentTrack()
-        if (track == null) {
-            miniTitle.text = "No track playing"
-            miniArtist.text = ""
-            miniProgress.max = 1
-            miniProgress.progress = 0
-            miniArt.setImageResource(R.drawable.ic_music_note)
-            return
-        }
-        miniTitle.text  = track.title
-        miniArtist.text = track.artist
-        miniProgress.max = track.duration.coerceAtLeast(1L).toInt()
-        Glide.with(this)
-            .load(track.albumArtUri)
-            .placeholder(R.drawable.ic_music_note)
-            .error(R.drawable.ic_music_note)
-            .fallback(R.drawable.ic_music_note)
-            .into(miniArt)
-        updateProgressBar(viewModel.position.value ?: 0L)
-    }
-
-    private fun updateMiniPlayIcon(isPlaying: Boolean) {
-        val icon = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
-        miniBtnPlay.icon = ContextCompat.getDrawable(requireContext(), icon)
-    }
-
-    private fun updateProgressBar(pos: Long) {
-        val max = miniProgress.max.coerceAtLeast(1)
-        val clamped = pos.coerceIn(0L, max.toLong())
-        miniProgress.progress = clamped.toInt()
+        miniPlayer.bind(
+            track = activity.currentTrack(),
+            isPlaying = viewModel.isPlaying.value == true,
+            positionMs = viewModel.position.value ?: 0L
+        )
     }
 }
 
@@ -197,9 +124,9 @@ class HomeMenuAdapter(
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val icon: ImageView  = view.findViewById(R.id.iv_menu_icon)
         val label: TextView  = view.findViewById(R.id.tv_menu_label)
+        val clickable: View = view.findViewById(R.id.clickable_item) ?: view
 
         init {
-            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
             clickable.setOnClickListener { onClick(items[bindingAdapterPosition]) }
             clickable.setupDpadItem { onClick(items[bindingAdapterPosition]) }
@@ -213,6 +140,7 @@ class HomeMenuAdapter(
         val item = items[position]
         holder.label.setText(item.labelRes)
         holder.icon.setImageResource(item.iconRes)
+        holder.clickable.announceAs(holder.label.text)
     }
 
     override fun getItemCount() = items.size

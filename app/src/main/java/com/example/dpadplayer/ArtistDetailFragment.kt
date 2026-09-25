@@ -35,6 +35,7 @@ class ArtistDetailFragment : Fragment() {
         val btnBack        = view.findViewById<MaterialButton>(R.id.btn_back)
         val tvName         = view.findViewById<TextView>(R.id.tv_artist_name)
         val tvSectionAlbums = view.findViewById<TextView>(R.id.tv_section_albums)
+        val tvSectionSongs  = view.findViewById<TextView>(R.id.tv_section_songs)
         val recyclerAlbums = view.findViewById<RecyclerView>(R.id.recycler_albums)
         val recyclerSongs  = view.findViewById<RecyclerView>(R.id.recycler_songs)
 
@@ -122,6 +123,23 @@ class ArtistDetailFragment : Fragment() {
             recyclerAlbums.visibility  = if (artist.albums.isEmpty()) View.GONE else View.VISIBLE
 
             songAdapter.updateTracks(artist.songs)
+            tvSectionSongs.visibility = if (artist.songs.isEmpty()) View.GONE else View.VISIBLE
+            recyclerSongs.visibility  = if (artist.songs.isEmpty()) View.GONE else View.VISIBLE
+
+            val stateRoot = view.findViewById<View>(R.id.state_container)
+            val scroll   = view.findViewById<View>(R.id.artist_scroll)
+            if (artist.albums.isEmpty() && artist.songs.isEmpty()) {
+                stateRoot.visibility = View.VISIBLE
+                scroll.visibility = View.GONE
+                StateViewBinder(stateRoot).showEmpty(
+                    titleText = getString(R.string.empty_title_artist_empty),
+                    bodyText = getString(R.string.empty_body_artist_empty),
+                    iconRes = R.drawable.ic_person
+                )
+            } else {
+                stateRoot.visibility = View.GONE
+                scroll.visibility = View.VISIBLE
+            }
 
             if (!focusRequested) {
                 focusRequested = true

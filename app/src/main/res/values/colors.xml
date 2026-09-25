@@ -104,4 +104,8 @@
     <color name="retro_secondary">#00B248</color>
     <color name="retro_secondaryVariant">#004D20</color>
 
+    <!-- Unselected library tab label on the primary toolbar.
+         80% of colorOnPrimary keeps the inactive/active contrast readable. -->
+    <color name="tab_unselected">#CCFFFFFF</color>
+
 </resources>

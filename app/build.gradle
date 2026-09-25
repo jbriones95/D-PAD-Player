@@ -22,8 +22,8 @@ android {
         minSdk 21
         targetSdk 34
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 9
-        versionName "0.9"
+        versionCode 10
+        versionName "0.9.1"
     }
 
     compileOptions {
@@ -42,6 +42,10 @@ android {
 
     lint {
         abortOnError false
+        // AGP's bundled lint cannot resolve Kotlin/AndroidX and Material
+        // subclasses for this check, producing false positives for valid
+        // Application, Activity, Service, and custom View classes.
+        disable 'Instantiatable'
     }
 
     def signingProps = new Properties()

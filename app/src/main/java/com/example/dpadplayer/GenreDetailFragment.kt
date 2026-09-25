@@ -60,6 +60,16 @@ class GenreDetailFragment : Fragment() {
             val genre = genres.find { it.id == genreId } ?: return@observe
             tvName.text = genre.name
             adapter.updateTracks(genre.songs)
+            bindListState(
+                root = view,
+                itemCount = genre.songs.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = false,
+                query = "",
+                emptyTitle = getString(R.string.empty_title_genre_empty),
+                emptyBody = getString(R.string.empty_body_genre_empty),
+                emptyIcon = R.drawable.ic_genre
+            )
             if (!focusRequested && genre.songs.isNotEmpty()) {
                 focusRequested = true
                 recycler.post {

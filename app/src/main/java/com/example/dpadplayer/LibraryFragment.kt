@@ -5,18 +5,14 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.EditText
 import android.widget.TextView
-import com.bumptech.glide.Glide
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import android.content.SharedPreferences
 import android.util.Log
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.tabs.TabLayoutMediator
 
 class LibraryFragment : Fragment() {
@@ -27,17 +23,12 @@ class LibraryFragment : Fragment() {
     private lateinit var tabLayout: com.google.android.material.tabs.TabLayout
     private lateinit var btnBack: MaterialButton
     private lateinit var btnSearch: MaterialButton
-    private lateinit var miniArt: ImageView
-    private lateinit var miniTitle: TextView
-    private lateinit var miniArtist: TextView
-    private lateinit var miniBtnPlay: MaterialButton
-    private lateinit var miniBtnNext: MaterialButton
-    private lateinit var miniProgress: LinearProgressIndicator
-    private lateinit var miniOpenPlayer: View
+    private lateinit var btnTabs: MaterialButton
+    private lateinit var miniPlayer: MiniPlayerBinder
     private var restoringInitialTab = false
     private var requestedInitialTab = 0
 
-    private val tabTitles = listOf("Songs", "Albums", "Artists", "Genres", "Playlists", "Folders", "Recent", "Top")
+    private val tabTitles by lazy { resources.getStringArray(R.array.library_tab_titles) }
 
     companion object {
         private const val ARG_TAB = "tab"
@@ -57,13 +48,9 @@ class LibraryFragment : Fragment() {
         tabLayout       = view.findViewById(R.id.tab_layout)
         btnBack         = view.findViewById(R.id.btn_back)
         btnSearch       = view.findViewById(R.id.btn_search)
-        miniArt         = view.findViewById(R.id.mini_art)
-        miniTitle       = view.findViewById(R.id.mini_title)
-        miniArtist      = view.findViewById(R.id.mini_artist)
-        miniBtnPlay     = view.findViewById(R.id.mini_btn_play)
-        miniBtnNext     = view.findViewById(R.id.mini_btn_next)
-        miniProgress    = view.findViewById(R.id.mini_progress)
-        miniOpenPlayer  = view.findViewById(R.id.mini_open_player)
+        btnTabs         = view.findViewById(R.id.btn_tabs)
+        miniPlayer      = MiniPlayerBinder(view.findViewById(R.id.mini_player), requireActivity() as MainActivity)
+            .attach(R.id.view_pager) { requestFocusForCurrentTab() }
 
         // Setup ViewPager2 with tabs
         viewPager.adapter = LibraryPagerAdapter(this)
@@ -77,9 +64,7 @@ class LibraryFragment : Fragment() {
 
         // Apply "show_top_bar" preference immediately
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val showTopBar = prefs.getBoolean("show_top_bar", true)
-        tabLayout.visibility = if (showTopBar) View.VISIBLE else View.GONE
-        viewPager.visibility = View.VISIBLE
+        applyTopBarVisibility(prefs.getBoolean("show_top_bar", true))
 
         prefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
 
@@ -113,8 +98,6 @@ class LibraryFragment : Fragment() {
             requestFocusForTab(viewPager.currentItem)
         }
 
-        miniTitle.isSelected = true
-
         // Back button
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
         applyPlayerControlFocusBackground(btnBack)
@@ -128,39 +111,12 @@ class LibraryFragment : Fragment() {
             openSearchDialog()
         }
 
-        // Mini-player: left area opens full player
-        applyMiniPlayerFocusBackground(miniOpenPlayer)
-        miniOpenPlayer.setOnClickListener { (activity as? MainActivity)?.openPlayer() }
-        miniOpenPlayer.setupDpadItem { (activity as? MainActivity)?.openPlayer() }
-
-        // Play / Next buttons
-        applyMiniPlayerFocusBackground(miniBtnPlay)
-        miniBtnPlay.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(miniBtnPlay)) {
-            (activity as? MainActivity)?.togglePlayPause()
-        }
-        miniBtnPlay.setOnClickListener { (activity as? MainActivity)?.togglePlayPause() }
-
-        applyMiniPlayerFocusBackground(miniBtnNext)
-        miniBtnNext.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(miniBtnNext)) {
-            (activity as? MainActivity)?.sendCmd("NEXT")
-        }
-        miniBtnNext.setOnClickListener { (activity as? MainActivity)?.sendCmd("NEXT") }
-        listOf(miniOpenPlayer, miniBtnPlay, miniBtnNext).forEach { miniControl ->
-            miniControl.setOnKeyListener { v, keyCode, event ->
-                if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        requestFocusForCurrentTab()
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_CENTER,
-                    KeyEvent.KEYCODE_ENTER -> {
-                        v.performClick()
-                        true
-                    }
-                    else -> false
-                }
-            }
+        // When the tab strip is hidden this button is the only way to reach the
+        // other sections, so it always opens a tab picker.
+        btnTabs.setOnClickListener { showTabPicker() }
+        applyPlayerControlFocusBackground(btnTabs)
+        btnTabs.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnTabs)) {
+            showTabPicker()
         }
 
         observeViewModel()
@@ -185,11 +141,31 @@ class LibraryFragment : Fragment() {
     private val prefChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
             if (key == "show_top_bar") {
-                val show = prefs.getBoolean(key, true)
-                tabLayout.visibility = if (show) View.VISIBLE else View.GONE
-                viewPager.visibility = View.VISIBLE
+                applyTopBarVisibility(prefs.getBoolean(key, true))
             }
         }
+
+    /**
+     * Hiding the tab strip must not hide the other sections, so the toolbar
+     * gains a tab-picker button whenever the strip is off.
+     */
+    private fun applyTopBarVisibility(showTopBar: Boolean) {
+        tabLayout.visibility = if (showTopBar) View.VISIBLE else View.GONE
+        btnTabs.visibility = if (showTopBar) View.GONE else View.VISIBLE
+        viewPager.visibility = View.VISIBLE
+    }
+
+    private fun showTabPicker() {
+        val current = (viewModel.activeLibraryTab.takeIf { it >= 0 } ?: viewPager.currentItem)
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle(R.string.cd_switch_tabs)
+            .setSingleChoiceItems(tabTitles, current) { dialog, which ->
+                selectTab(which)
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
 
     fun selectTab(index: Int) {
         if (::viewPager.isInitialized) {
@@ -251,11 +227,14 @@ class LibraryFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.currentIndex.observe(viewLifecycleOwner) { _ -> refreshMiniPlayer() }
-        viewModel.isPlaying.observe(viewLifecycleOwner)   { playing -> updateMiniPlayIcon(playing) }
-        viewModel.position.observe(viewLifecycleOwner)    { pos -> updateProgressBar(pos) }
+        viewModel.isPlaying.observe(viewLifecycleOwner)   { playing ->
+            miniPlayer.setPlaying(playing)
+            refreshMiniPlayer()
+        }
+        viewModel.position.observe(viewLifecycleOwner)    { pos -> miniPlayer.setPosition(pos) }
         viewModel.searchQuery.observe(viewLifecycleOwner) { query ->
             val suffix = if (query.isBlank()) "" else " (${query.trim()})"
-            view?.findViewById<TextView>(R.id.tv_app_title)?.text = "DPad Player$suffix"
+            view?.findViewById<TextView>(R.id.tv_app_title)?.text = getString(R.string.app_title) + suffix
         }
     }
 
@@ -264,52 +243,27 @@ class LibraryFragment : Fragment() {
         val input = EditText(requireContext()).apply {
             setText(current)
             setSelection(text.length)
-            hint = "Search songs, albums, artists..."
+            hint = getString(R.string.hint_search)
         }
         android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Search library")
+            .setTitle(R.string.dialog_search_title)
             .setView(input)
-            .setPositiveButton("Apply") { _, _ ->
+            .setPositiveButton(R.string.dialog_apply) { _, _ ->
                 viewModel.setSearchQuery(input.text.toString())
             }
-            .setNeutralButton("Clear") { _, _ ->
+            .setNeutralButton(R.string.search_clear) { _, _ ->
                 viewModel.setSearchQuery("")
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
 
     private fun refreshMiniPlayer() {
         val activity = activity as? MainActivity ?: return
-        val track = activity.currentTrack()
-        if (track == null) {
-            miniTitle.text = "No track playing"
-            miniArtist.text = ""
-            miniProgress.max = 1
-            miniProgress.progress = 0
-            miniArt.setImageResource(R.drawable.ic_music_note)
-            return
-        }
-        miniTitle.text  = track.title
-        miniArtist.text = track.artist
-        miniProgress.max = track.duration.coerceAtLeast(1L).toInt()
-        Glide.with(this)
-            .load(track.albumArtUri)
-            .placeholder(R.drawable.ic_music_note)
-            .error(R.drawable.ic_music_note)
-            .fallback(R.drawable.ic_music_note)
-            .into(miniArt)
-        updateProgressBar(viewModel.position.value ?: 0L)
-    }
-
-    private fun updateMiniPlayIcon(isPlaying: Boolean) {
-        val icon = if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
-        miniBtnPlay.icon = ContextCompat.getDrawable(requireContext(), icon)
-    }
-
-    private fun updateProgressBar(pos: Long) {
-        val max = miniProgress.max.coerceAtLeast(1)
-        val clamped = pos.coerceIn(0L, max.toLong())
-        miniProgress.progress = clamped.toInt()
+        miniPlayer.bind(
+            track = activity.currentTrack(),
+            isPlaying = viewModel.isPlaying.value == true,
+            positionMs = viewModel.position.value ?: 0L
+        )
     }
 }

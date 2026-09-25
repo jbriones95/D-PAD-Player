@@ -258,3 +258,25 @@ fun View.setupDpadItem(
         } else false
     }
 }
+
+/**
+ * Gives a list row's transparent focus overlay a spoken label.
+ *
+ * Rows are built as a focusable/clickable overlay on top of sibling TextViews
+ * (the transparent-overlay style used throughout this app). That keeps D-pad focus to a
+ * single stop per row, but it also means the overlay has no text of its own —
+ * so a screen reader announces an unlabeled button. Pointing the overlay's
+ * contentDescription at the row's own text keeps one focus stop *and* gives it
+ * a name.
+ */
+fun View.announceAs(label: CharSequence) {
+    contentDescription = label
+}
+
+/**
+ * Describes a row as a button, optionally including its secondary detail line
+ * (e.g. "Abbey Road, 17 songs").
+ */
+fun View.announceRow(primary: CharSequence, secondary: CharSequence? = null) {
+    contentDescription = if (secondary.isNullOrBlank()) "$primary" else "$primary, $secondary"
+}

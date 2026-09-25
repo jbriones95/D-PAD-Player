@@ -26,8 +26,8 @@ class GenreAdapter(
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tv_genre_name)
         val info: TextView = view.findViewById(R.id.tv_genre_info)
+        val clickable: View = view.findViewById(R.id.clickable_item) ?: view
         init {
-            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
             clickable.setOnClickListener {
                 val pos = bindingAdapterPosition
@@ -50,7 +50,9 @@ class GenreAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val genre = items[position]
         holder.name.text = genre.name
-        val songWord = if (genre.songCount == 1) "song" else "songs"
-        holder.info.text = "${genre.songCount} $songWord"
+        holder.info.text = holder.itemView.resources.getQuantityString(
+            R.plurals.album_song_count, genre.songCount, genre.songCount
+        )
+        holder.clickable.announceRow(genre.name, holder.info.text)
     }
 }

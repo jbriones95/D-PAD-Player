@@ -1,12 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recycler"
+<!--
+  Shared list-tab screen: RecyclerView plus the common
+  loading / empty / no-results state container.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:focusable="false"
-    android:focusableInTouchMode="false"
-    android:descendantFocusability="afterDescendants"
-    android:nextFocusDown="@+id/mini_open_player"
-    android:clipToPadding="false"
-    android:paddingBottom="4dp" />
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:descendantFocusability="afterDescendants"
+        android:nextFocusDown="@+id/mini_open_player"
+        android:clipToPadding="false"
+        android:paddingBottom="4dp" />
+
+    <LinearLayout
+        android:id="@+id/state_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        android:visibility="gone"
+        android:focusable="false"
+        android:importantForAccessibility="yes">
+
+        <include layout="@layout/view_state_message" />
+
+    </LinearLayout>
+
+</FrameLayout>

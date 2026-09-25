@@ -19,8 +19,8 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_back"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:minWidth="0dp"
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
@@ -29,7 +29,7 @@
             android:focusableInTouchMode="false"
             android:nextFocusRight="@id/btn_queue"
             android:nextFocusDown="@id/seek_bar"
-            android:contentDescription="Back to library"
+            android:contentDescription="@string/cd_back_to_library"
             app:icon="@drawable/ic_arrow_back"
             app:iconGravity="textStart"
             app:iconPadding="0dp" />
@@ -42,7 +42,7 @@
             android:text=""
             android:textAppearance="?attr/textAppearanceLabelMedium"
             android:gravity="center"
-            android:maxLines="1"
+            android:singleLine="true"
             android:ellipsize="end" />
 
         <TextView
@@ -53,14 +53,14 @@
             android:text=""
             android:textAppearance="?attr/textAppearanceLabelSmall"
             android:textColor="?android:attr/textColorSecondary"
-            android:maxLines="1"
+            android:singleLine="true"
             android:ellipsize="end" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_queue"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:minWidth="0dp"
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
@@ -69,7 +69,7 @@
             android:focusableInTouchMode="false"
             android:nextFocusLeft="@id/btn_back"
             android:nextFocusDown="@id/seek_bar"
-            android:contentDescription="View queue"
+            android:contentDescription="@string/cd_view_queue"
             app:icon="@drawable/ic_playlist_play"
             app:iconGravity="textStart"
             app:iconPadding="0dp" />
@@ -91,7 +91,7 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_music_note"
-            android:contentDescription="Album art" />
+            android:importantForAccessibility="no" />
 
     </FrameLayout>
 
@@ -110,14 +110,13 @@
             android:id="@+id/tv_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No track"
+            android:text="@string/msg_no_track_playing"
             android:textAppearance="?attr/textAppearanceTitleLarge"
             android:textStyle="bold"
             android:textColor="?android:attr/textColorPrimary"
-            android:maxLines="1"
+            android:singleLine="true"
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
             android:gravity="center"
             android:focusable="false" />
 
@@ -129,7 +128,7 @@
             android:text=""
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?android:attr/textColorSecondary"
-            android:maxLines="1"
+            android:singleLine="true"
             android:ellipsize="end"
             android:gravity="center" />
 
@@ -141,7 +140,7 @@
             android:text=""
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?android:attr/textColorSecondary"
-            android:maxLines="1"
+            android:singleLine="true"
             android:ellipsize="end"
             android:gravity="center" />
 
@@ -179,6 +178,7 @@
                 android:gravity="end" />
         </LinearLayout>
 
+        <!-- Transport row: rewind | prev | play | next | forward -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -187,7 +187,7 @@
             android:gravity="center">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_repeat"
+                android:id="@+id/btn_rewind"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
                 android:layout_width="0dp"
                 android:layout_height="52dp"
@@ -201,9 +201,9 @@
                 android:nextFocusLeft="@id/btn_forward"
                 android:nextFocusRight="@id/btn_prev"
                 android:nextFocusUp="@id/seek_bar"
-                android:nextFocusDown="@id/btn_sleep_timer"
-                android:contentDescription="Repeat mode"
-                app:icon="@drawable/ic_repeat_off"
+                android:nextFocusDown="@id/btn_shuffle"
+                android:contentDescription="@string/cd_skip_back"
+                app:icon="@drawable/ic_fast_rewind"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
 
@@ -219,10 +219,11 @@
                 android:text=""
                 android:focusable="true"
                 android:focusableInTouchMode="false"
-                android:nextFocusLeft="@id/btn_repeat"
+                android:nextFocusLeft="@id/btn_rewind"
                 android:nextFocusRight="@id/btn_play"
                 android:nextFocusUp="@id/seek_bar"
-                android:nextFocusDown="@id/btn_sleep_timer"
+                android:nextFocusDown="@id/btn_shuffle"
+                android:contentDescription="@string/cd_previous_track"
                 app:icon="@drawable/ic_skip_previous"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
@@ -242,7 +243,8 @@
                 android:nextFocusLeft="@id/btn_prev"
                 android:nextFocusRight="@id/btn_next"
                 android:nextFocusUp="@id/seek_bar"
-                android:nextFocusDown="@id/btn_speed"
+                android:nextFocusDown="@id/btn_shuffle"
+                android:contentDescription="@string/cd_play"
                 app:icon="@drawable/ic_play"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
@@ -262,7 +264,8 @@
                 android:nextFocusLeft="@id/btn_play"
                 android:nextFocusRight="@id/btn_forward"
                 android:nextFocusUp="@id/seek_bar"
-                android:nextFocusDown="@id/btn_equalizer"
+                android:nextFocusDown="@id/btn_speed"
+                android:contentDescription="@string/cd_next_track"
                 app:icon="@drawable/ic_skip_next"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
@@ -280,22 +283,63 @@
                 android:focusable="true"
                 android:focusableInTouchMode="false"
                 android:nextFocusLeft="@id/btn_next"
-                android:nextFocusRight="@id/btn_repeat"
+                android:nextFocusRight="@id/btn_rewind"
                 android:nextFocusUp="@id/seek_bar"
                 android:nextFocusDown="@id/btn_equalizer"
-                android:contentDescription="Skip forward 15 seconds"
+                android:contentDescription="@string/cd_skip_forward"
                 app:icon="@drawable/ic_fast_forward"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
 
         </LinearLayout>
 
+        <!-- Secondary row: shuffle | repeat | sleep | speed | equalizer -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="46dp"
+            android:layout_height="48dp"
             android:layout_marginTop="8dp"
             android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_shuffle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:text=""
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusLeft="@id/btn_equalizer"
+                android:nextFocusRight="@id/btn_repeat"
+                android:nextFocusUp="@id/btn_play"
+                android:contentDescription="@string/cd_shuffle_off"
+                app:icon="@drawable/ic_shuffle_off"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_repeat"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:text=""
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:nextFocusLeft="@id/btn_shuffle"
+                android:nextFocusRight="@id/btn_sleep_timer"
+                android:nextFocusUp="@id/btn_prev"
+                android:contentDescription="@string/cd_repeat_off"
+                app:icon="@drawable/ic_repeat_off"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_sleep_timer"
@@ -309,10 +353,10 @@
                 android:text=""
                 android:focusable="true"
                 android:focusableInTouchMode="false"
-                android:nextFocusLeft="@id/btn_equalizer"
+                android:nextFocusLeft="@id/btn_repeat"
                 android:nextFocusRight="@id/btn_speed"
-                android:nextFocusUp="@id/btn_prev"
-                android:contentDescription="Sleep timer"
+                android:nextFocusUp="@id/btn_rewind"
+                android:contentDescription="@string/cd_sleep_timer"
                 app:icon="@drawable/ic_timer"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
@@ -331,8 +375,8 @@
                 android:focusableInTouchMode="false"
                 android:nextFocusLeft="@id/btn_sleep_timer"
                 android:nextFocusRight="@id/btn_equalizer"
-                android:nextFocusUp="@id/btn_play"
-                android:contentDescription="Playback speed"
+                android:nextFocusUp="@id/btn_next"
+                android:contentDescription="@string/cd_playback_speed"
                 app:icon="@drawable/ic_speed"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
@@ -350,9 +394,9 @@
                 android:focusable="true"
                 android:focusableInTouchMode="false"
                 android:nextFocusLeft="@id/btn_speed"
-                android:nextFocusRight="@id/btn_sleep_timer"
-                android:nextFocusUp="@id/btn_next"
-                android:contentDescription="Equalizer"
+                android:nextFocusRight="@id/btn_shuffle"
+                android:nextFocusUp="@id/btn_forward"
+                android:contentDescription="@string/cd_equalizer"
                 app:icon="@drawable/ic_equalizer"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />

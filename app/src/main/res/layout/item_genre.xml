@@ -30,7 +30,7 @@
         android:layout_height="@dimen/item_track_art_size"
         android:scaleType="centerInside"
         android:src="@drawable/ic_music_note"
-        android:contentDescription="Genre"
+        android:importantForAccessibility="no"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -31,7 +31,6 @@ class FolderDetailFragment : Fragment() {
 
         val btnBack = view.findViewById<MaterialButton>(R.id.btn_back)
         val tvFolderName = view.findViewById<TextView>(R.id.tv_folder_name)
-        val tvEmpty = view.findViewById<TextView>(R.id.tv_empty)
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_folder)
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
@@ -61,8 +60,16 @@ class FolderDetailFragment : Fragment() {
         viewModel.tracks.observe(viewLifecycleOwner) {
             val folderTracks = tracksForFolder(folderPath)
             adapter.updateTracks(folderTracks)
-            tvEmpty.visibility = if (folderTracks.isEmpty()) View.VISIBLE else View.GONE
-            recycler.visibility = if (folderTracks.isEmpty()) View.GONE else View.VISIBLE
+            bindListState(
+                root = view,
+                itemCount = folderTracks.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = false,
+                query = "",
+                emptyTitle = getString(R.string.empty_title_folder_empty),
+                emptyBody = getString(R.string.empty_body_folder_empty),
+                emptyIcon = R.drawable.ic_folder
+            )
             if (!focusRequested && folderTracks.isNotEmpty()) {
                 focusRequested = true
                 recycler.post {

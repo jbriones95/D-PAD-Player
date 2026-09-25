@@ -29,8 +29,8 @@ class AlbumAdapter(
         val art: ImageView  = view.findViewById(R.id.iv_album_art)
         val name: TextView  = view.findViewById(R.id.tv_album_name)
         val info: TextView  = view.findViewById(R.id.tv_album_info)
+        val clickable: View = view.findViewById(R.id.clickable_item) ?: view
         init {
-            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
             clickable.setOnClickListener {
                 val pos = bindingAdapterPosition
@@ -53,15 +53,19 @@ class AlbumAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val album = items[position]
         holder.name.text = album.name
-        val songWord = if (album.songCount == 1) "song" else "songs"
         holder.info.text = buildString {
             append(album.artist)
             if (album.year > 0) append(" · ${album.year}")
-            append(" · ${album.songCount} $songWord")
+            append(" · ")
+            append(holder.itemView.resources.getQuantityString(
+                R.plurals.album_song_count, album.songCount, album.songCount
+            ))
         }
         // Prefer cached album art written by persistEmbeddedArtwork (album_<albumId>.jpg)
         val cached = ArtRepository.getCachedAlbumArt(holder.itemView.context, album.songs.firstOrNull()?.albumId ?: 0L)
         val loadUri = cached ?: album.albumArtUri
+        holder.clickable.announceRow(album.name, holder.info.text)
+
         Glide.with(holder.itemView)
             .load(loadUri)
             .placeholder(R.drawable.ic_music_note)

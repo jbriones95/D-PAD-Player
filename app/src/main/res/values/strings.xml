@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DPAD Music</string>
+    <string name="app_title">DPad Player</string>
 
     <!-- Home menu items -->
     <string name="menu_songs">Songs</string>
@@ -9,6 +10,104 @@
     <string name="menu_genres">Genres</string>
     <string name="menu_playlists">Playlists</string>
     <string name="menu_settings">Settings</string>
+
+    <!-- ── Content descriptions ─────────────────────────────────────────── -->
+    <string name="cd_back">Back</string>
+    <string name="cd_back_to_player">Back to now playing</string>
+    <string name="cd_back_to_library">Back to library</string>
+    <string name="cd_playlist_options">Playlist options</string>
+    <string name="cd_create_playlist">Create playlist</string>
+    <string name="cd_search">Search library</string>
+    <string name="cd_view_queue">View queue</string>
+    <string name="cd_track_menu">More options</string>
+    <string name="cd_mini_player">Now playing. Open full player</string>
+    <string name="cd_mini_player_with_track">Now playing: %1$s by %2$s. Open full player</string>
+    <string name="msg_no_track_playing">No track playing</string>
+    <string name="cd_play">Play</string>
+    <string name="cd_pause">Pause</string>
+    <string name="cd_previous_track">Previous track</string>
+    <string name="cd_next_track">Next track</string>
+    <string name="cd_skip_forward">Skip forward</string>
+    <string name="cd_skip_back">Skip back</string>
+    <string name="cd_skip_forward_seconds">Skip forward %1$d seconds</string>
+    <string name="cd_skip_back_seconds">Skip back %1$d seconds</string>
+    <string name="cd_shuffle_off">Shuffle off</string>
+    <string name="cd_shuffle_on">Shuffle on</string>
+    <string name="cd_repeat_off">Repeat off</string>
+    <string name="cd_repeat_all">Repeat all</string>
+    <string name="cd_repeat_one">Repeat one</string>
+    <string name="cd_sleep_timer">Sleep timer</string>
+    <string name="cd_playback_speed">Playback speed</string>
+    <string name="cd_equalizer">Equalizer</string>
+    <string name="cd_now_playing_indicator">Now playing</string>
+    <string name="track_subtitle">%1$s · %2$s</string>
+
+    <!-- Row summaries read out as part of the row's focus stop. -->
+    <plurals name="artist_meta">
+        <item quantity="one">%1$d album · %2$d song</item>
+        <item quantity="other">%1$d albums · %2$d songs</item>
+    </plurals>
+    <plurals name="album_song_count">
+        <item quantity="one">%1$d song</item>
+        <item quantity="other">%1$d songs</item>
+    </plurals>
+
+    <!-- ── Section headers ──────────────────────────────────────────────── -->
+    <string name="section_albums">Albums</string>    <string name="section_all_songs">All Songs</string>
+    <string name="title_now_playing">Now Playing</string>
+    <string name="title_now_playing_queue">Now Playing Queue</string>
+
+    <!-- ── Empty / loading / error states ───────────────────────────────── -->
+    <string name="empty_title_no_songs">No songs found</string>
+    <string name="empty_body_no_songs">DPAD Music could not find any audio on this device. Add some music, then rescan the library from Settings.</string>
+    <string name="empty_title_no_albums">No albums yet</string>
+    <string name="empty_body_no_albums">Albums appear here once your library has been scanned.</string>
+    <string name="empty_title_no_artists">No artists yet</string>
+    <string name="empty_body_no_artists">Artists appear here once your library has been scanned.</string>
+    <string name="empty_title_no_genres">No genres found</string>
+    <string name="empty_body_no_genres">Genres come from the metadata on your audio files.</string>
+    <string name="empty_title_no_folders">No folders found</string>
+    <string name="empty_body_no_folders">Folders appear here based on where your audio files live on disk.</string>
+    <string name="empty_title_no_playlists">No playlists yet</string>
+    <string name="empty_body_no_playlists">Create a playlist to group songs you want to hear together.</string>
+    <string name="empty_title_queue_empty">Nothing queued</string>
+    <string name="empty_body_queue_empty">Add songs to the queue and they will show up here.</string>
+    <string name="empty_title_playlist_empty">This playlist is empty</string>
+    <string name="empty_body_playlist_empty">Add songs from the library, or import an M3U file.</string>
+    <string name="empty_title_album_empty">No songs in this album</string>
+    <string name="empty_body_album_empty">This album is in your library but has no playable tracks.</string>
+    <string name="empty_title_artist_empty">Nothing by this artist</string>
+    <string name="empty_body_artist_empty">There are no playable songs for this artist right now.</string>
+    <string name="empty_title_genre_empty">No songs in this genre</string>
+    <string name="empty_body_genre_empty">There are no playable songs in this genre right now.</string>
+    <string name="empty_title_folder_empty">This folder is empty</string>
+    <string name="empty_body_folder_empty">No playable tracks were found in this folder.</string>
+    <string name="empty_title_no_recent">Nothing played yet</string>
+    <string name="empty_body_no_recent">Songs you play will show up here.</string>
+    <string name="empty_title_no_top">Nothing to rank yet</string>
+    <string name="empty_body_no_top">Your most played songs will show up here.</string>
+    <string name="search_empty_title">No results</string>
+    <string name="search_empty_body">Nothing matched “%1$s”. Try a different search.</string>
+    <string name="search_clear">Clear search</string>
+    <string name="scanning_library">Scanning your music library…</string>
+    <string name="scan_complete">Library updated · %1$d songs</string>
+
+    <!-- ── Library tabs ─────────────────────────────────────────────────── -->
+    <string name="tab_folders">Folders</string>
+    <string name="tab_recent">Recent</string>
+    <string name="tab_top">Top</string>
+
+    <!-- Display titles for the eight library sections, in tab order. -->
+    <string-array name="library_tab_titles">
+        <item>@string/menu_songs</item>
+        <item>@string/menu_albums</item>
+        <item>@string/menu_artists</item>
+        <item>@string/menu_genres</item>
+        <item>@string/menu_playlists</item>
+        <item>@string/tab_folders</item>
+        <item>@string/tab_recent</item>
+        <item>@string/tab_top</item>
+    </string-array>
 
     <!-- Notification actions -->
     <string name="notification_action_previous">Previous</string>
@@ -25,7 +124,6 @@
     <string name="pref_audio_focus_pause_on_duck_summary">When off, playback volume ducks for short interruptions instead of pausing</string>
 
     <!-- Main activity messages/actions -->
-    <string name="msg_storage_permission_required">Storage permission needed to find music</string>
     <string name="msg_playing_next">Playing next: %1$s</string>
     <string name="msg_added_to_queue">Added to queue: %1$s</string>
     <string name="msg_added_to_playlist">Added to "%1$s"</string>
@@ -45,7 +143,6 @@
     <string name="action_create">Create</string>
     <string name="action_back">Back</string>
 
-    <string name="msg_folder_empty">No playable tracks found in this folder.</string>
     <string name="dialog_storage_permission_title">Storage permission required</string>
     <string name="dialog_storage_permission_message">DPAD Music needs storage access to find your music. You can enable it in App Settings.</string>
     <string name="action_open_settings">Open Settings</string>
@@ -119,4 +216,53 @@
         <item>album</item>
         <item>date_added</item>
     </string-array>
+
+    <!-- ── Settings ─────────────────────────────────────────────────────── -->
+    <string name="pref_theme_title">Theme</string>
+    <string name="pref_accent_title">Accent color</string>
+    <string name="pref_rescan_title">Rescan library</string>
+    <string name="pref_rescan_summary">Search for new or updated music files</string>
+    <string name="pref_sort_title">Sort tracks by</string>
+    <string name="pref_show_top_bar_title">Show top library bar</string>
+    <string name="pref_show_top_bar_summary">When off, the tab strip is hidden. Use the tabs button in the toolbar to switch sections.</string>
+    <string name="cd_switch_tabs">Switch library tab</string>
+
+    <!-- ── Feedback / snackbars ─────────────────────────────────────────── -->
+    <string name="menu_import_m3u">Import M3U</string>
+    <string name="menu_export_m3u">Export M3U</string>
+    <string name="menu_delete_playlist">Delete playlist</string>
+    <string name="msg_playlist_renamed">Renamed to “%1$s”</string>
+    <string name="msg_playlist_deleted">Deleted “%1$s”</string>
+    <string name="msg_playlist_rename_empty">Playlist name can\'t be empty</string>
+    <string name="msg_shuffle_on">Shuffle on</string>
+    <string name="msg_shuffle_off">Shuffle off</string>
+    <string name="msg_repeat_all">Repeat all</string>
+    <string name="msg_repeat_one">Repeat one</string>
+    <string name="msg_repeat_off">Repeat off</string>
+    <string name="msg_equalizer_unavailable">Equalizer unavailable right now</string>
+    <string name="msg_no_system_equalizer">No system equalizer found</string>
+    <string name="msg_moved_queue_item">Moved “%1$s” to position %2$d</string>
+    <string name="msg_m3u_read_failed">Could not read the M3U file</string>
+    <string name="msg_m3u_no_matches">No matching local tracks found in that M3U</string>
+    <string name="msg_m3u_exported">Playlist exported</string>
+    <string name="msg_m3u_export_failed">Export failed</string>
+    <plurals name="msg_m3u_imported">
+        <item quantity="one">Imported %1$d track</item>
+        <item quantity="other">Imported %1$d tracks</item>
+    </plurals>
+
+    <!-- ── Dialogs ──────────────────────────────────────────────────────── -->
+    <string name="dialog_search_title">Search library</string>
+    <string name="hint_search">Search songs, albums, artists…</string>
+    <string name="dialog_apply">Apply</string>
+    <string name="dialog_rename_playlist_title">Rename playlist</string>
+    <string name="dialog_delete_playlist_title">Delete playlist?</string>
+    <string name="dialog_delete_playlist_message">“%1$s” will be permanently removed. The songs themselves stay in your library.</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="action_rename">Rename</string>
+    <string name="dialog_sleep_timer_title">Sleep timer</string>
+    <string name="dialog_sleep_timer_off">Off</string>
+    <string name="dialog_sleep_timer_minutes">%1$d minutes</string>
+    <string name="sleep_timer_status">Sleep %1$d:%2$02d</string>
+    <string name="dialog_speed_title">Playback speed</string>
 </resources>

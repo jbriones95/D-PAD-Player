@@ -94,9 +94,13 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
 
     private var loadTracksJob: Job? = null
 
+    private val _isScanning = MutableLiveData<Boolean>(false)
+    val isScanning: LiveData<Boolean> = _isScanning
+
     fun loadTracks(sortOrder: String = "title") {
         loadTracksJob?.cancel()
         loadTracksJob = viewModelScope.launch(Dispatchers.IO) {
+            _isScanning.postValue(true)
             val result = MediaStoreScanner.loadTracks(getApplication(), sortOrder)
             val lib    = MusicLibrary.build(result)
             // Merge album cache entries to preserve persisted metadata across restarts
@@ -121,6 +125,7 @@ class MusicViewModel(app: Application) : AndroidViewModel(app) {
             _artists.postValue(merged.artists)
             _genres.postValue(merged.genres)
             publishSmartPlaylists(result)
+            _isScanning.postValue(false)
 
             // Background enrichment: lazily extract real ID3 tags + artwork for all tracks.
             // Already-enriched tracks (read from cache) are skipped automatically.

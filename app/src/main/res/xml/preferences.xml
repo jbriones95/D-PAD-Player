@@ -5,7 +5,7 @@
     <!-- Theme -->
     <ListPreference
         app:key="theme"
-        app:title="Theme"
+        app:title="@string/pref_theme_title"
         app:summary="%s"
         app:entries="@array/pref_theme_labels"
         app:entryValues="@array/pref_theme_values"
@@ -16,7 +16,7 @@
     <!-- Accent color -->
     <ListPreference
         app:key="accent"
-        app:title="Accent color"
+        app:title="@string/pref_accent_title"
         app:summary="%s"
         app:entries="@array/pref_accent_labels"
         app:entryValues="@array/pref_accent_values"
@@ -52,14 +52,14 @@
     <!-- Rescan library -->
     <Preference
         app:key="rescan_library"
-        app:title="Rescan library"
-        app:summary="Search for new or updated music files"
+        app:title="@string/pref_rescan_title"
+        app:summary="@string/pref_rescan_summary"
         app:icon="@drawable/ic_settings_sort" />
 
     <!-- Sort order -->
     <ListPreference
         app:key="sort_order"
-        app:title="Sort tracks by"
+        app:title="@string/pref_sort_title"
         app:summary="%s"
         app:entries="@array/pref_sort_labels"
         app:entryValues="@array/pref_sort_values"
@@ -67,12 +67,13 @@
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_sort" />
 
-    <!-- Show / hide top library bar (tabs + pager) to favour iPod-style navigation -->
+    <!-- Show / hide the library tab strip. Hiding it swaps in a toolbar
+         tab-picker button so the other sections stay reachable. -->
     <SwitchPreferenceCompat
         app:key="show_top_bar"
-        app:title="Show top library bar"
+        app:title="@string/pref_show_top_bar_title"
         app:defaultValue="true"
-        app:summary="When off, the tab bar and pager are hidden for a simpler iPod-like experience"
+        app:summary="@string/pref_show_top_bar_summary"
         app:icon="@drawable/ic_settings_theme" />
 
 </PreferenceScreen>

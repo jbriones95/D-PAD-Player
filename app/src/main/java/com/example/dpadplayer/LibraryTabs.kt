@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.PopupMenu
-import android.widget.Toast
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -59,9 +58,22 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
                 viewModel.searchQuery.value.orEmpty()
             )
             adapter.updateTracks(filtered)
+            bindListState(
+                root = view,
+                itemCount = filtered.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_songs),
+                emptyBody = getString(R.string.empty_body_no_songs),
+                emptyIcon = R.drawable.ic_music_note,
+                actionLabel = getString(R.string.pref_rescan_title),
+                onAction = { (activity as? MainActivity)?.rescanLibrary() }
+            )
         }
         viewModel.tracks.observe(viewLifecycleOwner) { refreshTracks() }
         viewModel.searchQuery.observe(viewLifecycleOwner) { refreshTracks() }
+        viewModel.isScanning.observe(viewLifecycleOwner) { refreshTracks() }
         viewModel.currentIndex.observe(viewLifecycleOwner) { adapter.setSelectedIndex(it) }
     }
 
@@ -115,9 +127,20 @@ class AlbumsTabFragment : Fragment(), TabWithRecycler {
                 viewModel.searchQuery.value.orEmpty()
             )
             adapter.update(filtered)
+            bindListState(
+                root = view,
+                itemCount = filtered.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_albums),
+                emptyBody = getString(R.string.empty_body_no_albums),
+                emptyIcon = R.drawable.ic_album
+            )
         }
         viewModel.albums.observe(viewLifecycleOwner) { refreshAlbums() }
         viewModel.searchQuery.observe(viewLifecycleOwner) { refreshAlbums() }
+        viewModel.isScanning.observe(viewLifecycleOwner) { refreshAlbums() }
     }
 
     override fun recyclerView(): RecyclerView? = recyclerRef
@@ -163,9 +186,20 @@ class ArtistsTabFragment : Fragment(), TabWithRecycler {
                 viewModel.searchQuery.value.orEmpty()
             )
             adapter.update(filtered)
+            bindListState(
+                root = view,
+                itemCount = filtered.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_artists),
+                emptyBody = getString(R.string.empty_body_no_artists),
+                emptyIcon = R.drawable.ic_person
+            )
         }
         viewModel.artists.observe(viewLifecycleOwner) { refreshArtists() }
         viewModel.searchQuery.observe(viewLifecycleOwner) { refreshArtists() }
+        viewModel.isScanning.observe(viewLifecycleOwner) { refreshArtists() }
     }
 
     override fun recyclerView(): RecyclerView? = recyclerRef
@@ -211,9 +245,20 @@ class GenresTabFragment : Fragment(), TabWithRecycler {
                 viewModel.searchQuery.value.orEmpty()
             )
             adapter.update(filtered)
+            bindListState(
+                root = view,
+                itemCount = filtered.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_genres),
+                emptyBody = getString(R.string.empty_body_no_genres),
+                emptyIcon = R.drawable.ic_genre
+            )
         }
         viewModel.genres.observe(viewLifecycleOwner) { refreshGenres() }
         viewModel.searchQuery.observe(viewLifecycleOwner) { refreshGenres() }
+        viewModel.isScanning.observe(viewLifecycleOwner) { refreshGenres() }
     }
 
     override fun recyclerView(): RecyclerView? = recyclerRef
@@ -281,6 +326,18 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
                 viewModel.searchQuery.value.orEmpty()
             )
             adapter.update(filtered)
+            bindListState(
+                root = view,
+                itemCount = filtered.size,
+                isLoading = false,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_playlists),
+                emptyBody = getString(R.string.empty_body_no_playlists),
+                emptyIcon = R.drawable.ic_playlist_play,
+                actionLabel = getString(R.string.action_create),
+                onAction = { showCreatePlaylistDialog() }
+            )
         }
         viewModel.playlists.observe(viewLifecycleOwner) { refreshPlaylists() }
         viewModel.searchQuery.observe(viewLifecycleOwner) { refreshPlaylists() }
@@ -288,16 +345,19 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
 
     private fun showCreatePlaylistDialog() {
         val editText = EditText(requireContext())
-        editText.hint = "Playlist name"
+        editText.hint = getString(R.string.hint_playlist_name)
         editText.requestFocus()
         AlertDialog.Builder(requireContext())
-            .setTitle("New playlist")
+            .setTitle(R.string.dialog_new_playlist_title)
             .setView(editText)
-            .setPositiveButton("Create") { _, _ ->
+            .setPositiveButton(R.string.action_create) { _, _ ->
                 val name = editText.text.toString().trim()
-                if (name.isNotEmpty()) viewModel.createPlaylist(name)
+                if (name.isNotEmpty()) {
+                    viewModel.createPlaylist(name)
+                    (activity as? MainActivity)?.showMessage(getString(R.string.msg_playlist_created, name))
+                }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
 
@@ -347,7 +407,22 @@ class RecentlyPlayedTabFragment : Fragment(), TabWithRecycler {
         }
         recycler.layoutManager = lm
 
-        viewModel.recentlyPlayed.observe(viewLifecycleOwner) { adapter.updateTracks(it) }
+        fun refreshRecent() {
+            val items = viewModel.recentlyPlayed.value ?: emptyList()
+            adapter.updateTracks(items)
+            bindListState(
+                root = view,
+                itemCount = items.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_recent),
+                emptyBody = getString(R.string.empty_body_no_recent),
+                emptyIcon = R.drawable.ic_history
+            )
+        }
+        viewModel.recentlyPlayed.observe(viewLifecycleOwner) { refreshRecent() }
+        viewModel.isScanning.observe(viewLifecycleOwner) { refreshRecent() }
     }
 
     override fun recyclerView(): RecyclerView? = recyclerRef
@@ -396,7 +471,22 @@ class MostPlayedTabFragment : Fragment(), TabWithRecycler {
         }
         recycler.layoutManager = lm
 
-        viewModel.mostPlayed.observe(viewLifecycleOwner) { adapter.updateTracks(it) }
+        fun refreshTop() {
+            val items = viewModel.mostPlayed.value ?: emptyList()
+            adapter.updateTracks(items)
+            bindListState(
+                root = view,
+                itemCount = items.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_top),
+                emptyBody = getString(R.string.empty_body_no_top),
+                emptyIcon = R.drawable.ic_star
+            )
+        }
+        viewModel.mostPlayed.observe(viewLifecycleOwner) { refreshTop() }
+        viewModel.isScanning.observe(viewLifecycleOwner) { refreshTop() }
     }
 
     override fun recyclerView(): RecyclerView? = recyclerRef
@@ -464,9 +554,20 @@ class FoldersTabFragment : Fragment(), TabWithRecycler {
             folders.clear()
             folders.addAll(filtered)
             (recycler.adapter as? FolderAdapter)?.update(folders)
+            bindListState(
+                root = view,
+                itemCount = filtered.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                query = viewModel.searchQuery.value.orEmpty(),
+                emptyTitle = getString(R.string.empty_title_no_folders),
+                emptyBody = getString(R.string.empty_body_no_folders),
+                emptyIcon = R.drawable.ic_folder
+            )
         }
         viewModel.tracks.observe(viewLifecycleOwner) { refreshFolders() }
         viewModel.searchQuery.observe(viewLifecycleOwner) { refreshFolders() }
+        viewModel.isScanning.observe(viewLifecycleOwner) { refreshFolders() }
     }
 
     override fun recyclerView(): RecyclerView? = recyclerRef

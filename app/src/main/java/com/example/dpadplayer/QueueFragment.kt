@@ -1,6 +1,7 @@
 package com.example.dpadplayer
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +24,7 @@ class QueueFragment : Fragment() {
         val tvTitle = view.findViewById<TextView>(R.id.tv_detail_title)
         val recycler = view.findViewById<RecyclerView>(R.id.recycler_queue)
 
-        tvTitle.text = "Now Playing Queue"
+        tvTitle.text = getString(R.string.title_now_playing_queue)
 
         btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
         applyPlayerControlFocusBackground(btnBack)
@@ -69,18 +70,65 @@ class QueueFragment : Fragment() {
         })
         touchHelper.attachToRecyclerView(recycler)
 
-        var hasScrolled = false
+        // D-pad reordering: LEFT/RIGHT on a focused row moves it within the
+        // queue. UP/DOWN keep their normal "move between rows" meaning so the
+        // list stays predictable, while LEFT/RIGHT are otherwise unused here.
+        recycler.setOnKeyListener { _, keyCode, event ->
+            if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+            if (keyCode != KeyEvent.KEYCODE_DPAD_LEFT && keyCode != KeyEvent.KEYCODE_DPAD_RIGHT) {
+                return@setOnKeyListener false
+            }
 
+            val focused = recycler.findFocus() ?: return@setOnKeyListener false
+            var child: View = focused
+            while (child.parent != recycler && child.parent is View) child = child.parent as View
+            val from = recycler.getChildAdapterPosition(child)
+            if (from == RecyclerView.NO_POSITION) return@setOnKeyListener false
+
+            val count = adapter.itemCount
+            val to = if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) from - 1 else from + 1
+            if (to !in 0 until count) {
+                // Already at the edge — still swallow the key so focus doesn't
+                // jump out of the list into the surrounding chrome.
+                return@setOnKeyListener true
+            }
+            if (!adapter.moveItem(from, to)) return@setOnKeyListener true
+            activity?.moveQueueItem(from, to)
+            recycler.post {
+                val moved = recycler.layoutManager?.findViewByPosition(to)
+                (moved?.findViewById<View?>(R.id.clickable_item) ?: moved)?.requestFocus()
+            }
+            activity?.showMessage(
+                getString(R.string.msg_moved_queue_item, adapter.itemAt(to)?.title ?: "", to + 1)
+            )
+            true
+        }
+
+        // Focus once the queue actually has rows. Keyed off "first non-empty"
+        // rather than "first emission" so opening the queue before playback
+        // starts still lands focus on a row when tracks finally arrive.
+        var focusSeeded = false
         viewModel.queue.observe(viewLifecycleOwner) { q ->
             adapter.updateTracks(q)
-            if (!hasScrolled && q.isNotEmpty()) {
-                hasScrolled = true
+            bindListState(
+                root = view,
+                itemCount = q.size,
+                isLoading = false,
+                isSearching = false,
+                query = "",
+                emptyTitle = getString(R.string.empty_title_queue_empty),
+                emptyBody = getString(R.string.empty_body_queue_empty),
+                emptyIcon = R.drawable.ic_queue_music
+            )
+            if (!focusSeeded && q.isNotEmpty()) {
+                focusSeeded = true
+                val targetIndex = (viewModel.currentIndex.value ?: 0).coerceIn(0, q.lastIndex)
                 recycler.post {
-                    val targetIndex = viewModel.currentIndex.value ?: 0
-                    if (targetIndex in q.indices) {
-                        recycler.scrollToPosition(targetIndex)
-                        val first = recycler.layoutManager?.findViewByPosition(targetIndex) ?: recycler.getChildAt(0)
-                        (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
+                    recycler.scrollToPosition(targetIndex)
+                    recycler.post {
+                        val target = recycler.layoutManager?.findViewByPosition(targetIndex)
+                            ?: recycler.getChildAt(0)
+                        (target?.findViewById<View?>(R.id.clickable_item) ?: target)?.requestFocus()
                     }
                 }
             }

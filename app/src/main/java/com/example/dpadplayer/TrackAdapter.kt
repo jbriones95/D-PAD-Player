@@ -50,6 +50,8 @@ class TrackAdapter(
         if (index in items.indices) notifyItemChanged(index)
     }
 
+    fun itemAt(index: Int): Track? = items.getOrNull(index)
+
     fun moveItem(from: Int, to: Int): Boolean {
         if (!isQueue) return false
         if (from !in items.indices || to !in items.indices || from == to) return false
@@ -136,7 +138,11 @@ class TrackAdapter(
         val track = items[position]
         holder.title.text  = track.title
         // Show "Artist · 3:45" in secondary line
-        holder.artist.text = "${track.artist} · ${formatMs(track.duration)}"
+        holder.artist.text = holder.itemView.context.getString(
+            R.string.track_subtitle, track.artist, formatMs(track.duration)
+        )
+        // Decorative thumbnail — the row already reads out title + artist.
+        holder.art.contentDescription = null
 
         // Load album art thumbnail; fall back to music note placeholder
         Glide.with(holder.itemView)
@@ -156,6 +162,13 @@ class TrackAdapter(
             holder.itemView.isActivated = isActive
         }
         holder.indicator.visibility = if (isActive) View.VISIBLE else View.INVISIBLE
+
+        clickableItem?.announceRow(track.title, holder.artist.text)
+        if (isActive) {
+            clickableItem?.stateDescription = holder.itemView.context.getString(R.string.cd_now_playing_indicator)
+        } else {
+            clickableItem?.stateDescription = null
+        }
     }
 
     override fun getItemCount() = items.size

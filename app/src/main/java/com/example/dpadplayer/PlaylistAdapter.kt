@@ -41,9 +41,10 @@ class PlaylistAdapter(
     // ── Create-playlist header VH ─────────────────────────────────────────────
 
     inner class CreateVH(view: View) : RecyclerView.ViewHolder(view) {
+        private val clickable: View = view.findViewById(R.id.clickable_item) ?: view
         init {
-            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
+            clickable.announceAs(view.context.getString(R.string.cd_create_playlist))
             clickable.setOnClickListener { onCreateClick?.invoke() }
             clickable.setupDpadItem { onCreateClick?.invoke() }
         }
@@ -54,8 +55,8 @@ class PlaylistAdapter(
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tv_playlist_name)
         val info: TextView = view.findViewById(R.id.tv_playlist_info)
+        val clickable: View = view.findViewById(R.id.clickable_item) ?: view
         init {
-            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
             clickable.setOnClickListener {
                 val pos = bindingAdapterPosition
@@ -88,6 +89,7 @@ class PlaylistAdapter(
             val playlist = items[position - 1]
             holder.name.text = playlist.name
             holder.info.text = ""
+            holder.clickable.announceAs(playlist.name)
         }
         // CreateVH has no data to bind
     }

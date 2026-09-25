@@ -26,8 +26,8 @@ class ArtistAdapter(
     inner class VH(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.tv_artist_name)
         val info: TextView = view.findViewById(R.id.tv_artist_info)
+        val clickable: View = view.findViewById(R.id.clickable_item) ?: view
         init {
-            val clickable = view.findViewById<View>(R.id.clickable_item) ?: view
             applyItemFocusBackground(clickable)
             clickable.setOnClickListener {
                 val pos = bindingAdapterPosition
@@ -50,8 +50,9 @@ class ArtistAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val artist = items[position]
         holder.name.text = artist.name
-        val albumWord = if (artist.albumCount == 1) "album" else "albums"
-        val songWord  = if (artist.songs.size == 1) "song" else "songs"
-        holder.info.text = "${artist.albumCount} $albumWord · ${artist.songs.size} $songWord"
+        holder.info.text = holder.itemView.resources.getQuantityString(
+            R.plurals.artist_meta, artist.albumCount, artist.albumCount, artist.songs.size
+        )
+        holder.clickable.announceRow(artist.name, holder.info.text)
     }
 }

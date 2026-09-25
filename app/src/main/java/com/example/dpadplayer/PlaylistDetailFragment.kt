@@ -41,6 +41,10 @@ class PlaylistDetailFragment : Fragment() {
             if (uri != null) exportM3u(uri)
         }
 
+    private fun launchM3uPicker() {
+        importM3uLauncher.launch(arrayOf("audio/x-mpegurl", "audio/mpegurl", "application/vnd.apple.mpegurl", "*/*"))
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View =
         inflater.inflate(R.layout.fragment_playlist_detail, container, false)
 
@@ -91,6 +95,18 @@ class PlaylistDetailFragment : Fragment() {
         // Observe playlist songs
         viewModel.observePlaylistTracks(playlistId).observe(viewLifecycleOwner) { tracks ->
             adapter.updateTracks(tracks)
+            bindListState(
+                root = view,
+                itemCount = tracks.size,
+                isLoading = false,
+                isSearching = false,
+                query = "",
+                emptyTitle = getString(R.string.empty_title_playlist_empty),
+                emptyBody = getString(R.string.empty_body_playlist_empty),
+                emptyIcon = R.drawable.ic_playlist_play,
+                actionLabel = getString(R.string.menu_import_m3u),
+                onAction = { launchM3uPicker() }
+            )
             if (!focusRequested && tracks.isNotEmpty()) {
                 focusRequested = true
                 recycler.post {
@@ -100,48 +116,34 @@ class PlaylistDetailFragment : Fragment() {
             }
         }
 
-        // Overflow menu: rename / delete
+        // Overflow menu: rename / delete / import / export
         applyPlayerControlFocusBackground(btnMenu)
         btnMenu.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnMenu)) {
-            val popup = PopupMenu(requireContext(), btnMenu)
-            popup.menu.add(0, 1, 0, "Rename")
-            popup.menu.add(0, 2, 1, "Delete playlist")
-            popup.menu.add(0, 3, 2, "Import M3U")
-            popup.menu.add(0, 4, 3, "Export M3U")
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    1 -> showRenameDialog()
-                    2 -> confirmDelete()
-                    3 -> importM3uLauncher.launch(arrayOf("audio/x-mpegurl", "audio/mpegurl", "application/vnd.apple.mpegurl", "*/*"))
-                    4 -> {
-                        val suggested = (viewModel.playlists.value?.find { it.id == playlistId }?.name ?: "playlist") + ".m3u"
-                        exportM3uLauncher.launch(suggested)
-                    }
-                }
-                true
-            }
-            popup.show()
+            showOverflowMenu(btnMenu)
         }
-        btnMenu.setOnClickListener { anchor ->
-            val popup = PopupMenu(requireContext(), anchor)
-            popup.menu.add(0, 1, 0, "Rename")
-            popup.menu.add(0, 2, 1, "Delete playlist")
-            popup.menu.add(0, 3, 2, "Import M3U")
-            popup.menu.add(0, 4, 3, "Export M3U")
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    1 -> showRenameDialog()
-                    2 -> confirmDelete()
-                    3 -> importM3uLauncher.launch(arrayOf("audio/x-mpegurl", "audio/mpegurl", "application/vnd.apple.mpegurl", "*/*"))
-                    4 -> {
-                        val suggested = (viewModel.playlists.value?.find { it.id == playlistId }?.name ?: "playlist") + ".m3u"
-                        exportM3uLauncher.launch(suggested)
-                    }
+        btnMenu.setOnClickListener { anchor -> showOverflowMenu(anchor) }
+    }
+
+    private fun showOverflowMenu(anchor: android.view.View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menu.add(0, 1, 0, getString(R.string.action_rename))
+        popup.menu.add(0, 2, 1, getString(R.string.menu_delete_playlist))
+        popup.menu.add(0, 3, 2, getString(R.string.menu_import_m3u))
+        popup.menu.add(0, 4, 3, getString(R.string.menu_export_m3u))
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> showRenameDialog()
+                2 -> confirmDelete()
+                3 -> launchM3uPicker()
+                4 -> {
+                    val name = viewModel.playlists.value?.find { it.id == playlistId }?.name
+                        ?: getString(R.string.menu_playlists)
+                    exportM3uLauncher.launch("$name.m3u")
                 }
-                true
             }
-            popup.show()
+            true
         }
+        popup.show()
     }
 
     private fun importM3u(uri: android.net.Uri) {
@@ -149,18 +151,18 @@ class PlaylistDetailFragment : Fragment() {
         lifecycleScope.launch {
             val content = PlaylistIo.readM3uFromUri(ctx, uri)
             if (content.isNullOrBlank()) {
-                Toast.makeText(ctx, "Could not read M3U file", Toast.LENGTH_SHORT).show()
+                toast(getString(R.string.msg_m3u_read_failed))
                 return@launch
             }
             val parsed = PlaylistIo.parseM3u(content)
             val allTracks = viewModel.tracks.value ?: emptyList()
             val resolved = PlaylistIo.resolveEntriesToTracks(parsed.entries, allTracks)
             if (resolved.isEmpty()) {
-                Toast.makeText(ctx, "No matching local tracks found in M3U", Toast.LENGTH_SHORT).show()
+                toast(getString(R.string.msg_m3u_no_matches))
                 return@launch
             }
             viewModel.rewritePlaylist(playlistId, resolved)
-            Toast.makeText(ctx, "Imported ${resolved.size} tracks", Toast.LENGTH_SHORT).show()
+            toast(resources.getQuantityString(R.plurals.msg_m3u_imported, resolved.size, resolved.size))
         }
     }
 
@@ -168,10 +170,11 @@ class PlaylistDetailFragment : Fragment() {
         val ctx = context ?: return
         lifecycleScope.launch {
             val tracks = viewModel.resolvePlaylistTracks(playlistId)
-            val name = viewModel.playlists.value?.find { it.id == playlistId }?.name ?: "Playlist"
+            val name = viewModel.playlists.value?.find { it.id == playlistId }?.name
+                ?: getString(R.string.menu_playlists)
             val content = PlaylistIo.buildM3uContent(name, tracks)
             val ok = PlaylistIo.writeM3uToUri(ctx, uri, content)
-            Toast.makeText(ctx, if (ok) "Exported playlist" else "Export failed", Toast.LENGTH_SHORT).show()
+            toast(getString(if (ok) R.string.msg_m3u_exported else R.string.msg_m3u_export_failed))
         }
     }
 
@@ -182,26 +185,37 @@ class PlaylistDetailFragment : Fragment() {
         editText.selectAll()
         editText.requestFocus()
         AlertDialog.Builder(requireContext())
-            .setTitle("Rename playlist")
+            .setTitle(R.string.dialog_rename_playlist_title)
             .setView(editText)
-            .setPositiveButton("Rename") { _, _ ->
+            .setPositiveButton(R.string.action_rename) { _, _ ->
                 val newName = editText.text.toString().trim()
-                if (newName.isNotEmpty()) viewModel.renamePlaylist(playlistId, newName)
+                if (newName.isEmpty()) {
+                    toast(getString(R.string.msg_playlist_rename_empty))
+                } else if (newName != current) {
+                    viewModel.renamePlaylist(playlistId, newName)
+                    toast(getString(R.string.msg_playlist_renamed, newName))
+                }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
 
     private fun confirmDelete() {
-        val name = viewModel.playlists.value?.find { it.id == playlistId }?.name ?: "this playlist"
+        val name = viewModel.playlists.value?.find { it.id == playlistId }?.name ?: ""
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete \"$name\"?")
-            .setMessage("This cannot be undone.")
-            .setPositiveButton("Delete") { _, _ ->
+            .setTitle(R.string.dialog_delete_playlist_title)
+            .setMessage(getString(R.string.dialog_delete_playlist_message, name))
+            .setPositiveButton(R.string.dialog_delete) { _, _ ->
                 viewModel.deletePlaylist(playlistId)
                 parentFragmentManager.popBackStack()
+                toast(getString(R.string.msg_playlist_deleted, name))
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
+    }
+
+    private fun toast(message: CharSequence) {
+        (activity as? MainActivity)?.showMessage(message)
+            ?: Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

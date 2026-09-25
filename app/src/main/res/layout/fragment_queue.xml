@@ -32,25 +32,47 @@
             android:focusable="true"
             android:focusableInTouchMode="false"
             android:nextFocusDown="@id/recycler_queue"
-            android:contentDescription="Back to player" />
+            android:contentDescription="@string/cd_back_to_player" />
 
         <TextView
             android:id="@+id/tv_detail_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Now Playing"
+            android:text="@string/title_now_playing"
             android:textAppearance="?attr/textAppearanceTitleLarge"
             android:textColor="?android:attr/textColorPrimary"
             android:maxLines="1"
             android:ellipsize="end" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_queue"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="8dp"
-        android:clipToPadding="false"
-        android:descendantFocusability="afterDescendants" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_queue"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:clipToPadding="false"
+            android:descendantFocusability="afterDescendants" />
+
+        <LinearLayout
+            android:id="@+id/state_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp"
+            android:visibility="gone"
+            android:focusable="false">
+
+            <include layout="@layout/view_state_message" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 </LinearLayout>

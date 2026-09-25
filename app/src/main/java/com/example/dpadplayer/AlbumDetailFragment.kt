@@ -79,6 +79,16 @@ class AlbumDetailFragment : Fragment() {
                 .into(ivArt)
 
             adapter.updateTracks(album.songs)
+            bindListState(
+                root = view,
+                itemCount = album.songs.size,
+                isLoading = viewModel.isScanning.value == true,
+                isSearching = false,
+                query = "",
+                emptyTitle = getString(R.string.empty_title_album_empty),
+                emptyBody = getString(R.string.empty_body_album_empty),
+                emptyIcon = R.drawable.ic_album
+            )
             if (!focusRequested && album.songs.isNotEmpty()) {
                 focusRequested = true
                 recycler.post {

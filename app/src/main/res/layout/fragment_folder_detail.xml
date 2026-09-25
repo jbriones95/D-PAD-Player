@@ -47,24 +47,36 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/tv_empty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="@string/msg_folder_empty"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:visibility="gone" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_folder"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:focusable="true"
-        android:focusableInTouchMode="false"
-        android:descendantFocusability="afterDescendants"
-        android:clipToPadding="false"
-        android:paddingBottom="4dp" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_folder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="false"
+            android:descendantFocusability="afterDescendants"
+            android:clipToPadding="false"
+            android:paddingBottom="4dp" />
+
+        <LinearLayout
+            android:id="@+id/state_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp"
+            android:visibility="gone"
+            android:focusable="false">
+
+            <include layout="@layout/view_state_message" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

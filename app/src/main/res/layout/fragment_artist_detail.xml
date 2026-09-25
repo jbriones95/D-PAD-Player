@@ -27,7 +27,7 @@
             android:paddingEnd="0dp"
             android:focusable="true"
             android:focusableInTouchMode="false"
-            android:contentDescription="Back"
+            android:contentDescription="@string/cd_back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -50,6 +50,7 @@
 
     <!-- Scrollable content: albums section + songs section -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/artist_scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -65,7 +66,7 @@
                 android:id="@+id/tv_section_albums"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Albums"
+                android:text="@string/section_albums"
                 android:textAppearance="?attr/textAppearanceLabelLarge"
                 android:textStyle="bold"
                 android:paddingStart="12dp"
@@ -88,7 +89,7 @@
                 android:id="@+id/tv_section_songs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="All Songs"
+                android:text="@string/section_all_songs"
                 android:textAppearance="?attr/textAppearanceLabelLarge"
                 android:textStyle="bold"
                 android:paddingStart="12dp"
@@ -111,5 +112,22 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Shown only when the artist has neither albums nor songs. -->
+    <LinearLayout
+        android:id="@+id/state_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        android:visibility="gone"
+        android:focusable="false">
+
+        <include layout="@layout/view_state_message" />
+
+    </LinearLayout>
 
 </LinearLayout>
