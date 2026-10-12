@@ -9,25 +9,44 @@
     <!-- Header bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="?attr/colorPrimary"
-        android:elevation="2dp">
+        android:layout_height="64dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:background="?attr/colorSurface"
+        android:elevation="0dp">
 
         <TextView
             android:id="@+id/tv_home_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/app_title"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textColor="?attr/colorOnPrimary"
+            android:text="@string/home_title"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:gravity="center"
-            android:paddingStart="16dp"
-            android:paddingEnd="48dp"
+            android:gravity="start"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/tv_home_subtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/tv_home_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="@string/home_library_hint"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:gravity="start"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tv_home_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

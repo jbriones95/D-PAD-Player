@@ -54,7 +54,7 @@ class StateViewBinder(private val root: View) {
             action.text = actionLabel
             action.setOnClickListener { onAction() }
             applyPlayerControlFocusBackground(action)
-            action.setupDpadItem { onAction() }
+            action.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(action)) { onAction() }
         } else {
             action.visibility = View.GONE
             action.setOnClickListener(null)

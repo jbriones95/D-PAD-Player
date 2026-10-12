@@ -234,7 +234,7 @@ class LibraryFragment : Fragment() {
         viewModel.position.observe(viewLifecycleOwner)    { pos -> miniPlayer.setPosition(pos) }
         viewModel.searchQuery.observe(viewLifecycleOwner) { query ->
             val suffix = if (query.isBlank()) "" else " (${query.trim()})"
-            view?.findViewById<TextView>(R.id.tv_app_title)?.text = getString(R.string.app_title) + suffix
+            view?.findViewById<TextView>(R.id.tv_app_title)?.text = getString(R.string.home_title) + suffix
         }
     }
 

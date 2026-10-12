@@ -2,6 +2,12 @@
 <resources>
     <string name="app_name">DPAD Music</string>
     <string name="app_title">DPad Player</string>
+    <string name="home_title">Your library</string>
+    <string name="home_library_hint">Music on this device</string>
+    <plurals name="home_track_count">
+        <item quantity="one">%1$d track</item>
+        <item quantity="other">%1$d tracks</item>
+    </plurals>
 
     <!-- Home menu items -->
     <string name="menu_songs">Songs</string>

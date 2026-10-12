@@ -21,6 +21,7 @@ class HomeFragment : Fragment() {
     private val viewModel: MusicViewModel by activityViewModels()
 
     private lateinit var miniPlayer: MiniPlayerBinder
+    private lateinit var librarySummary: TextView
 
     data class MenuItem(val labelRes: Int, val iconRes: Int, val tag: String)
 
@@ -34,6 +35,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lastFocusedPos = viewModel.homeMenuFocusPos
+        librarySummary = view.findViewById(R.id.tv_home_subtitle)
 
         val menuItems = listOf(
             MenuItem(R.string.menu_songs,     R.drawable.ic_music_note,    "songs"),
@@ -96,6 +98,13 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
+            librarySummary.text = resources.getQuantityString(
+                R.plurals.home_track_count,
+                tracks.size,
+                tracks.size
+            )
+        }
         viewModel.currentIndex.observe(viewLifecycleOwner) { refreshMiniPlayer() }
         viewModel.isPlaying.observe(viewLifecycleOwner)   { playing ->
             miniPlayer.setPlaying(playing)

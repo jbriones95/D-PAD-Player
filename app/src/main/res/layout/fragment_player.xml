@@ -83,7 +83,9 @@
         android:layout_marginEnd="20dp"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="10dp"
-        android:background="?attr/colorSurfaceVariant">
+        android:background="@drawable/player_art_background"
+        android:clipToOutline="true"
+        android:elevation="6dp">
 
         <ImageView
             android:id="@+id/album_art"
@@ -113,7 +115,7 @@
             android:text="@string/msg_no_track_playing"
             android:textAppearance="?attr/textAppearanceTitleLarge"
             android:textStyle="bold"
-            android:textColor="?android:attr/textColorPrimary"
+            android:textColor="?attr/colorOnSurface"
             android:singleLine="true"
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
@@ -127,7 +129,7 @@
             android:layout_marginTop="4dp"
             android:text=""
             android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="?attr/colorPrimary"
             android:singleLine="true"
             android:ellipsize="end"
             android:gravity="center" />
@@ -139,7 +141,7 @@
             android:layout_marginTop="2dp"
             android:text=""
             android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:singleLine="true"
             android:ellipsize="end"
             android:gravity="center" />

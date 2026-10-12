@@ -136,12 +136,12 @@ fun applyPlayerControlFocusBackground(view: View) {
 }
 
 fun applyTopBarTabFocusBackground(view: View) {
-    val onPrimary = resolveColor(view.context, com.google.android.material.R.attr.colorOnPrimary)
+    val primary = resolveColor(view.context, com.google.android.material.R.attr.colorPrimary)
 
-    val selectedFill = Color.argb(0x14, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
-    val focusFill = Color.argb(0x24, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
-    val focusOuterStroke = Color.argb(0xF2, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
-    val focusInnerStroke = Color.argb(0x99, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
+    val selectedFill = Color.argb(0x14, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val focusFill = Color.argb(0x24, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val focusOuterStroke = Color.argb(0xF2, Color.red(primary), Color.green(primary), Color.blue(primary))
+    val focusInnerStroke = Color.argb(0x99, Color.red(primary), Color.green(primary), Color.blue(primary))
 
     val selectedDrawable = GradientDrawable().apply {
         shape = GradientDrawable.RECTANGLE
@@ -175,7 +175,7 @@ fun applyTopBarTabFocusBackground(view: View) {
         addState(intArrayOf(), ColorDrawable(Color.TRANSPARENT))
     }
 
-    val rippleColor = Color.argb(0x33, Color.red(onPrimary), Color.green(onPrimary), Color.blue(onPrimary))
+    val rippleColor = Color.argb(0x33, Color.red(primary), Color.green(primary), Color.blue(primary))
     view.background = RippleDrawable(
         ColorStateList.valueOf(rippleColor),
         stateDrawable,

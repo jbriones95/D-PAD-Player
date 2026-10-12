@@ -63,6 +63,7 @@ class MiniPlayerBinder(
         btnNext.setupDpadItem(onFocusChanged = materialButtonFocusChangeHandler(btnNext)) {
             activity.sendCmd("NEXT")
         }
+        btnNext.contentDescription = root.context.getString(R.string.cd_next_track)
 
         // DPAD_UP leaves the bar for the content above it; DPAD_CENTER falls
         // back to click because setupDpadItem only covers ENTER-style keys.

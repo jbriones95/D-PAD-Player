@@ -49,13 +49,6 @@
         app:defaultValue="true"
         app:icon="@drawable/ic_settings_seek" />
 
-    <!-- Rescan library -->
-    <Preference
-        app:key="rescan_library"
-        app:title="@string/pref_rescan_title"
-        app:summary="@string/pref_rescan_summary"
-        app:icon="@drawable/ic_settings_sort" />
-
     <!-- Sort order -->
     <ListPreference
         app:key="sort_order"

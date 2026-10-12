@@ -57,12 +57,18 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
                 viewModel.tracks.value ?: emptyList(),
                 viewModel.searchQuery.value.orEmpty()
             )
+            val isLoading = viewModel.isScanning.value == true
+            val isSearching = !viewModel.searchQuery.value.isNullOrBlank()
+            val rescanAction = view.findViewById<View>(R.id.state_action)
+            val shouldFocusRescan = isResumed && view.isShown &&
+                filtered.isEmpty() && !isLoading && !isSearching &&
+                (recycler.hasFocus() || rescanAction.hasFocus() || view.findFocus() == null)
             adapter.updateTracks(filtered)
             bindListState(
                 root = view,
                 itemCount = filtered.size,
-                isLoading = viewModel.isScanning.value == true,
-                isSearching = !viewModel.searchQuery.value.isNullOrBlank(),
+                isLoading = isLoading,
+                isSearching = isSearching,
                 query = viewModel.searchQuery.value.orEmpty(),
                 emptyTitle = getString(R.string.empty_title_no_songs),
                 emptyBody = getString(R.string.empty_body_no_songs),
@@ -70,6 +76,14 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
                 actionLabel = getString(R.string.pref_rescan_title),
                 onAction = { (activity as? MainActivity)?.rescanLibrary() }
             )
+            if (shouldFocusRescan) {
+                rescanAction.post {
+                    if (rescanAction.visibility == View.VISIBLE &&
+                        (view.findFocus() == null || recycler.hasFocus() || rescanAction.hasFocus())) {
+                        rescanAction.requestFocus()
+                    }
+                }
+            }
         }
         viewModel.tracks.observe(viewLifecycleOwner) { refreshTracks() }
         viewModel.searchQuery.observe(viewLifecycleOwner) { refreshTracks() }
@@ -84,8 +98,15 @@ class SongsTabFragment : Fragment(), TabWithRecycler {
     override fun recyclerView(): RecyclerView = recycler
 
     override fun requestInitialFocus() {
-        // Try to focus the currently selected track or the first visible child.
+        // Empty library state sits outside the RecyclerView, so explicitly
+        // focus its rescan action when there are no songs to navigate to.
         recycler.post {
+            val rescanAction = view?.findViewById<View>(R.id.state_action)
+            val focusedRescan = rescanAction?.visibility == View.VISIBLE && rescanAction.requestFocus()
+            Log.d("DPAD_FOCUS", "SongsTab.requestInitialFocus rescanVisible=${rescanAction?.visibility == View.VISIBLE} focused=$focusedRescan")
+            if (focusedRescan) return@post
+
+            // Otherwise focus the selected track or the first visible child.
             val preferred = lastFocusedPos.takeIf { it >= 0 } ?: (viewModel.currentIndex.value ?: 0)
             val lm = recycler.layoutManager
             var target: View? = null
