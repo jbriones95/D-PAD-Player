@@ -20,7 +20,7 @@
         app:summary="%s"
         app:entries="@array/pref_accent_labels"
         app:entryValues="@array/pref_accent_values"
-        app:defaultValue="deep_purple"
+        app:defaultValue="blue"
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_theme" />
 

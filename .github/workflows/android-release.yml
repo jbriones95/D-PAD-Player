@@ -51,8 +51,12 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.9.2
-          name: D-PAD Player 0.9.2
+          tag_name: v0.9.3
+          name: D-PAD Player 0.9.3
           target_commitish: ${{ github.sha }}
-          generate_release_notes: true
+          generate_release_notes: false
+          body: |
+            The app icon and default blue theme now match DPAD SMS/Messaging.
+
+            Added modern and older-device app icons with the same clear white music note.
           files: app/build/outputs/apk/release/dpadmp3.apk

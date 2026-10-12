@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         // Apply saved accent + night mode before inflating
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         SettingsFragment.applyTheme(prefs.getString("theme", "system") ?: "system")
-        setTheme(SettingsFragment.accentThemeRes(prefs.getString("accent", "deep_purple") ?: "deep_purple"))
+        setTheme(SettingsFragment.accentThemeRes(prefs.getString("accent", "blue") ?: "blue"))
 
         setContentView(R.layout.activity_main)
 

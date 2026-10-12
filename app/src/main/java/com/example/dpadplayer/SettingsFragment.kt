@@ -173,7 +173,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             "yellow"     -> R.style.Theme_DPadPlayer_Yellow
             "grey"       -> R.style.Theme_DPadPlayer_Grey
             "retro"      -> R.style.Theme_DPadPlayer_Retro
-            else         -> R.style.Theme_DPadPlayer   // deep_purple default
+            "deep_purple" -> R.style.Theme_DPadPlayer_DeepPurple
+            else           -> R.style.Theme_DPadPlayer
         }
     }
 }

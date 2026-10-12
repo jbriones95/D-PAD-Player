@@ -20,8 +20,23 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- ── Deep Purple (default) ──────────────────────────────────────── -->
+    <!-- ── Messaging brand blue (default) ────────────────────────────── -->
     <style name="Theme.DPadPlayer" parent="Theme.DPadPlayer.Base">
+        <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorPrimaryVariant">@color/blue_secondaryVariant</item>
+        <item name="colorOnPrimary">@color/blue_onPrimary</item>
+        <item name="colorSecondary">@color/blue_secondary</item>
+        <item name="colorSecondaryVariant">@color/blue_secondaryVariant</item>
+        <item name="colorOnSecondary">@color/blue_onPrimary</item>
+        <item name="android:colorBackground">@color/blue_surface</item>
+        <item name="colorSurface">@color/blue_surface</item>
+        <item name="colorOnSurface">@color/blue_onSurface</item>
+        <item name="colorSurfaceVariant">@color/blue_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/blue_onSurfaceVariant</item>
+    </style>
+
+    <!-- ── Deep Purple ─────────────────────────────────────────────────── -->
+    <style name="Theme.DPadPlayer.DeepPurple" parent="Theme.DPadPlayer.Base">
         <item name="colorPrimary">@color/deep_purple_primary</item>
         <item name="colorPrimaryVariant">@color/deep_purple_secondaryVariant</item>
         <item name="colorOnPrimary">@color/deep_purple_onPrimary</item>
