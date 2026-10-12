@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.6
+
+- The playing song is highlighted inside its playlist.
+- Empty playlists now open with Import M3U ready to select.
+- Create playlist appears only once in the empty playlist view.
+
 ## 0.9.5
 
 - Improved navigation bar icon visibility in dark mode.

@@ -51,10 +51,10 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.9.5
-          name: D-PAD Player 0.9.5
+          tag_name: v0.9.6
+          name: D-PAD Player 0.9.6
           target_commitish: ${{ github.sha }}
           generate_release_notes: false
           body: |
-            Improved navigation bar icon visibility in dark mode. The project page also has fresh screenshots and simpler setup steps.
+            The playing song is highlighted in its playlist. Empty playlists now open with Import M3U ready, and Create playlist appears only once.
           files: app/build/outputs/apk/release/dpadmp3.apk

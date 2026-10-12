@@ -355,9 +355,7 @@ class PlaylistsTabFragment : Fragment(), TabWithRecycler {
                 query = viewModel.searchQuery.value.orEmpty(),
                 emptyTitle = getString(R.string.empty_title_no_playlists),
                 emptyBody = getString(R.string.empty_body_no_playlists),
-                emptyIcon = R.drawable.ic_playlist_play,
-                actionLabel = getString(R.string.action_create),
-                onAction = { showCreatePlaylistDialog() }
+                emptyIcon = R.drawable.ic_playlist_play
             )
         }
         viewModel.playlists.observe(viewLifecycleOwner) { refreshPlaylists() }

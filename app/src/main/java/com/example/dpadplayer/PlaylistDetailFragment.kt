@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dpadplayer.db.PlaylistEntity
+import com.example.dpadplayer.playback.Track
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
@@ -72,6 +73,13 @@ class PlaylistDetailFragment : Fragment() {
                 (activity as? MainActivity)?.showTrackMenu(anchor, track)
             }
         )
+        var playlistTracks: List<Track> = emptyList()
+        fun updatePlayingTrack() {
+            val currentTrackId = (activity as? MainActivity)?.currentTrack()?.id
+            adapter.setSelectedIndex(
+                if (currentTrackId == null) -1 else playlistTracks.indexOfFirst { it.id == currentTrackId }
+            )
+        }
         adapter.menuClickListener = { anchor, track, _ ->
             val popup = android.widget.PopupMenu(requireContext(), anchor)
             popup.menu.add(0, 1, 0, "Remove from playlist")
@@ -91,10 +99,14 @@ class PlaylistDetailFragment : Fragment() {
             val pl = list.find { it.id == playlistId }
             tvTitle.text = pl?.name ?: "Playlist"
         }
+        viewModel.currentIndex.observe(viewLifecycleOwner) { updatePlayingTrack() }
+        viewModel.queue.observe(viewLifecycleOwner) { updatePlayingTrack() }
 
         // Observe playlist songs
         viewModel.observePlaylistTracks(playlistId).observe(viewLifecycleOwner) { tracks ->
+            playlistTracks = tracks
             adapter.updateTracks(tracks)
+            updatePlayingTrack()
             bindListState(
                 root = view,
                 itemCount = tracks.size,
@@ -107,9 +119,13 @@ class PlaylistDetailFragment : Fragment() {
                 actionLabel = getString(R.string.menu_import_m3u),
                 onAction = { launchM3uPicker() }
             )
-            if (!focusRequested && tracks.isNotEmpty()) {
+            if (!focusRequested) {
                 focusRequested = true
                 recycler.post {
+                    if (tracks.isEmpty()) {
+                        val importAction = view.findViewById<View>(R.id.state_action)
+                        if (importAction.visibility == View.VISIBLE && importAction.requestFocus()) return@post
+                    }
                     val first = recycler.layoutManager?.findViewByPosition(0) ?: recycler.getChildAt(0)
                     (first?.findViewById<View?>(R.id.clickable_item) ?: first)?.requestFocus()
                 }
