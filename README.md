@@ -1,64 +1,65 @@
-# D-PAD Player 🎵
+# D-PAD Player
 
-D-PAD Player is a lightweight, functional Android media player demo built with Kotlin and ExoPlayer. It demonstrates how to build a modern local media playback app with background service support, media session integration, and battery-optimized notification controls.
+A local music player designed for D-pad, keyboard, and remote-control navigation. Browse music on your device, manage your queue, and control playback without needing touch.
+
+[![Latest release](https://img.shields.io/github/v/release/jbriones95/D-PAD-Player?label=latest%20release)](https://github.com/jbriones95/D-PAD-Player/releases/latest)
+[![Android CI](https://github.com/jbriones95/D-PAD-Player/actions/workflows/android-ci.yml/badge.svg?branch=main)](https://github.com/jbriones95/D-PAD-Player/actions/workflows/android-ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## Download
+
+Get the latest signed APK from [GitHub Releases](https://github.com/jbriones95/D-PAD-Player/releases/latest). Install it on your Android device and allow music access when prompted.
 
 ## Screenshots
 
-<p float="left">
-  <img src="./screen1.png" width="220" alt="DPAD Music library home" />
-  <img src="./screen2.png" width="220" alt="Songs tab with the rescan action" />
-  <img src="./screen3.png" width="220" alt="Playlists tab" />
-  <img src="./screen4.png" width="220" alt="Settings showing the display size option" />
-</p>
+<table>
+  <tr>
+    <td align="center"><strong>Library</strong><br><img src="./screen1.png" width="240" alt="Library home with music categories" /></td>
+    <td align="center"><strong>Songs</strong><br><img src="./screen2.png" width="240" alt="Songs tab with the rescan library action" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Playlists</strong><br><img src="./screen3.png" width="240" alt="Playlists tab with create playlist action" /></td>
+    <td align="center"><strong>Display settings</strong><br><img src="./screen4.png" width="240" alt="Settings showing display size choices" /></td>
+  </tr>
+</table>
 
 ## Features
 
-- **Local Media Playback**: Scans and plays local audio files from the device.
-- **Background Playback**: Utilizes a Foreground Service to keep music playing when the app is minimized.
-- **Media Session Integration**: Fully integrates with Android's MediaSession, providing lock screen controls and Bluetooth media button support.
-- **Battery Optimized**: Intelligently detaches the foreground service when music is paused, allowing the system to reclaim resources and users to easily swipe away the notification.
-- **Modern UI**: Clean, responsive user interface.
+- **D-pad friendly:** Move through the library, player, queue, and settings with a remote or keyboard.
+- **Browse your music:** View songs, albums, artists, genres, playlists, folders, recent tracks, and top tracks.
+- **Search and organize:** Search your library, create playlists, and import or export M3U playlists.
+- **Playback controls:** Use the queue, shuffle, repeat, sleep timer, playback speed, and equalizer.
+- **Background playback:** Keep music playing with notification and media-button controls.
+- **Make it comfortable:** Choose Small, Default, or Large display size, plus light/dark themes and accent colors.
+- **Shared DPAD branding:** The app icon and default blue match DPAD SMS/Messaging.
 
-## Getting Started
+## Build from source
 
-### Prerequisites
+### Requirements
 
-- Android Studio / Android SDK
-- Command-line tools (`adb`)
-- Java 17 (for Gradle compilation)
+- Android Studio or Android SDK
+- Java 17
 
-### Build and Install
+### Build and test
 
-To build the debug APK and install it directly to a connected USB debugging device, run the following command from the root of the project:
-
-```bash
-./gradlew clean assembleDebug && adb install -r app/build/outputs/apk/debug/dpadmp3.apk
-```
-
-### Build Release Artifacts (0.9.4)
+From the project root, run:
 
 ```bash
-./gradlew :app:testDebugUnitTest :app:lintRelease :app:bundleRelease
+./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 ```
 
-Release bundle output:
-
-`app/build/outputs/bundle/release/app-release.aab`
-
-### Launching the App via CLI
-
-Once installed, you can launch the app directly from your terminal:
+The debug APK is written to `app/build/outputs/apk/debug/dpadmp3.apk`. To install it on a connected device:
 
 ```bash
-adb shell am start -n com.example.dpadplayer/.MainActivity
+adb install -r app/build/outputs/apk/debug/dpadmp3.apk
 ```
 
-## Development Notes
+Release APKs are built and signed by [GitHub Actions](https://github.com/jbriones95/D-PAD-Player/actions/workflows/android-release.yml) and published on the [releases page](https://github.com/jbriones95/D-PAD-Player/releases).
 
-- **Architecture**: The app is located in the `app/` module and uses a standard Android Gradle build system (Gradle 8.9).
-- **Icons**: Uses adaptive icons (XML vectors) for crisp rendering on all Android versions.
-- **Dependencies**: Built primarily with AndroidX libraries and ExoPlayer.
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for recent updates.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+Released under the [MIT License](LICENSE).

@@ -2,7 +2,8 @@
 <resources>
     <!-- Night mode overrides -->
     <style name="Theme.DPadPlayer.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Ensure status bar icons are light in dark mode -->
+        <!-- Ensure status and navigation bar icons are light in dark mode -->
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>
