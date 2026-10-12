@@ -24,6 +24,16 @@
         app:useSimpleSummaryProvider="true"
         app:icon="@drawable/ic_settings_theme" />
 
+    <ListPreference
+        app:key="display_size"
+        app:title="@string/pref_display_size_title"
+        app:summary="@string/pref_display_size_summary"
+        app:entries="@array/pref_display_size_labels"
+        app:entryValues="@array/pref_display_size_values"
+        app:defaultValue="default"
+        app:useSimpleSummaryProvider="true"
+        app:icon="@drawable/ic_settings_theme" />
+
     <!-- Seek / skip duration -->
     <ListPreference
         app:key="seek_step"

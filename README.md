@@ -34,7 +34,7 @@ To build the debug APK and install it directly to a connected USB debugging devi
 ./gradlew clean assembleDebug && adb install -r app/build/outputs/apk/debug/dpadmp3.apk
 ```
 
-### Build Release Artifacts (0.9.3)
+### Build Release Artifacts (0.9.4)
 
 ```bash
 ./gradlew :app:testDebugUnitTest :app:lintRelease :app:bundleRelease

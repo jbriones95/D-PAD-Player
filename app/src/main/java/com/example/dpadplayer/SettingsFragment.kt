@@ -42,6 +42,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        findPreference<ListPreference>("display_size")?.setOnPreferenceChangeListener { _, _ ->
+            view?.post { activity?.recreate() }
+            true
+        }
+
         // Sort order — reload tracks with new ordering
         findPreference<ListPreference>("sort_order")?.setOnPreferenceChangeListener { _, newValue ->
             viewModel.loadTracks(newValue as String)
@@ -154,6 +159,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
     // ── Static helpers ────────────────────────────────────────────────────────
 
     companion object {
+        fun displayScale(value: String): Float = when (value) {
+            "small" -> 0.9f
+            "large" -> 1.15f
+            else -> 1.0f
+        }
+
         fun applyTheme(value: String) {
             val mode = when (value) {
                 "dark"  -> AppCompatDelegate.MODE_NIGHT_YES

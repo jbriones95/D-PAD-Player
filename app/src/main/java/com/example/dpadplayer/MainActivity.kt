@@ -2,9 +2,11 @@ package com.example.dpadplayer
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.media.audiofx.AudioEffect
 import android.net.Uri
 import android.os.Build
@@ -24,10 +26,26 @@ import com.example.dpadplayer.playback.Track
 import com.example.dpadplayer.db.PlaylistEntity
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
     val viewModel: MusicViewModel by viewModels()
+
+    override fun attachBaseContext(newBase: Context) {
+        val displaySize = PreferenceManager.getDefaultSharedPreferences(newBase)
+            .getString("display_size", "default") ?: "default"
+        val scale = SettingsFragment.displayScale(displaySize)
+        if (scale == 1.0f) {
+            super.attachBaseContext(newBase)
+            return
+        }
+
+        val configuration = Configuration(newBase.resources.configuration).apply {
+            densityDpi = (densityDpi * scale).roundToInt().coerceAtLeast(120)
+        }
+        super.attachBaseContext(newBase.createConfigurationContext(configuration))
+    }
 
     // Service binding
     private var service: PlaybackService? = null

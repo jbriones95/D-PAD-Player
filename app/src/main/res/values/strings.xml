@@ -165,6 +165,18 @@
         <item>light</item>
     </string-array>
 
+    <!-- App-wide text and control size -->
+    <string-array name="pref_display_size_labels">
+        <item>Small</item>
+        <item>Default</item>
+        <item>Large</item>
+    </string-array>
+    <string-array name="pref_display_size_values">
+        <item>small</item>
+        <item>default</item>
+        <item>large</item>
+    </string-array>
+
     <!-- Accent color preference -->
     <string-array name="pref_accent_labels">
         <item>Deep Purple</item>
@@ -226,6 +238,8 @@
     <!-- ── Settings ─────────────────────────────────────────────────────── -->
     <string name="pref_theme_title">Theme</string>
     <string name="pref_accent_title">Accent color</string>
+    <string name="pref_display_size_title">Display size</string>
+    <string name="pref_display_size_summary">Changes text and control size throughout the app</string>
     <string name="pref_rescan_title">Rescan library</string>
     <string name="pref_rescan_summary">Search for new or updated music files</string>
     <string name="pref_sort_title">Sort tracks by</string>
