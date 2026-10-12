@@ -5,9 +5,10 @@ D-PAD Player is a lightweight, functional Android media player demo built with K
 ## Screenshots
 
 <p float="left">
-  <img src="./screen1.png" width="250" />
-  <img src="./screen2.png" width="250" />
-  <img src="./screen3.png" width="250" />
+  <img src="./screen1.png" width="220" alt="DPAD Music library home" />
+  <img src="./screen2.png" width="220" alt="Songs tab with the rescan action" />
+  <img src="./screen3.png" width="220" alt="Playlists tab" />
+  <img src="./screen4.png" width="220" alt="Settings showing the display size option" />
 </p>
 
 ## Features
